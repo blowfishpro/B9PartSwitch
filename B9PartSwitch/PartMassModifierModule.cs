@@ -11,31 +11,39 @@ namespace B9PartSwitch
         float GetModuleMass(float baseMass);
     }
 
-    public class PartMassModifierModule : PartModule
+    public class PartMassModifierModule : PartModule, IPartMassModifier
     {
-        public float baseMass { get; private set; }
-        public float mass { get; private set; }
+        public float BaseMass { get; private set; }
+        public float ModuleMass { get; private set; }
+        public float Mass { get { return BaseMass + ModuleMass; } }
 
         public override void OnStart(PartModule.StartState state)
         {
             base.OnStart(state);
 
-            baseMass = part.partInfo.partPrefab.mass;
-            mass = baseMass;
+            BaseMass = part.partInfo.partPrefab.mass;
 
             UpdateMass();
         }
 
         public void UpdateMass()
         {
-            mass = baseMass;
+            ModuleMass = 0f;
             foreach (PartModule m in part.Modules)
             {
                 if (m is IPartMassModifier2)
-                    mass += (m as IPartMassModifier2).GetModuleMass(baseMass);
+                    ModuleMass += (m as IPartMassModifier2).GetModuleMass(BaseMass);
             }
 
-            part.mass = mass;
+            part.mass = Mass;
+        }
+
+        public float GetModuleMass(float baseMass)
+        {
+            if (baseMass == part.mass)
+                return 0f;
+            else
+                return ModuleMass;
         }
     }
 }
