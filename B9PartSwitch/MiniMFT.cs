@@ -7,7 +7,7 @@ using UnityEngine;
 namespace B9PartSwitch
 {
     [Serializable]
-    class MiniMFT : CFGUtilPartModule, IPartMassModifier2, IPartCostModifier
+    class ModuleMiniMFT : CFGUtilPartModule, IPartMassModifier2, IPartCostModifier
     {
         #region Fields
 
