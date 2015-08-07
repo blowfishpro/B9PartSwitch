@@ -52,6 +52,8 @@ namespace B9PartSwitch
             Type type = typeof(T);
             if (ParseTypeRegistered(type))
                 throw new ArgumentException("The type " + type.Name + " is already a registered parse type");
+            if (!type.IsUnitySerializableType())
+                Debug.LogWarning("The type '" + type.Name + "' is being registed as a config parse type, but is not a Unity-serializable type.  Unexpected results may occur.");
             ParseTypes.Add(type, new ParseType<T>(parseFunction, formatFunction));
         }
 
@@ -62,20 +64,6 @@ namespace B9PartSwitch
                 return ParseTypes[type] as ParseType<T>;
             else
                 return null;
-        }
-
-        public static bool IsList(object o)
-        {
-            if (o == null)
-                return false;
-            return IsListType(o.GetType());
-        }
-
-        public static bool IsListType(Type t)
-        {
-            if (t == null)
-                return false;
-            return t.GetInterfaces().Contains(typeof(IList)) && t.IsGenericType && t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
 
         public static object ParseConfigValue(Type type, string value)
@@ -182,6 +170,53 @@ namespace B9PartSwitch
                 throw new MissingMethodException("Cannot find a constructor for type " + type.Name + " that takes " + vectorLength.ToString() + " floats as arguments");
 
             return (T)constructor.Invoke(floatValues);
+        }
+
+        public static bool IsList(this object o)
+        {
+            if (o == null)
+                return false;
+            return IsListType(o.GetType());
+        }
+
+        public static bool IsListType(this Type t)
+        {
+            if (t == null)
+                return false;
+            return t.GetInterfaces().Contains(typeof(IList)) && t.IsGenericType && t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+        }
+
+        public static bool IsUnitySerializableType(this Type t)
+        {
+            if (t == null)
+                return false;
+            if (t.IsPrimitive) return true;
+            if (t == typeof(string)) return true;
+            if (t.IsSubclassOf(typeof(UnityEngine.Object))) return true;
+            if (t.IsListType() && t.GetGenericArguments()[0].IsUnitySerializableType()) return true;
+            if (t.IsArray && t.GetElementType().IsUnitySerializableType()) return true;
+
+            // Unity serializable types
+            if (t == typeof(Vector2)) return true;
+            if (t == typeof(Vector3)) return true;
+            if (t == typeof(Vector4)) return true;
+            if (t == typeof(Quaternion)) return true;
+            if (t == typeof(Matrix4x4)) return true;
+            if (t == typeof(Color)) return true;
+            if (t == typeof(Rect)) return true;
+            if (t == typeof(LayerMask)) return true;
+
+            // Serializable attribute
+            object[] attributes = t.GetCustomAttributes(false);
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                if (attributes[i] is SerializableAttribute)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

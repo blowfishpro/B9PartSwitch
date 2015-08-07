@@ -9,6 +9,7 @@ using KSP;
 
 namespace B9PartSwitch
 {
+    // Note: this is not serializable and thus must be recreated in Awake()
     public class ConfigFieldList : IEnumerable<ConfigFieldInfo>
     {
         public Behaviour Instance { get; private set; }
@@ -50,7 +51,7 @@ namespace B9PartSwitch
 
                     ConfigFieldInfo fieldInfo;
 
-                    if (CFGUtil.IsListType(field.FieldType))
+                    if (field.FieldType.IsListType())
                         fieldInfo = new ListFieldInfo(instance, field, configField);
                     else
                         fieldInfo = new ConfigFieldInfo(instance, field, configField);
@@ -100,7 +101,7 @@ namespace B9PartSwitch
                     }
                     else
                     {
-                        throw new NotImplementedException("Cannot find a suitable way to parse type " + listInfo.ListType.Name + " from a string in a ConfigNode");
+                        throw new NotImplementedException("Cannot find a suitable way to parse type " + listInfo.RealType.Name + " from a string in a ConfigNode");
                     }
                 }
                 else
@@ -117,8 +118,11 @@ namespace B9PartSwitch
                         if (newNode != null)
                         {
                             if (field.Value == null)
-                                if (field.Constructor != null)
-                                    field.Value = field.Constructor.Invoke(null);
+                                if (field.IsComponentType)
+                                    field.Value = Instance.gameObject.AddComponent(field.RealType);
+                                else
+                                    if (field.Constructor != null)
+                                        field.Value = field.Constructor.Invoke(null);
                                 else
                                     throw new MissingMethodException("The value of the field " + field.Name + " is null but no default constructor could be found");
                             IConfigNode nodeObj = field.Value as IConfigNode;

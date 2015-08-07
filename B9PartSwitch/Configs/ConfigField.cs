@@ -33,9 +33,7 @@ namespace B9PartSwitch
             if (Attribute.configName == null || Attribute.configName == string.Empty)
                 Attribute.configName = Field.Name;
 
-            // On derived classes this might be null in which FindConstructor needs to be called
-            if (RealType != null)
-                FindConstructor();
+            RealType = Type;
         }
 
         protected void FindConstructor()
@@ -57,22 +55,30 @@ namespace B9PartSwitch
         public string Name { get { return Field.Name; } }
         public string ConfigName { get { return Attribute.configName; } }
         public Type Type { get { return Field.FieldType; } }
-        public virtual Type RealType { get { return Type; } }
-        public virtual bool IsRegisteredParseType
+        private Type realType;
+        public Type RealType
         {
             get
             {
-                return CFGUtil.ParseTypeRegistered(RealType);
+                return realType;
             }
-        }
-        public virtual bool IsConfigNodeType
-        {
-            get
+            set
             {
-                if (IsRegisteredParseType) return false;
-                return RealType.GetInterfaces().Contains(typeof(IConfigNode));
+                realType = value;
+                IsComponentType = RealType.IsSubclassOf(typeof(Component));
+                IsRegisteredParseType = CFGUtil.ParseTypeRegistered(RealType);
+                IsConfigNodeType = IsRegisteredParseType ? false : RealType.GetInterfaces().Contains(typeof(IConfigNode));
+                IsSerializableType = RealType.IsUnitySerializableType();
+                if (!IsSerializableType)
+                    Debug.LogWarning("The type " + RealType.Name + " is not a Unity serializable type and thus will not be serialized.  This may lead to unexpected behavior, e.g. the field is null after instantiating a prefab.");
+
+                FindConstructor();
             }
         }
+        public bool IsComponentType { get; private set; }
+        public bool IsRegisteredParseType { get; private set; }
+        public virtual bool IsConfigNodeType { get; private set; }
+        public bool IsSerializableType { get; private set; }
         public bool IsPersistant { get { return Attribute.persistant; } }
         public object Value
         {
@@ -90,8 +96,6 @@ namespace B9PartSwitch
     public class ListFieldInfo : ConfigFieldInfo
     {
         public IList List { get; private set; }
-        public Type ListType { get; private set; }
-        public override Type RealType { get { return ListType; } }
         public int Count { get { return List.Count; } }
 
         public ListFieldInfo(Behaviour instance, FieldInfo field, ConfigField attribute)
@@ -100,20 +104,20 @@ namespace B9PartSwitch
             List = Field.GetValue(Instance) as IList;
             if (List == null)
                 throw new ArgumentNullException("Cannot initialize with a null list (or object is not a list)");
-            ListType = Type.GetGenericArguments()[0];
+            RealType = Type.GetGenericArguments()[0];
 
             FindConstructor();
 
             if (IsConfigNodeType && Constructor == null)
             {
-                throw new MissingMethodException("A default constructor is required for the IConfigNode type " + ListType.Name + " (constructor required to parse list field " + field.Name + " in class " + Instance.GetType().Name + ")");
+                throw new MissingMethodException("A default constructor is required for the IConfigNode type " + RealType.Name + " (constructor required to parse list field " + field.Name + " in class " + Instance.GetType().Name + ")");
             }
         }
 
         public void ParseNodes(ConfigNode[] nodes)
         {
             if (!IsConfigNodeType)
-                throw new NotImplementedException("The generic type of this list (" + ListType.Name + ") is not an IConfigNode");
+                throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not an IConfigNode");
             if (nodes.Length == 0)
                 return;
 
@@ -121,8 +125,8 @@ namespace B9PartSwitch
             foreach (ConfigNode node in nodes)
             {
                 IConfigNode obj;
-                if (ListType.IsSubclassOf(typeof(Component)))
-                    obj = Instance.gameObject.AddComponent(ListType) as IConfigNode;
+                if (RealType.IsSubclassOf(typeof(Component)))
+                    obj = Instance.gameObject.AddComponent(RealType) as IConfigNode;
                 else
                     obj = Constructor.Invoke(null) as IConfigNode;
 
@@ -134,14 +138,14 @@ namespace B9PartSwitch
         public void ParseValues(string[] values)
         {
             if (!IsRegisteredParseType)
-                throw new NotImplementedException("The generic type of this list (" + ListType.Name + ") is not a registered parse type");
+                throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not a registered parse type");
             if (values.Length == 0)
                 return;
 
             List.Clear();
             foreach (string value in values)
             {
-                object obj = CFGUtil.ParseConfigValue(ListType, value);
+                object obj = CFGUtil.ParseConfigValue(RealType, value);
                 List.Add(obj);
             }
         }
@@ -149,7 +153,7 @@ namespace B9PartSwitch
         public ConfigNode[] FormatNodes()
         {
             if (!IsConfigNodeType)
-                throw new NotImplementedException("The generic type of this list (" + ListType.Name + ") is not an IConfigNode");
+                throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not an IConfigNode");
 
             ConfigNode[] nodes = new ConfigNode[Count];
 
@@ -166,9 +170,9 @@ namespace B9PartSwitch
         public string[] FormatValues()
         {
             if (IsConfigNodeType)
-                throw new NotImplementedException("The generic type of this list (" + ListType.Name + ") is an IConfigNode");
+                throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is an IConfigNode");
             if (!IsRegisteredParseType)
-                throw new NotImplementedException("The generic type of this list (" + ListType.Name + ") is not a registered parse type");
+                throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not a registered parse type");
 
             string[] values = new string[Count];
 
