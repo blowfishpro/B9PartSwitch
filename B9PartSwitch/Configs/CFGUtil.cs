@@ -32,9 +32,10 @@ namespace B9PartSwitch
             RegisterParseType<Vector4>(x => ParseVectorType<Vector4>(x, 4), x => x.ToString(null));
             RegisterParseType<Quaternion>(x => ParseVectorType<Quaternion>(x, 4), x => x.ToString(null));
 
-            RegisterParseType<Vector2d>(x => ParseVectorDType<Vector2d>(x, 2), null);
-            RegisterParseType<Vector3d>(x => ParseVectorDType<Vector3d>(x, 3), null);
-            RegisterParseType<Vector4d>(x => ParseVectorDType<Vector4d>(x, 4), null);
+            // Not serializable
+            // RegisterParseType<Vector2d>(x => ParseVectorDType<Vector2d>(x, 2), null);
+            // RegisterParseType<Vector3d>(x => ParseVectorDType<Vector3d>(x, 3), null);
+            // RegisterParseType<Vector4d>(x => ParseVectorDType<Vector4d>(x, 4), null);
         }
 
         public static bool ParseTypeRegistered<T>()
