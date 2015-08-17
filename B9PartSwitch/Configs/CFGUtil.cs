@@ -32,30 +32,37 @@ namespace B9PartSwitch
             RegisterParseType<Vector4>(x => ParseVectorType<Vector4>(x, 4), x => x.ToString(null));
             RegisterParseType<Quaternion>(x => ParseVectorType<Quaternion>(x, 4), x => x.ToString(null));
 
+            RegisterParseType<AttachNode>(ParseAttachNode, x => x.Format()); 
+
             // Not serializable
             // RegisterParseType<Vector2d>(x => ParseVectorDType<Vector2d>(x, 2), null);
             // RegisterParseType<Vector3d>(x => ParseVectorDType<Vector3d>(x, 3), null);
             // RegisterParseType<Vector4d>(x => ParseVectorDType<Vector4d>(x, 4), null);
         }
 
-        public static bool ParseTypeRegistered<T>()
+        public static bool IsRegisteredParseType(Type type)
         {
-            return ParseTypeRegistered(typeof(T));
+            return ParseTypes.ContainsKey(type);
         }
 
-        public static bool ParseTypeRegistered(Type type)
+        public static bool IsParsableType(Type type)
         {
-            return type == typeof(string) || type.IsEnum || ParseTypes.ContainsKey(type);
+            return type == typeof(string) || type.IsEnum || IsRegisteredParseType(type);
         }
 
         public static void RegisterParseType<T>(Func<string, T> parseFunction, Func<T, string> formatFunction)
         {
             Type type = typeof(T);
-            if (ParseTypeRegistered(type))
-                throw new ArgumentException("The type " + type.Name + " is already a registered parse type");
+            if (IsParsableType(type))
+            {
+                Debug.LogError("The type " + type.Name + " is already a registered parse type");
+                return;
+            }
             if (!type.IsUnitySerializableType())
                 Debug.LogWarning("The type '" + type.Name + "' is being registed as a config parse type, but is not a Unity-serializable type.  Unexpected results may occur.");
             ParseTypes.Add(type, new ParseType<T>(parseFunction, formatFunction));
+
+            Debug.Log("CFGUtil: Registered parse type " + type.Name);
         }
 
         public static ParseType<T> GetParseType<T>()
@@ -74,9 +81,9 @@ namespace B9PartSwitch
 
             if (type == typeof(string))
             {
-                return value;
+                return value.Clone();
             }
-            else if (ParseTypeRegistered(type))
+            else if (IsRegisteredParseType(type))
             {
                 return ParseTypes[type].Parse(value);
             }
@@ -97,15 +104,78 @@ namespace B9PartSwitch
             }
         }
 
+        public static void AssignConfigObject(ConfigFieldInfo info, string value, ref object result)
+        {
+            object parseResult;
+
+            if (info.Attribute.parseFunction != null)
+                parseResult = info.Attribute.parseFunction(value);
+            else if (info.IsRegisteredParseType)
+                parseResult = CFGUtil.ParseConfigValue(info.RealType, value);
+            else
+                throw new ArgumentException("Cannot find a way to parse field " + info.Name + " of type " + info.RealType + " from a config value");
+
+            if (parseResult == null)
+                return;
+
+            if (info.IsCopyFieldsType)
+            {
+                if (result == null)
+                {
+                    if (info.IsComponentType)
+                        result = info.Instance.gameObject.AddComponent(info.RealType);
+                    else if (info.IsScriptableObjectType)
+                        result = ScriptableObject.CreateInstance(info.RealType);
+                    else if (info.Constructor != null)
+                        result = info.Constructor.Invoke(null);
+                    else
+                    {
+                        Debug.LogWarning("Field " + info.Name + " is ICopyFields, but the value is null and no default constructor could be found.  It will be assigned by referece rather than copying");
+                        result = parseResult;
+                        return;
+                    }
+                }
+
+                (result as ICopyFields).CopyFrom(parseResult as ICopyFields);
+            }
+            else
+            {
+                result = parseResult;
+                return;
+            }
+        }
+
+        public static void AssignConfigObject(ConfigFieldInfo info, ConfigNode value, ref IConfigNode result)
+        {
+            if (!info.IsConfigNodeType)
+                throw new ArgumentException("Field is not a ConfigNode type: " + info.Name + " (type is " + info.RealType.Name + ")");
+            if (result == null)
+            {
+                if (info.IsComponentType)
+                    result = info.Instance.gameObject.AddComponent(info.RealType) as IConfigNode;
+                else if (info.IsScriptableObjectType)
+                    result = ScriptableObject.CreateInstance(info.RealType) as IConfigNode;
+                else if (info.Constructor != null)
+                    result = info.Constructor.Invoke(null) as IConfigNode;
+                else
+                {
+                    Debug.LogError("Error: Field " + info.Name + " is IConfigNode, but the value is null and no default constructor could be found.  It will be null");
+                    result = null;
+                    return;
+                }
+            }
+
+            result.Load(value);
+        }
+
         public static string FormatConfigValue(object value)
         {
             Type type = value.GetType();
-
             if (value is string)
             {
                 return value as string;
             }
-            else if (ParseTypeRegistered(type))
+            else if (IsRegisteredParseType(type))
             {
                 return ParseTypes[type].Format(value);
             }
@@ -173,151 +243,58 @@ namespace B9PartSwitch
             return (T)constructor.Invoke(floatValues);
         }
 
-        public static bool IsList(this object o)
+        public static AttachNode ParseAttachNode(string value)
         {
-            if (o == null)
-                return false;
-            return IsListType(o.GetType());
-        }
+            string[] splitStr = value.Split(new char[] { ',' });
+            int length = splitStr.Length;
+            float[] floatValues = new float[6];
 
-        public static bool IsListType(this Type t)
-        {
-            if (t == null)
-                return false;
-            return t.GetInterfaces().Contains(typeof(IList)) && t.IsGenericType && t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
-        }
-
-        public static bool IsUnitySerializableType(this Type t)
-        {
-            if (t == null)
-                return false;
-            if (t.IsPrimitive) return true;
-            if (t == typeof(string)) return true;
-            if (t.IsSubclassOf(typeof(UnityEngine.Object))) return true;
-            if (t.IsListType() && t.GetGenericArguments()[0].IsUnitySerializableType()) return true;
-            if (t.IsArray && t.GetElementType().IsUnitySerializableType()) return true;
-
-            // Unity serializable types
-            if (t == typeof(Vector2)) return true;
-            if (t == typeof(Vector3)) return true;
-            if (t == typeof(Vector4)) return true;
-            if (t == typeof(Quaternion)) return true;
-            if (t == typeof(Matrix4x4)) return true;
-            if (t == typeof(Color)) return true;
-            if (t == typeof(Rect)) return true;
-            if (t == typeof(LayerMask)) return true;
-
-            // Serializable attribute
-            object[] attributes = t.GetCustomAttributes(false);
-            for (int i = 0; i < attributes.Length; i++)
+            if (length < 6)
             {
-                if (attributes[i] is SerializableAttribute)
-                {
-                    return true;
-                }
+                throw new FormatException("Not enough values to parse an AttachNode: '" + value + "'");
             }
 
-            return false;
-        }
-    }
+            for (int i = 0; i < 6; i++)
+            {
+                floatValues[i] = float.Parse(splitStr[i]);
+            }
 
-    public interface IParseType
-    {
-        object Parse(string s);
-        string Format(object o);
-    }
+            AttachNode attachNode = new AttachNode();
 
-    public class ParseType<T> : IParseType
-    {
-        public readonly Func<string, T> parseFunction;
-        public readonly Func<T, string> formatFunction;
+            attachNode.id = "parsed-attach-node";
 
-        public ParseType(Func<string, T> parseFunction, Func<T, string> formatFunction)
-        {
-            this.parseFunction = parseFunction;
-            this.formatFunction = formatFunction;
-        }
+            attachNode.position = new Vector3(floatValues[0], floatValues[1], floatValues[2]);
+            attachNode.orientation = new Vector3(floatValues[3], floatValues[4], floatValues[5]);
 
-        public object Parse(string s)
-        {
-            return parseFunction(s);
-        }
+            attachNode.originalPosition = attachNode.position;
+            attachNode.originalOrientation = attachNode.orientation;
 
-        public string Format(object o)
-        {
-            if (!(o is T))
-                throw new ArgumentException("Object to format must be of type " + typeof(T).Name);
-            if (formatFunction != null)
-                return formatFunction((T)o);
-            else
-                return o.ToString();
-        }
-    }
+            if (length > 6)
+            {
+                attachNode.size = int.Parse(splitStr[6]);
 
-    public abstract class CFGUtilObject : MonoBehaviour, IConfigNode
-    {
-        protected ConfigFieldList configFieldList;
+                if (length == 8)
+                    attachNode.attachMethod = (AttachNodeMethod)int.Parse(splitStr[7]);
 
-        public void Awake()
-        {
-            CreateFieldList();
-            OnAwake();
+                if (length > 8)
+                    Debug.LogWarning("Too many values encountered to parse an AttachNode: values after 8 will be ignored: '" + value + "'");
+            }
+
+            return attachNode;
         }
 
-        protected void CreateFieldList()
+        public static string Format(this AttachNode node)
         {
-            configFieldList = new ConfigFieldList(this);
-        }
+            string outStr = "";
+            outStr += node.position.ToString(null);
+            outStr += ", ";
+            outStr += node.orientation.ToString(null);
+            outStr += ", ";
+            outStr += node.size.ToString();
+            outStr += ", ";
+            outStr += Enum.Format(typeof(AttachNodeMethod), node.attachMethod, "d");
 
-        public void Load(ConfigNode node)
-        {
-            configFieldList.Load(node);
-            OnLoad(node);
-        }
-
-        public void Save(ConfigNode node)
-        {
-            configFieldList.Save(node);
-            OnSave(node);
-        }
-
-        virtual public void OnAwake()
-        {
-
-        }
-
-        virtual public void OnLoad(ConfigNode node)
-        {
-
-        }
-
-        virtual public void OnSave(ConfigNode node)
-        {
-
-        }
-    }
-
-    public abstract class CFGUtilPartModule : PartModule
-    {
-        protected ConfigFieldList configFieldList;
-
-        public override void OnAwake()
-        {
-            base.OnAwake();
-
-            configFieldList = new ConfigFieldList(this);
-        }
-
-        public override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
-            configFieldList.Load(node);
-        }
-
-        public override void OnSave(ConfigNode node)
-        {
-            base.OnSave(node);
-            configFieldList.Save(node);
+            return outStr;
         }
     }
 }

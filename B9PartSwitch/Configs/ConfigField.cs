@@ -14,17 +14,20 @@ namespace B9PartSwitch
     {
         public bool persistant = false;
         public string configName = null;
+        public Func<string, object> parseFunction = null;
+        public Func<object, string> formatFunction = null;
+        public bool copy = true;
     }
 
     public class ConfigFieldInfo
     {
-        public Behaviour Instance { get; private set; }
+        public Component Instance { get; private set; }
         public FieldInfo Field { get; private set; }
         public ConfigField Attribute { get; private set; }
         
         public ConstructorInfo Constructor { get; protected set; }
 
-        public ConfigFieldInfo(Behaviour instance, FieldInfo field, ConfigField attribute)
+        public ConfigFieldInfo(Component instance, FieldInfo field, ConfigField attribute)
         {
             Instance = instance;
             Field = field;
@@ -55,6 +58,7 @@ namespace B9PartSwitch
         public string Name { get { return Field.Name; } }
         public string ConfigName { get { return Attribute.configName; } }
         public Type Type { get { return Field.FieldType; } }
+        public bool Copy { get { return Attribute.copy; } }
         private Type realType;
         public Type RealType
         {
@@ -65,10 +69,18 @@ namespace B9PartSwitch
             set
             {
                 realType = value;
+
+                if (Attribute.parseFunction != null && Attribute.parseFunction.Method.GetGenericArguments()[0] != RealType)
+                    throw new ArgumentException("Parse function on ConfigField attribute of field " + Field.Name + " of class " + Field.DeclaringType.Name + " should have return type " + RealType.Name + " (the same as the field), but instead has return type " + Attribute.parseFunction.Method.GetGenericArguments()[0].Name);
+
                 IsComponentType = RealType.IsSubclassOf(typeof(Component));
-                IsRegisteredParseType = CFGUtil.ParseTypeRegistered(RealType);
-                IsConfigNodeType = IsRegisteredParseType ? false : RealType.GetInterfaces().Contains(typeof(IConfigNode));
+                IsScriptableObjectType = RealType.IsSubclassOf(typeof(ScriptableObject));
+                IsRegisteredParseType = CFGUtil.IsParsableType(RealType);
+                IsParsableType = IsRegisteredParseType || Attribute.parseFunction != null;
+                IsFormattableType = IsRegisteredParseType || Attribute.formatFunction != null;
+                IsConfigNodeType = IsParsableType ? false : RealType.GetInterfaces().Contains(typeof(IConfigNode));
                 IsSerializableType = RealType.IsUnitySerializableType();
+                IsCopyFieldsType = RealType.GetInterfaces().Contains(typeof(ICopyFields));
                 if (!IsSerializableType)
                     Debug.LogWarning("The type " + RealType.Name + " is not a Unity serializable type and thus will not be serialized.  This may lead to unexpected behavior, e.g. the field is null after instantiating a prefab.");
 
@@ -76,8 +88,12 @@ namespace B9PartSwitch
             }
         }
         public bool IsComponentType { get; private set; }
+        public bool IsScriptableObjectType { get; private set; }
         public bool IsRegisteredParseType { get; private set; }
-        public virtual bool IsConfigNodeType { get; private set; }
+        public bool IsParsableType { get; private set; }
+        public bool IsFormattableType { get; private set; }
+        public bool IsConfigNodeType { get; private set; }
+        public bool IsCopyFieldsType { get; private set; }
         public bool IsSerializableType { get; private set; }
         public bool IsPersistant { get { return Attribute.persistant; } }
         public object Value
@@ -97,21 +113,47 @@ namespace B9PartSwitch
     {
         public IList List { get; private set; }
         public int Count { get { return List.Count; } }
+        public ConstructorInfo ListConstructor { get; private set; }
 
-        public ListFieldInfo(Behaviour instance, FieldInfo field, ConfigField attribute)
+        public ListFieldInfo(Component instance, FieldInfo field, ConfigField attribute)
             : base(instance, field, attribute)
         {
+            if (!Type.IsListType())
+                throw new ArgumentException("The field " + field.Name + " is not a list");
             List = Field.GetValue(Instance) as IList;
-            if (List == null)
-                throw new ArgumentNullException("Cannot initialize with a null list (or object is not a list)");
+
             RealType = Type.GetGenericArguments()[0];
 
             FindConstructor();
 
-            if (IsConfigNodeType && Constructor == null)
+            ConstructorInfo[] constructors = Type.GetConstructors();
+
+            for (int i = 0; i < constructors.Length; i++ )
+            {
+                ParameterInfo[] parameters = constructors[i].GetParameters();
+                if (parameters.Length == 0)
+                {
+                    ListConstructor = constructors[i];
+                    break;
+                }
+            }
+
+            if (Attribute.parseFunction == null && IsConfigNodeType && Constructor == null)
             {
                 throw new MissingMethodException("A default constructor is required for the IConfigNode type " + RealType.Name + " (constructor required to parse list field " + field.Name + " in class " + Instance.GetType().Name + ")");
             }
+        }
+
+        internal void CreateListIfNecessary()
+        {
+            if (List == null && ListConstructor != null)
+            {
+                Value = Constructor.Invoke(null);
+                List = Value as IList;
+            }
+
+            if (List == null)
+                throw new ArgumentNullException("Field is null and cannot initialize as new list of type " + Type.Name);
         }
 
         public void ParseNodes(ConfigNode[] nodes)
@@ -121,12 +163,15 @@ namespace B9PartSwitch
             if (nodes.Length == 0)
                 return;
 
+            CreateListIfNecessary();
             List.Clear();
             foreach (ConfigNode node in nodes)
             {
                 IConfigNode obj;
-                if (RealType.IsSubclassOf(typeof(Component)))
+                if (IsComponentType)
                     obj = Instance.gameObject.AddComponent(RealType) as IConfigNode;
+                else if (IsScriptableObjectType)
+                    obj = ScriptableObject.CreateInstance(RealType) as IConfigNode;
                 else
                     obj = Constructor.Invoke(null) as IConfigNode;
 
@@ -137,16 +182,32 @@ namespace B9PartSwitch
 
         public void ParseValues(string[] values)
         {
-            if (!IsRegisteredParseType)
+            if (!IsParsableType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not a registered parse type");
             if (values.Length == 0)
                 return;
 
-            List.Clear();
-            foreach (string value in values)
+            CreateListIfNecessary();
+            bool createNewItems = false;
+            if (!IsCopyFieldsType || List.Count != values.Length)
             {
-                object obj = CFGUtil.ParseConfigValue(RealType, value);
-                List.Add(obj);
+                List.Clear();
+                createNewItems = true;
+            }
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                object obj = null;
+
+                if (!createNewItems)
+                    obj = List[i];
+
+                CFGUtil.AssignConfigObject(this, values[i], ref obj);
+
+                if (createNewItems)
+                    List.Add(obj);
+                else
+                    List[i] = obj; // This may be self-assignment under certain circumstances
             }
         }
 
@@ -171,14 +232,19 @@ namespace B9PartSwitch
         {
             if (IsConfigNodeType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is an IConfigNode");
-            if (!IsRegisteredParseType)
+            if (!IsFormattableType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not a registered parse type");
 
             string[] values = new string[Count];
 
+            Func<object, string> formatFunction = Attribute.formatFunction != null ? Attribute.formatFunction : CFGUtil.FormatConfigValue;
+
+            String s = string.Empty;
+            formatFunction(s);
+
             for (int i = 0; i < Count; i++)
             {
-                values[i] = CFGUtil.FormatConfigValue(List[i]);
+                values[i] = formatFunction(List[i]);
             }
 
             return values;

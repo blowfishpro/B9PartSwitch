@@ -21,7 +21,7 @@ namespace B9PartSwitch
         {
             base.OnStart(state);
 
-            BaseMass = part.partInfo.partPrefab.mass;
+            BaseMass = part.GetPrefab().mass;
 
             UpdateMass();
         }
