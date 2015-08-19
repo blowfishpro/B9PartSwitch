@@ -113,6 +113,7 @@ namespace B9PartSwitch
                         if (value != null)
                         {
                             object result = field.Value;
+
                             CFGUtil.AssignConfigObject(field, value, ref result);
                             field.Value = result;
                         }
@@ -254,7 +255,7 @@ namespace B9PartSwitch
                     if (destListInfo.Count != listCount)
                     {
                         createNewItems = true;
-                        destListInfo.List.Clear();
+                        destListInfo.ClearList();
                     }
 
                     for (int j = 0; j < listCount; j++)
@@ -335,10 +336,29 @@ namespace B9PartSwitch
                 }
             }
         }
+
+        public void OnDestroy()
+        {
+            for (int i = 0; i < configFields.Count; i++)
+            {
+                ConfigFieldInfo field = configFields[i];
+
+                if (!field.Attribute.destroy)
+                    continue;
+
+                if (field is ListFieldInfo)
+                    (field as ListFieldInfo).ClearList();
+                else if (field.IsComponentType || field.IsScriptableObjectType)
+                    UnityEngine.Object.Destroy(field.Value as UnityEngine.Object);
+                else if (field.IsCopyFieldsType)
+                    (field.Value as ICopyFields).OnDestroy();
+            }
+        }
     }
 
     public interface ICopyFields
     {
         void CopyFrom(ICopyFields source);
+        void OnDestroy();
     }
 }

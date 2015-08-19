@@ -74,6 +74,11 @@ namespace B9PartSwitch
             configFieldList.Save(node);
         }
 
+        public void OnDestroy()
+        {
+            configFieldList.OnDestroy();
+        }
+
         #endregion
 
         #region Public Methods

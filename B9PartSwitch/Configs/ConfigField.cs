@@ -17,6 +17,7 @@ namespace B9PartSwitch
         public Func<string, object> parseFunction = null;
         public Func<object, string> formatFunction = null;
         public bool copy = true;
+        public bool destroy = true;
     }
 
     public class ConfigFieldInfo
@@ -33,7 +34,7 @@ namespace B9PartSwitch
             Field = field;
             Attribute = attribute;
 
-            if (Attribute.configName == null || Attribute.configName == string.Empty)
+            if (string.IsNullOrEmpty(attribute.configName))
                 Attribute.configName = Field.Name;
 
             RealType = Type;
@@ -164,19 +165,26 @@ namespace B9PartSwitch
                 return;
 
             CreateListIfNecessary();
-            List.Clear();
-            foreach (ConfigNode node in nodes)
-            {
-                IConfigNode obj;
-                if (IsComponentType)
-                    obj = Instance.gameObject.AddComponent(RealType) as IConfigNode;
-                else if (IsScriptableObjectType)
-                    obj = ScriptableObject.CreateInstance(RealType) as IConfigNode;
-                else
-                    obj = Constructor.Invoke(null) as IConfigNode;
 
-                obj.Load(node);
-                List.Add(obj);
+            bool createNewItems = false;
+            if (!IsCopyFieldsType || Count != nodes.Length)
+            {
+                ClearList();
+                createNewItems = true;
+            }
+
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                IConfigNode obj = null;
+                if (!createNewItems)
+                    obj = List[i] as IConfigNode;
+
+                CFGUtil.AssignConfigObject(this, nodes[i], ref obj);
+
+                if (createNewItems)
+                    List.Add(obj);
+                else
+                    List[i] = obj; // This may be self-assignment under certain circumstances
             }
         }
 
@@ -189,9 +197,9 @@ namespace B9PartSwitch
 
             CreateListIfNecessary();
             bool createNewItems = false;
-            if (!IsCopyFieldsType || List.Count != values.Length)
+            if (!IsCopyFieldsType || Count != values.Length)
             {
-                List.Clear();
+                ClearList();
                 createNewItems = true;
             }
 
@@ -248,6 +256,25 @@ namespace B9PartSwitch
             }
 
             return values;
+        }
+
+        public void ClearList()
+        {
+            if ((IsComponentType || IsScriptableObjectType || IsCopyFieldsType) && Attribute.destroy)
+            {
+                for (int i = 0; i < Count; i++)
+                {
+                    if (List[i] != null)
+                    {
+                        if (IsComponentType || IsScriptableObjectType)
+                            UnityEngine.Object.Destroy(List[i] as UnityEngine.Object);
+                        else if (IsCopyFieldsType)
+                            (List[i] as ICopyFields).OnDestroy();
+                    }
+                }
+
+                List.Clear();
+            }
         }
     }
 }

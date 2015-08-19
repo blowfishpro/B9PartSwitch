@@ -104,33 +104,33 @@ namespace B9PartSwitch
             }
         }
 
-        public static void AssignConfigObject(ConfigFieldInfo info, string value, ref object result)
+        public static void AssignConfigObject(ConfigFieldInfo field, string value, ref object result)
         {
             object parseResult;
 
-            if (info.Attribute.parseFunction != null)
-                parseResult = info.Attribute.parseFunction(value);
-            else if (info.IsRegisteredParseType)
-                parseResult = CFGUtil.ParseConfigValue(info.RealType, value);
+            if (field.Attribute.parseFunction != null)
+                parseResult = field.Attribute.parseFunction(value);
+            else if (field.IsRegisteredParseType)
+                parseResult = CFGUtil.ParseConfigValue(field.RealType, value);
             else
-                throw new ArgumentException("Cannot find a way to parse field " + info.Name + " of type " + info.RealType + " from a config value");
+                throw new ArgumentException("Cannot find a way to parse field " + field.Name + " of type " + field.RealType + " from a config value");
 
             if (parseResult == null)
                 return;
 
-            if (info.IsCopyFieldsType)
+            if (field.IsCopyFieldsType)
             {
                 if (result == null)
                 {
-                    if (info.IsComponentType)
-                        result = info.Instance.gameObject.AddComponent(info.RealType);
-                    else if (info.IsScriptableObjectType)
-                        result = ScriptableObject.CreateInstance(info.RealType);
-                    else if (info.Constructor != null)
-                        result = info.Constructor.Invoke(null);
+                    if (field.IsComponentType)
+                        result = field.Instance.gameObject.AddComponent(field.RealType);
+                    else if (field.IsScriptableObjectType)
+                        result = ScriptableObject.CreateInstance(field.RealType);
+                    else if (field.Constructor != null)
+                        result = field.Constructor.Invoke(null);
                     else
                     {
-                        Debug.LogWarning("Field " + info.Name + " is ICopyFields, but the value is null and no default constructor could be found.  It will be assigned by referece rather than copying");
+                        Debug.LogWarning("Field " + field.Name + " is ICopyFields, but the value is null and no default constructor could be found.  It will be assigned by referece rather than copying");
                         result = parseResult;
                         return;
                     }
@@ -140,26 +140,29 @@ namespace B9PartSwitch
             }
             else
             {
+                if ((field.IsComponentType || field.IsScriptableObjectType) && field.Attribute.destroy)
+                    UnityEngine.Object.Destroy(result as UnityEngine.Object);
+
                 result = parseResult;
                 return;
             }
         }
 
-        public static void AssignConfigObject(ConfigFieldInfo info, ConfigNode value, ref IConfigNode result)
+        public static void AssignConfigObject(ConfigFieldInfo field, ConfigNode value, ref IConfigNode result)
         {
-            if (!info.IsConfigNodeType)
-                throw new ArgumentException("Field is not a ConfigNode type: " + info.Name + " (type is " + info.RealType.Name + ")");
+            if (!field.IsConfigNodeType)
+                throw new ArgumentException("Field is not a ConfigNode type: " + field.Name + " (type is " + field.RealType.Name + ")");
             if (result == null)
             {
-                if (info.IsComponentType)
-                    result = info.Instance.gameObject.AddComponent(info.RealType) as IConfigNode;
-                else if (info.IsScriptableObjectType)
-                    result = ScriptableObject.CreateInstance(info.RealType) as IConfigNode;
-                else if (info.Constructor != null)
-                    result = info.Constructor.Invoke(null) as IConfigNode;
+                if (field.IsComponentType)
+                    result = field.Instance.gameObject.AddComponent(field.RealType) as IConfigNode;
+                else if (field.IsScriptableObjectType)
+                    result = ScriptableObject.CreateInstance(field.RealType) as IConfigNode;
+                else if (field.Constructor != null)
+                    result = field.Constructor.Invoke(null) as IConfigNode;
                 else
                 {
-                    Debug.LogError("Error: Field " + info.Name + " is IConfigNode, but the value is null and no default constructor could be found.  It will be null");
+                    Debug.LogError("Error: Field " + field.Name + " is IConfigNode, but the value is null and no default constructor could be found.  It will be null");
                     result = null;
                     return;
                 }

@@ -49,5 +49,10 @@ namespace B9PartSwitch
 
             ConfigFieldList.CopyList(ref realSource.configFieldList, ref configFieldList);
         }
+
+        virtual public void OnDestroy()
+        {
+            configFieldList.OnDestroy();
+        }
     }
 }
