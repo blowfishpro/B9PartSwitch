@@ -6,11 +6,40 @@ using UnityEngine;
 
 namespace B9PartSwitch
 {
-    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier2, IPartCostModifier
+    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier2, IPartCostModifier, IModuleInfo
     {
         #region Constants
 
-        public readonly string[] IncompatibleModuleNames = { "FSfuelSwitch", "FSmeshSwitch", "InterstallarFuelSwitch", "InterstellarMeshSwitch" };
+        public static readonly string[] IncompatibleModuleNames = { "FSfuelSwitch", "FSmeshSwitch", "InterstallarFuelSwitch", "InterstellarMeshSwitch" };
+        public static readonly Type[] IncompatibleModuleTypes;
+
+        static ModuleB9PartSwitch()
+        {
+            List<Type> incompatibleTypes = new List<Type>();
+
+            for (int i = 0; i < IncompatibleModuleNames.Length; i++)
+            {
+                try
+                {
+                    Type t = Type.GetType(IncompatibleModuleNames[i]);
+                    if (t == null)
+                        continue;
+
+                    if (!t.IsSubclassOf(typeof(PartModule)))
+                    {
+                        Debug.LogError("Error: The incompatible type " + IncompatibleModuleNames[i] + " does not derive from PartModule");
+                        continue;
+                    }
+                    incompatibleTypes.Add(t);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("Exception thrown while getting type " + IncompatibleModuleNames[i] + ": " + e.ToString());
+                }
+            }
+
+            IncompatibleModuleTypes = incompatibleTypes.ToArray();
+        }
 
         #endregion
 
@@ -51,6 +80,8 @@ namespace B9PartSwitch
         #endregion
 
         #region Properties
+
+        public int SubtypesCount { get { return subtypes.Count; } }
 
         public PartSubtype CurrentSubtype { get { return subtypes[currentSubtypeIndex]; } }
 
@@ -98,11 +129,6 @@ namespace B9PartSwitch
         #endregion
 
         #region Setup
-
-        public override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
-        }
 
         public override void OnStart(PartModule.StartState state)
         {
@@ -229,16 +255,35 @@ namespace B9PartSwitch
                 }
             }
 
-            for (int i = 0; i < IncompatibleModuleNames.Length; i++)
+            for (int i = 0; i < part.Modules.Count; i++)
             {
-                string incompatibleName = IncompatibleModuleNames[i];
-                while (part.Modules.Contains(incompatibleName))
+                PartModule m = part.Modules[i];
+                if (m == null || !m.isEnabled || m is ModuleB9PartSwitch)
+                    continue;
+                Type mType = m.GetType();
+                for (int j = 0; j < IncompatibleModuleTypes.Length; j++)
                 {
-                    LogError("ModuleB9PartSwitch and " + incompatibleName + " cannot exist on the same part.  " + incompatibleName + " will be disabled.");
-                    PartModule m = part.Modules[incompatibleName];
-                    m.enabled = false;
+                    Type testType = IncompatibleModuleTypes[j];
+                    if (mType == testType || mType.IsSubclassOf(testType))
+                    {
+                        LogError("ModuleB9PartSwitch and " + m.moduleName + " cannot exist on the same part.  " + m.moduleName + " will be disabled.");
+                        m.enabled = false;
+                        break;
+                    }
                 }
             }
+
+                for (int i = 0; i < IncompatibleModuleTypes.Length; i++)
+                {
+                    Type incomatibleType = IncompatibleModuleTypes[i];
+                    string incompatibleName = IncompatibleModuleNames[i];
+                    while (part.Modules.Contains(incompatibleName))
+                    {
+                        LogError("ModuleB9PartSwitch and " + incompatibleName + " cannot exist on the same part.  " + incompatibleName + " will be disabled.");
+                        PartModule m = part.Modules[incompatibleName];
+                        m.enabled = false;
+                    }
+                }
 
             if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
                 currentSubtypeIndex = 0;
@@ -282,6 +327,39 @@ namespace B9PartSwitch
             return CurrentSubtype.addedCost + (TankVolume * CurrentTankType.tankCost);
         }
 
+        public override string GetInfo()
+        {
+            string outStr = "<b>" + GetPrimaryField() + ":</b>";
+            for (int i = 0; i < subtypes.Count; i++)
+            {
+                outStr += "\n  <b>" + subtypes[i].Name + "</b>";
+                int resourceCount = subtypes[i].tankType.ResourcesCount;
+                if (resourceCount > 0)
+                {
+                    outStr += "\n    <b><color=#99ff00ff>Resources:</color></b>";
+                    float volume = TankVolumeForSubtype(i);
+                    for (int j = 0; j < resourceCount; j++)
+                        outStr += "\n      <b>" + subtypes[i].tankType.resources[j].ResourceName + "</b>: " + (subtypes[i].tankType.resources[j].unitsPerVolume * volume).ToString("F1");
+                }
+            }
+            return outStr;
+        }
+
+        public string GetModuleTitle()
+        {
+            return "Switchable Part";
+        }
+
+        public string GetPrimaryField()
+        {
+            return subtypes.Count.ToString() + " Subtypes";
+        }
+
+        public Callback<Rect> GetDrawModulePanelCallback()
+        {
+            return null;
+        }
+
         #endregion
 
         #region Public Methods
@@ -307,6 +385,19 @@ namespace B9PartSwitch
         public bool IsManagedNode(string nodeName)
         {
             return managedStackNodeIDs.Contains(nodeName);
+        }
+
+        public float TankVolumeForSubtype(int index)
+        {
+            if (index < 0 || index >= SubtypesCount)
+                throw new IndexOutOfRangeException("Index " + index.ToString() + " is out of range (there are " + SubtypesCount.ToString() + "subtypes.");
+            PartSubtype subtype = subtypes[index];
+            if (subtype == null || subtype.tankType == null || subtype.tankType.ResourcesCount == 0)
+                return 0f;
+            else if (subtype.tankVolume <= 0f)
+                return defaultTankVolume;
+            else
+                return subtype.tankVolume;
         }
 
         #endregion
@@ -391,6 +482,11 @@ namespace B9PartSwitch
                     window.displayDirty = true;
                 }
             }
+
+            if (HighLogic.LoadedSceneIsEditor)
+                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+            else if (HighLogic.LoadedSceneIsFlight)
+                GameEvents.onVesselWasModified.Fire(this.vessel);
 
             Debug.Log(this.ToString() + ": Switched subtype to " + CurrentSubtype.Name);
         }

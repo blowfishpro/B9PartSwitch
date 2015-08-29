@@ -65,7 +65,10 @@ namespace B9PartSwitch
             base.OnLoad(node);
 
             if (tankType == null)
-                tankType = MiniMFTSettings.StructuralTankType;
+            {
+                tankType = gameObject.AddComponent<TankType>();
+                tankType.CopyFrom(MiniMFTSettings.StructuralTankType);
+            }
 
             if (attachNode != null)
                 attachNode.id = "attach-node";
