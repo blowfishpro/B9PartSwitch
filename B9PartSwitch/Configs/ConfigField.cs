@@ -272,9 +272,9 @@ namespace B9PartSwitch
                             (List[i] as ICopyFields).OnDestroy();
                     }
                 }
-
-                List.Clear();
             }
+
+            List.Clear();
         }
     }
 }
