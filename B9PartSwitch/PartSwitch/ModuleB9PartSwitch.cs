@@ -141,11 +141,10 @@ namespace B9PartSwitch
                 subtype.SetParent(this);
                 subtype.FindObjects();
 
-                if (i == currentSubtypeIndex)
-                    subtype.ActivateObjects();
-                else
-                    subtype.DeactivateObjects();
+                subtype.DeactivateObjects();
             }
+
+            CurrentSubtype.ActivateObjects();
         }
 
         public override void OnStart(PartModule.StartState state)
