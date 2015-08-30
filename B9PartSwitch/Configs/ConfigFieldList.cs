@@ -202,15 +202,20 @@ namespace B9PartSwitch
 
         public static void CopyList(ref ConfigFieldList source, ref ConfigFieldList dest)
         {
+            if (source == null)
+                throw new ArgumentNullException("source cannot be null");
+            if (dest == null)
+                throw new ArgumentNullException("dest cannot be null");
+
             if (System.Object.ReferenceEquals(source, dest))
                 return;
-
-            Debug.Log("Initiating copy on type " + source.Instance.GetType().Name);
 
             if (source.Instance.GetType() != dest.Instance.GetType())
                 throw new ArgumentException("Source and destination must be of the same type");
             if (source.configFields.Count != dest.configFields.Count)
                 throw new ArgumentException("Source and destination must have the same number of fields");
+
+            Debug.Log("Initiating copy on type " + source.Instance.GetType().Name);
 
             int count = source.configFields.Count;
 

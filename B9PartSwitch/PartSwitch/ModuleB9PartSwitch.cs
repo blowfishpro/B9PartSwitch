@@ -168,7 +168,8 @@ namespace B9PartSwitch
                 if (tank.ResourcesCount > 0 && (subtypes[i].tankVolume <= 0f && defaultTankVolume <= 0f))
                 {
                     LogError("Subtype " + subtypes[i].Name + " has a tank type with resources, but no volume is specifified");
-                    subtypes[i].tankType = tank = MiniMFTSettings.StructuralTankType;
+                    Destroy(tank);
+                    subtypes[i].tankType = tank = MiniMFTSettings.CloneTankType(MiniMFTSettings.StructuralTankType, subtypes[i].gameObject);
                 }
 
                 if (tank != null)
@@ -329,17 +330,17 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = "<b>" + GetPrimaryField() + ":</b>";
+            string outStr = GetPrimaryField() + ":";
             for (int i = 0; i < subtypes.Count; i++)
             {
-                outStr += "\n  <b>" + subtypes[i].Name + "</b>";
+                outStr += "\n  <b>- " + subtypes[i].Name + "</b>";
                 int resourceCount = subtypes[i].tankType.ResourcesCount;
                 if (resourceCount > 0)
                 {
-                    outStr += "\n    <b><color=#99ff00ff>Resources:</color></b>";
+                    outStr += "\n      <b><color=#99ff00ff>Resources:</color></b>";
                     float volume = TankVolumeForSubtype(i);
                     for (int j = 0; j < resourceCount; j++)
-                        outStr += "\n      <b>" + subtypes[i].tankType.resources[j].ResourceName + "</b>: " + (subtypes[i].tankType.resources[j].unitsPerVolume * volume).ToString("F1");
+                        outStr += "\n      <b>- " + subtypes[i].tankType.resources[j].ResourceName + "</b>: " + (subtypes[i].tankType.resources[j].unitsPerVolume * volume).ToString("F1");
                 }
             }
             return outStr;
@@ -352,7 +353,7 @@ namespace B9PartSwitch
 
         public string GetPrimaryField()
         {
-            return subtypes.Count.ToString() + " Subtypes";
+            return "<b>" + subtypes.Count.ToString() + " Subtypes</b>";
         }
 
         public Callback<Rect> GetDrawModulePanelCallback()

@@ -108,6 +108,19 @@ namespace B9PartSwitch
             return tankTypes.ContainsKey(name);
         }
 
+        public TankType CloneTankType(string name, GameObject parent)
+        {
+            TankType t = GetTankType(name);
+            return CloneTankType(t, parent);
+        }
+
+        public static TankType CloneTankType(TankType original, GameObject parent)
+        {
+            TankType copy = parent.AddComponent<TankType>();
+            copy.CopyFrom(original);
+            return copy;
+        }
+
         // This will raise an exception when the resource is not found
         public static PartResourceDefinition FindResourceDefinition(string name)
         {
