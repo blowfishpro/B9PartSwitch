@@ -45,11 +45,14 @@ namespace B9PartSwitch
             DontDestroyOnLoad(gameObject);
             LoadedTankDefs = false;
 
-            // Structural tank type is hard coded
-            structuralTankType = gameObject.AddComponent<TankType>();
-            structuralTankType.tankName = "Structural";
-            structuralTankType.tankMass = 0f;
-            structuralTankType.tankCost = 0f;
+            if (structuralTankType == null)
+            {
+                // Structural tank type is hard coded
+                structuralTankType = gameObject.AddComponent<TankType>();
+                structuralTankType.tankName = "Structural";
+                structuralTankType.tankMass = 0f;
+                structuralTankType.tankCost = 0f;
+            }
         }
 
         public void ModuleManagerPostLoad()
@@ -59,20 +62,23 @@ namespace B9PartSwitch
 
         public void ReloadTankDefs()
         {
-            foreach (KeyValuePair<string,TankType> pair in tankTypes)
+            for (int i = 0; i < tankTypes.Count; i++)
             {
-                if (pair.Value != structuralTankType)
-                    Destroy(pair.Value);
+                TankType value = tankTypes.ElementAt(i).Value;
+
+                if (value != structuralTankType)
+                    Destroy(value);
             }
             tankTypes.Clear();
 
             // Structural tank type is hard coded
             tankTypes.Add(structuralTankType.tankName, structuralTankType);
 
-            foreach (ConfigNode node in GameDatabase.Instance.GetConfigNodes("MINIMFT_TANK_TYPE"))
+            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("MINIMFT_TANK_TYPE");
+            for (int i = 0; i < nodes.Length; i++)
             {
                 TankType t = gameObject.AddComponent<TankType>();
-                t.Load(node);
+                t.Load(nodes[i]);
                 if (tankTypes.ContainsKey(t.tankName))
                 {
                     Debug.LogError("The tank type " + t.tankName + " already exists");

@@ -20,19 +20,20 @@ namespace B9PartSwitch
             Instance = instance;
             configFields.Clear();
             FieldInfo[] fields = instance.GetType().GetFields();
-            foreach (FieldInfo field in fields)
+            for (int i = 0; i < fields.Length; i++ )
             {
+                FieldInfo field = fields[i];
                 bool kspField = false;
                 ConfigField configField = null;
 
                 object[] attributes = field.GetCustomAttributes(true);
-                foreach (object attribute in attributes)
+                for (int j = 0; j < attributes.Length; j++)
                 {
-                    if (attribute is ConfigField)
+                    if (attributes[j] is ConfigField)
                     {
-                        configField = attribute as ConfigField;
+                        configField = attributes[j] as ConfigField;
                     }
-                    else if (attribute is KSPField)
+                    else if (attributes[j] is KSPField)
                     {
                         kspField = true;
                     }
@@ -43,10 +44,10 @@ namespace B9PartSwitch
                     if (kspField)
                         throw new NotSupportedException("The property ConfigField is not allowed on a field that also has the KSPField property");
 
-                    foreach (ConfigFieldInfo theField in configFields)
+                    for (int j = 0; j < configFields.Count; j++)
                     {
-                        if (theField.ConfigName == configField.configName)
-                            throw new NotSupportedException("Two ConfigField properties in the same class cannot have the same name (fields are " + theField.Name + " and " + field.Name + ")");
+                        if (configFields[j].ConfigName == configField.configName)
+                            throw new NotSupportedException("Two ConfigField properties in the same class cannot have the same name (fields are " + configFields[j].Name + " and " + field.Name + ")");
                     }
 
                     ConfigFieldInfo fieldInfo;
@@ -75,10 +76,10 @@ namespace B9PartSwitch
         {
             get
             {
-                foreach (ConfigFieldInfo field in configFields)
+                for (int i = 0; i < configFields.Count; i++)
                 {
-                    if (field.Name == name)
-                        return field;
+                    if (configFields[i].Name == name)
+                        return configFields[i];
                 }
                 return null;
             }
@@ -87,8 +88,9 @@ namespace B9PartSwitch
         public void Load(ConfigNode node)
         {
             Debug.Log("Loading " + Instance.GetType().Name + " from config");
-            foreach (ConfigFieldInfo field in configFields)
+            for (int i = 0; i < configFields.Count; i++)
             {
+                ConfigFieldInfo field = configFields[i];
                 if (field is ListFieldInfo)
                 {
                     ListFieldInfo listInfo = field as ListFieldInfo;
@@ -138,8 +140,9 @@ namespace B9PartSwitch
 
         public void Save(ConfigNode node)
         {
-            foreach (ConfigFieldInfo field in configFields)
+            for (int i = 0; i < configFields.Count; i++)
             {
+                ConfigFieldInfo field = configFields[i];
                 if (!field.IsPersistant)
                     continue;
 
@@ -152,17 +155,17 @@ namespace B9PartSwitch
                             throw new NotImplementedException("No suitable way to format values in list field " + listInfo.Name + " of type " + listInfo.RealType.Name);
 
                         String[] values = listInfo.FormatValues();
-                        for (int i = 0; i < values.Length; i++)
+                        for (int j = 0; j < values.Length; j++)
                         {
-                            node.SetValue(field.ConfigName, values[i], i, createIfNotFound: true);
+                            node.SetValue(field.ConfigName, values[j], j, createIfNotFound: true);
                         }
                     }
                     else if (listInfo.IsConfigNodeType)
                     {
                         ConfigNode[] nodes = listInfo.FormatNodes();
-                        for (int i = 0; i < nodes.Length; i++)
+                        for (int j = 0; j < nodes.Length; j++)
                         {
-                            node.SetNode(field.ConfigName, nodes[i], i, createIfNotFound: true);
+                            node.SetNode(field.ConfigName, nodes[j], j, createIfNotFound: true);
                         }
                     }
                     else

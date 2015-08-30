@@ -45,12 +45,12 @@ namespace B9PartSwitch
             Constructor = null;
             ConstructorInfo[] constructors = RealType.GetConstructors();
 
-            foreach (ConstructorInfo constructor in constructors)
+            for (int i = 0; i < constructors.Length; i++)
             {
-                ParameterInfo[] parameters = constructor.GetParameters();
+                ParameterInfo[] parameters = constructors[i].GetParameters();
                 if (parameters.Length == 0)
                 {
-                    Constructor = constructor;
+                    Constructor = constructors[i];
                     return;
                 }
             }
