@@ -74,13 +74,21 @@ namespace B9PartSwitch
 
         }
 
-        public void OnStart(ModuleB9PartSwitch module)
+        public void SetParent(ModuleB9PartSwitch parent)
         {
-            parent = module;
-            part = module.part;
+            if (parent == null)
+                throw new ArgumentNullException("parent cannot be null");
+            if (parent.part == null)
+                throw new ArgumentNullException("parent.part cannot be null");
 
-            if (attachNode != null && string.IsNullOrEmpty(attachNode.id))
-                attachNode = null;
+            this.parent = parent;
+            part = parent.part;
+        }
+
+        public void FindObjects()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
 
             transforms = new List<Transform>();
             for (int i = 0; i < transformNames.Count; i++)
@@ -91,6 +99,12 @@ namespace B9PartSwitch
                 else
                     transforms.AddRange(tempTransforms);
             }
+        }
+
+        public void FindNodes()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
 
             nodes = new List<AttachNode>();
             for (int i = 0; i < nodeNames.Count; i++)
@@ -111,6 +125,19 @@ namespace B9PartSwitch
                     }
                 }
             }
+        }
+
+        public void OnStart()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
+            // Check for empty attach node, since Unity will initialize to default value if prefab has null
+            if (attachNode != null && string.IsNullOrEmpty(attachNode.id))
+                attachNode = null;
+
+            FindObjects();
+            FindNodes();
         }
 
         #endregion

@@ -130,6 +130,24 @@ namespace B9PartSwitch
 
         #region Setup
 
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            // This will deactivate objects before the part icon is created, avoiding a visual mess
+            for (int i = 0; i < subtypes.Count; i++)
+            {
+                PartSubtype subtype = subtypes[i];
+                subtype.SetParent(this);
+                subtype.FindObjects();
+
+                if (i == currentSubtypeIndex)
+                    subtype.ActivateObjects();
+                else
+                    subtype.DeactivateObjects();
+            }
+        }
+
         public override void OnStart(PartModule.StartState state)
         {
             base.OnStart(state);
@@ -159,17 +177,19 @@ namespace B9PartSwitch
 
             for (int i = 0; i < subtypes.Count; i++)
             {
-                subtypes[i].OnStart(this);
-                TankType tank = subtypes[i].tankType;
+                PartSubtype subtype = subtypes[i];
+                subtype.SetParent(this);
+                subtype.OnStart();
+                TankType tank = subtype.tankType;
 
                 if (tank == null)
-                    LogError("Tank is null on subtype " + subtypes[i].Name);
+                    LogError("Tank is null on subtype " + subtype.Name);
 
-                if (tank.ResourcesCount > 0 && (subtypes[i].tankVolume <= 0f && defaultTankVolume <= 0f))
+                if (tank.ResourcesCount > 0 && (subtype.tankVolume <= 0f && defaultTankVolume <= 0f))
                 {
-                    LogError("Subtype " + subtypes[i].Name + " has a tank type with resources, but no volume is specifified");
+                    LogError("Subtype " + subtype.Name + " has a tank type with resources, but no volume is specifified");
                     Destroy(tank);
-                    subtypes[i].tankType = tank = MiniMFTSettings.CloneTankType(MiniMFTSettings.StructuralTankType, subtypes[i].gameObject);
+                    subtype.tankType = tank = MiniMFTSettings.CloneTankType(MiniMFTSettings.StructuralTankType, subtype.gameObject);
                 }
 
                 if (tank != null)
@@ -177,14 +197,14 @@ namespace B9PartSwitch
                     managedResourceNames.AddRange(tank.GetResourceNames());
                 }
 
-                managedTransformNames.AddRange(subtypes[i].transformNames);
-                managedStackNodeIDs.AddRange(subtypes[i].GetNodeIDs());
+                managedTransformNames.AddRange(subtype.transformNames);
+                managedStackNodeIDs.AddRange(subtype.GetNodeIDs());
 
-                if (subtypes[i].maxTemp > 0f)
+                if (subtype.maxTemp > 0f)
                     MaxTempManaged = true;
-                if (subtypes[i].skinMaxTemp > 0f)
+                if (subtype.skinMaxTemp > 0f)
                     SkinMaxTempManaged = true;
-                if (subtypes[i].attachNode != null)
+                if (subtype.attachNode != null)
                 {
                     if (part.attachRules.allowSrfAttach  && part.srfAttachNode != null)
                     {
@@ -192,8 +212,8 @@ namespace B9PartSwitch
                     }
                     else
                     {
-                        LogError("Error: Part subtype '" + subtypes[i].Name + "' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                        subtypes[i].attachNode = null;
+                        LogError("Error: Part subtype '" + subtype.Name + "' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
+                        subtype.attachNode = null;
                     }
                 }
             }
