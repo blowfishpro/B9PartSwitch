@@ -158,7 +158,7 @@ namespace B9PartSwitch
             if (massModifier == null)
             {
                 LogError("No PartMassModifierModule found.  Module will be deactivated");
-                enabled = false;
+                this.Disable();
                 return;
             }
 
@@ -269,14 +269,14 @@ namespace B9PartSwitch
                 if (destroy)
                 {
                     Debug.Log("ModuleB9PartSwitch with moduleID '" + otherModules[i].moduleID + "' is incomatible, and will be disabled.");
-                    otherModules[i].enabled = false;
+                    otherModules[i].Disable();
                 }
             }
 
             for (int i = 0; i < part.Modules.Count; i++)
             {
                 PartModule m = part.Modules[i];
-                if (m == null || !m.isEnabled || m is ModuleB9PartSwitch)
+                if (m == null || !m.GetEnabled() || m is ModuleB9PartSwitch)
                     continue;
                 Type mType = m.GetType();
                 for (int j = 0; j < IncompatibleModuleTypes.Length; j++)
@@ -285,7 +285,7 @@ namespace B9PartSwitch
                     if (mType == testType || mType.IsSubclassOf(testType))
                     {
                         LogError("ModuleB9PartSwitch and " + m.moduleName + " cannot exist on the same part.  " + m.moduleName + " will be disabled.");
-                        m.enabled = false;
+                        m.Disable();
                         break;
                     }
                 }
@@ -299,7 +299,7 @@ namespace B9PartSwitch
                     {
                         LogError("ModuleB9PartSwitch and " + incompatibleName + " cannot exist on the same part.  " + incompatibleName + " will be disabled.");
                         PartModule m = part.Modules[incompatibleName];
-                        m.enabled = false;
+                        m.Disable();
                     }
                 }
 
