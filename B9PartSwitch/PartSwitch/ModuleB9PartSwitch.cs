@@ -93,10 +93,8 @@ namespace B9PartSwitch
             {
                 if (CurrentTankType == null || CurrentTankType.ResourcesCount == 0)
                     return 0f;
-                else if (CurrentSubtype.tankVolume <= 0f)
-                    return defaultTankVolume;
                 else
-                    return CurrentSubtype.tankVolume;
+                    return defaultTankVolume * CurrentSubtype.volumeMultiplier + CurrentSubtype.volumeAdded;
             }
         }
 
@@ -184,7 +182,7 @@ namespace B9PartSwitch
                 if (tank == null)
                     LogError("Tank is null on subtype " + subtype.Name);
 
-                if (tank.ResourcesCount > 0 && (subtype.tankVolume <= 0f && defaultTankVolume <= 0f))
+                if (tank.ResourcesCount > 0 && (TankVolumeForSubtype(i) <= 0f))
                 {
                     LogError("Subtype " + subtype.Name + " has a tank type with resources, but no volume is specifified");
                     Destroy(tank);
@@ -414,10 +412,8 @@ namespace B9PartSwitch
             PartSubtype subtype = subtypes[index];
             if (subtype == null || subtype.tankType == null || subtype.tankType.ResourcesCount == 0)
                 return 0f;
-            else if (subtype.tankVolume <= 0f)
-                return defaultTankVolume;
             else
-                return subtype.tankVolume;
+                return defaultTankVolume * subtype.volumeMultiplier + subtype.volumeAdded;
         }
 
         #endregion

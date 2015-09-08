@@ -30,7 +30,10 @@ namespace B9PartSwitch
         public TankType tankType;
 
         [ConfigField]
-        public float tankVolume = 0f;
+        public float volumeMultiplier = 1f;
+
+        [ConfigField]
+        public float volumeAdded = 0f;
 
         [ConfigField]
         public float maxTemp;
