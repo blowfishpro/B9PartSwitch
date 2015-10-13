@@ -11,7 +11,14 @@ namespace B9PartSwitch
     {
         #region Constants
 
-        public static readonly string[] IncompatibleModuleNames = { "FSfuelSwitch", "FSmeshSwitch", "InterstallarFuelSwitch", "InterstellarMeshSwitch" };
+        public static readonly string[] IncompatibleModuleNames = { "ModuleProceduralFairing",
+                                                                    "FSfuelSwitch",
+                                                                    "FSmeshSwitch",
+                                                                    "InterstallarFuelSwitch",
+                                                                    "InterstellarMeshSwitch",
+                                                                    "ModuleFuelTanks",
+                                                                    "FARWingAerodynamicModel",
+                                                                  };
         public static readonly Type[] IncompatibleModuleTypes;
 
         static ModuleB9PartSwitch()
@@ -75,8 +82,6 @@ namespace B9PartSwitch
         private List<string> managedStackNodeIDs = new List<string>();
 
         private PartMassModifierModule massModifier = null;
-
-        private bool startFinished = false;
 
         #endregion
 
@@ -150,8 +155,6 @@ namespace B9PartSwitch
         {
             base.OnStart(state);
 
-            startFinished = false;
-
             // Get mass modifier module
 
             massModifier = part.FindModuleImplementing<PartMassModifierModule>();
@@ -216,98 +219,10 @@ namespace B9PartSwitch
                 }
             }
 
-            // Check for incompatible modules
-
-            List<ModuleB9PartSwitch> otherModules = part.FindModulesImplementing<ModuleB9PartSwitch>();
-            for (int i = 0; i < otherModules.Count; i++)
-            {
-                if (otherModules[i] == this) continue;
-                if (!otherModules[i].startFinished) continue;
-                bool destroy = false;
-                for (int j = 0; j < managedResourceNames.Count; j++)
-                {
-                    if (otherModules[i].IsManagedResource(managedResourceNames[j]))
-                    {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same resource: " + managedResourceNames[j]);
-                        destroy = true;
-                    }
-                }
-                for (int j = 0; j < managedTransformNames.Count; j++)
-                {
-                    if (otherModules[i].IsManagedTransform(managedTransformNames[j]))
-                    {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same transform: " + managedTransformNames[j]);
-                        destroy = true;
-                    }
-                }
-                for (int j = 0; j < managedStackNodeIDs.Count; j++)
-                {
-                    if (otherModules[i].IsManagedNode(managedStackNodeIDs[j]))
-                    {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same attach node: " + managedStackNodeIDs[j]);
-                        destroy = true;
-                    }
-                }
-
-                if (otherModules[i].MaxTempManaged && MaxTempManaged)
-                {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's maxTemp");
-                    destroy = true;
-                }
-
-                if (otherModules[i].SkinMaxTempManaged && SkinMaxTempManaged)
-                {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's skinMaxTemp");
-                    destroy = true;
-                }
-
-                if (otherModules[i].AttachNodeManaged && AttachNodeManaged)
-                {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's attach node");
-                    destroy = true;
-                }
-
-                if (destroy)
-                {
-                    Debug.Log("ModuleB9PartSwitch with moduleID '" + otherModules[i].moduleID + "' is incomatible, and will be disabled.");
-                    otherModules[i].Disable();
-                }
-            }
-
-            for (int i = 0; i < part.Modules.Count; i++)
-            {
-                PartModule m = part.Modules[i];
-                if (m == null || !m.GetEnabled() || m is ModuleB9PartSwitch)
-                    continue;
-                Type mType = m.GetType();
-                for (int j = 0; j < IncompatibleModuleTypes.Length; j++)
-                {
-                    Type testType = IncompatibleModuleTypes[j];
-                    if (mType == testType || mType.IsSubclassOf(testType))
-                    {
-                        LogError("ModuleB9PartSwitch and " + m.moduleName + " cannot exist on the same part.  " + m.moduleName + " will be disabled.");
-                        m.Disable();
-                        break;
-                    }
-                }
-            }
-
-                for (int i = 0; i < IncompatibleModuleTypes.Length; i++)
-                {
-                    Type incomatibleType = IncompatibleModuleTypes[i];
-                    string incompatibleName = IncompatibleModuleNames[i];
-                    while (part.Modules.Contains(incompatibleName))
-                    {
-                        LogError("ModuleB9PartSwitch and " + incompatibleName + " cannot exist on the same part.  " + incompatibleName + " will be disabled.");
-                        PartModule m = part.Modules[incompatibleName];
-                        m.Disable();
-                    }
-                }
-
             if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
                 currentSubtypeIndex = 0;
 
-            bool editor = state == StartState.Editor;
+            bool editor = (state == StartState.Editor);
 
             if (editor)
             {
@@ -328,8 +243,98 @@ namespace B9PartSwitch
             }
 
             UpdateSubtype(false);
+        }
 
-            startFinished = true;
+        // This runs after OnStart() so everything should be initalized
+        public void Start()
+        {
+            // Check for incompatible modules
+            bool modifiedSetup = false;
+
+            List<ModuleB9PartSwitch> otherModules = part.FindModulesImplementing<ModuleB9PartSwitch>();
+            for (int i = 0; i < otherModules.Count; i++)
+            {
+                ModuleB9PartSwitch otherModule = otherModules[i];
+                if (otherModule == this) continue;
+                bool destroy = false;
+                for (int j = 0; j < managedResourceNames.Count; j++)
+                {
+                    if (otherModule.IsManagedResource(managedResourceNames[j]))
+                    {
+                        LogError("Two ModuleB9PartSwitch modules cannot manage the same resource: " + managedResourceNames[j]);
+                        destroy = true;
+                    }
+                }
+                for (int j = 0; j < managedTransformNames.Count; j++)
+                {
+                    if (otherModule.IsManagedTransform(managedTransformNames[j]))
+                    {
+                        LogError("Two ModuleB9PartSwitch modules cannot manage the same transform: " + managedTransformNames[j]);
+                        destroy = true;
+                    }
+                }
+                for (int j = 0; j < managedStackNodeIDs.Count; j++)
+                {
+                    if (otherModule.IsManagedNode(managedStackNodeIDs[j]))
+                    {
+                        LogError("Two ModuleB9PartSwitch modules cannot manage the same attach node: " + managedStackNodeIDs[j]);
+                        destroy = true;
+                    }
+                }
+
+                if (otherModule.MaxTempManaged && MaxTempManaged)
+                {
+                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's maxTemp");
+                    destroy = true;
+                }
+
+                if (otherModule.SkinMaxTempManaged && SkinMaxTempManaged)
+                {
+                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's skinMaxTemp");
+                    destroy = true;
+                }
+
+                if (otherModule.AttachNodeManaged && AttachNodeManaged)
+                {
+                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's attach node");
+                    destroy = true;
+                }
+
+                if (destroy)
+                {
+                    Debug.Log("ModuleB9PartSwitch with moduleID '" + otherModule.moduleID + "' is incomatible, and will be removed.");
+                    part.Modules.Remove(otherModule);
+                    Destroy(otherModule);
+                    modifiedSetup = true;
+                }
+            }
+
+            for (int i = 0; i < part.Modules.Count; i++)
+            {
+                PartModule m = part.Modules[i];
+                if (m == null || m is ModuleB9PartSwitch)
+                    continue;
+                Type mType = m.GetType();
+
+                for (int j = 0; j < IncompatibleModuleTypes.Length; j++)
+                {
+                    Type testType = IncompatibleModuleTypes[j];
+                    if (mType == testType || mType.IsSubclassOf(testType))
+                    {
+                        LogError("ModuleB9PartSwitch and " + m.moduleName + " cannot exist on the same part.  " + m.moduleName + " will be removed.");
+                        part.Modules.Remove(m);
+                        Destroy(m);
+                        modifiedSetup = true;
+                        break;
+                    }
+                }
+            }
+
+            // If there were incompatible modules, they might have messed with things
+            if (modifiedSetup)
+            {
+                UpdateSubtype(false);
+            }
         }
 
         #endregion
