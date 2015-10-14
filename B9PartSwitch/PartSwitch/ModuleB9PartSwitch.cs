@@ -487,9 +487,11 @@ namespace B9PartSwitch
                 }
             }
 
-            massModifier.UpdateMass();
-
-            if (!FARChecker.FARLoaded)
+            if (FARWrapper.FARLoaded)
+            {
+                part.SendMessage("GeometryPartModuleRebuildMeshData");
+            }
+            else
             {
                 DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
                 part.DragCubes.ClearCubes();
@@ -506,9 +508,14 @@ namespace B9PartSwitch
             }
 
             if (HighLogic.LoadedSceneIsEditor)
+            {
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
                 GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+            }
             else if (HighLogic.LoadedSceneIsFlight)
+            {
                 GameEvents.onVesselWasModified.Fire(this.vessel);
+            }
 
             Debug.Log(this.ToString() + ": Switched subtype to " + CurrentSubtype.Name);
         }

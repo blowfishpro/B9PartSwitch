@@ -5,11 +5,11 @@ using System.Text;
 
 namespace B9PartSwitch
 {
-    public static class FARChecker
+    public static class FARWrapper
     {
         public static bool FARLoaded { get; private set; }
 
-        static FARChecker()
+        static FARWrapper()
         {
             FARLoaded = false;
 
