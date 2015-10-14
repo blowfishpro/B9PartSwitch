@@ -81,8 +81,6 @@ namespace B9PartSwitch
         [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
 
-        private PartMassModifierModule massModifier = null;
-
         #endregion
 
         #region Properties
@@ -154,17 +152,6 @@ namespace B9PartSwitch
         public override void OnStart(PartModule.StartState state)
         {
             base.OnStart(state);
-
-            // Get mass modifier module
-
-            massModifier = part.FindModuleImplementing<PartMassModifierModule>();
-
-            if (massModifier == null)
-            {
-                LogError("No PartMassModifierModule found.  Module will be deactivated");
-                this.Disable();
-                return;
-            }
 
             // Initialize stuff
 
