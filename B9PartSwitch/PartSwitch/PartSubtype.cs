@@ -121,10 +121,11 @@ namespace B9PartSwitch
                 {
                     for (int j = 0; j < tempNodes.Length; j++)
                     {
-                        if (tempNodes[j].nodeType != AttachNode.NodeType.Stack)
-                            LogError("Node " + tempNodes[j].id + " is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier " + nodeNames[i] + ")");
-                        else
+                        // Allow dock nodes to that part duplication doesn't fail
+                        if (tempNodes[j].nodeType == AttachNode.NodeType.Stack || tempNodes[j].nodeType == AttachNode.NodeType.Dock)
                             nodes.Add(tempNodes[j]);
+                        else
+                            LogError("Node " + tempNodes[j].id + " is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier " + nodeNames[i] + ")");
                     }
                 }
             }
