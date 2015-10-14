@@ -53,7 +53,6 @@
     <Compile Include="Configs\ConfigFieldList.cs" />
     <Compile Include="Configs\ParseType.cs" />
     <Compile Include="Extensions\PartExtensions.cs" />
-    <Compile Include="Extensions\PartModuleExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="FARChecker.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
