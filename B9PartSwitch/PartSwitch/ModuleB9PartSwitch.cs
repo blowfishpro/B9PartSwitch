@@ -57,7 +57,7 @@ namespace B9PartSwitch
         public List<PartSubtype> subtypes = new List<PartSubtype>();
 
         [ConfigField]
-        public float defaultTankVolume = 0f;
+        public float baseVolume = 0f;
 
         [ConfigField]
         public string switcherDescription = "Subtype";
@@ -98,7 +98,7 @@ namespace B9PartSwitch
                 if (CurrentTankType == null || CurrentTankType.ResourcesCount == 0)
                     return 0f;
                 else
-                    return defaultTankVolume * CurrentSubtype.volumeMultiplier + CurrentSubtype.volumeAdded;
+                    return baseVolume * CurrentSubtype.volumeMultiplier + CurrentSubtype.volumeAdded;
             }
         }
 
@@ -335,7 +335,10 @@ namespace B9PartSwitch
 
         public float GetModuleCost(float baseCost)
         {
-            return CurrentSubtype.addedCost + (TankVolume * CurrentTankType.tankCost);
+            float cost = CurrentSubtype.addedCost + (TankVolume * CurrentTankType.tankCost);
+            for (int i = 0; i < CurrentTankType.ResourcesCount; i++)
+                cost += CurrentTankType.resources[i].resourceDefinition.unitCost * TankVolume;
+            return cost;
         }
 
         public override string GetInfo()
@@ -406,7 +409,7 @@ namespace B9PartSwitch
             if (subtype == null || subtype.tankType == null || subtype.tankType.ResourcesCount == 0)
                 return 0f;
             else
-                return defaultTankVolume * subtype.volumeMultiplier + subtype.volumeAdded;
+                return baseVolume * subtype.volumeMultiplier + subtype.volumeAdded;
         }
 
         #endregion
