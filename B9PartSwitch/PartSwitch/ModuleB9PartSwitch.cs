@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using ModularMassModifier;
+using B9PartSwitch.ModularMassModifier;
 
 namespace B9PartSwitch
 {
