@@ -36,4 +36,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.1.0.0")]
 
 [assembly: KSPAssembly("B9PartSwitch", 0, 1)]
-[assembly: KSPAssemblyDependency("ModularMassModifier", 0, 1)]
