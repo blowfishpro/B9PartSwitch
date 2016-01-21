@@ -65,6 +65,12 @@ namespace B9PartSwitch
         [ConfigField(persistant = true)]
         public int currentSubtypeIndex = 0;
 
+        [ConfigField]
+        public bool affectDragCubes = true;
+
+        [ConfigField]
+        public bool affectFARVoxels = true;
+
         [KSPField(guiActiveEditor = true, guiName = "Current Subtype")]
         public string currentSubtypeString = string.Empty;
 
@@ -343,7 +349,7 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = GetPrimaryField() + ":";
+            string outStr = "<b>" + subtypes.Count.ToString() + " Subtypes:</b>";
             for (int i = 0; i < subtypes.Count; i++)
             {
                 outStr += "\n  <b>- " + subtypes[i].Name + "</b>";
@@ -366,7 +372,10 @@ namespace B9PartSwitch
 
         public string GetPrimaryField()
         {
-            return "<b>" + subtypes.Count.ToString() + " Subtypes</b>";
+            string outStr = "<b>" + subtypes.Count.ToString() + " Subtypes</b>";
+            if (baseVolume > 0)
+                outStr += "\n  <b>Volume:</b> " + baseVolume.ToString("F0");
+            return outStr;
         }
 
         public Callback<Rect> GetDrawModulePanelCallback()
@@ -477,11 +486,12 @@ namespace B9PartSwitch
                 }
             }
 
-            if (FARWrapper.FARLoaded)
+            if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
             {
                 part.SendMessage("GeometryPartModuleRebuildMeshData");
             }
-            else
+            
+            if (affectDragCubes && managedTransformNames.Count > 0)
             {
                 DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
                 part.DragCubes.ClearCubes();
