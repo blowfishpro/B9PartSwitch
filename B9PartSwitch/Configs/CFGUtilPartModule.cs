@@ -15,8 +15,6 @@ namespace B9PartSwitch
 
         protected ConfigFieldList configFieldList;
 
-        protected Part prefab;
-
         #endregion
 
         #region Setup
@@ -47,8 +45,6 @@ namespace B9PartSwitch
                     }
                 }
             }
-
-            prefab = part.GetPrefab();
         }
 
         public override void OnLoad(ConfigNode node)
