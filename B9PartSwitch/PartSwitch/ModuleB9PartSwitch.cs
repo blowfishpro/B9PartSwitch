@@ -183,7 +183,7 @@ namespace B9PartSwitch
                 {
                     LogError("Subtype " + subtype.Name + " has a tank type with resources, but no volume is specifified");
                     Destroy(tank);
-                    subtype.tankType = tank = MiniMFTSettings.CloneTankType(MiniMFTSettings.StructuralTankType, subtype.gameObject);
+                    subtype.tankType = tank = B9TankSettings.CloneTankType(B9TankSettings.StructuralTankType, subtype.gameObject);
                 }
 
                 if (tank != null)

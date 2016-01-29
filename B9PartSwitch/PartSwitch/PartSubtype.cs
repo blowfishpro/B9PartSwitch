@@ -69,7 +69,7 @@ namespace B9PartSwitch
 
             if (tankType == null)
             {
-                tankType = MiniMFTSettings.CloneTankType(MiniMFTSettings.StructuralTankType, gameObject);
+                tankType = B9TankSettings.CloneTankType(B9TankSettings.StructuralTankType, gameObject);
             }
 
             if (attachNode != null)

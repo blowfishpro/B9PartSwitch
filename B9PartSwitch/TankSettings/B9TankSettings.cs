@@ -8,11 +8,11 @@ using KSP;
 namespace B9PartSwitch
 {
     [KSPAddon(KSPAddon.Startup.Instantly, false)]
-    public class MiniMFTSettings : MonoBehaviour
+    public class B9TankSettings : MonoBehaviour
     {
         private Dictionary<string, TankType> tankTypes = new Dictionary<string,TankType>();
 
-        public static MiniMFTSettings Instance { get; private set; }
+        public static B9TankSettings Instance { get; private set; }
 
         public static bool LoadedTankDefs { get; private set; }
 
@@ -33,14 +33,14 @@ namespace B9PartSwitch
             if (Instance != null && Instance != this)
             {
                 Destroy(this);
-                Debug.LogWarning("Cannot create more than one MiniMFTSettings instance");
+                Debug.LogWarning("Cannot create more than one B9TankSettings instance");
                 return;
             }
 
             Instance = this;
 
             CFGUtil.RegisterParseType<PartResourceDefinition>(FindResourceDefinition, x => x.name);
-            CFGUtil.RegisterParseType<TankType>(MiniMFTSettings.Instance.GetTankType, x => x.tankName);
+            CFGUtil.RegisterParseType<TankType>(B9TankSettings.Instance.GetTankType, x => x.tankName);
 
             DontDestroyOnLoad(gameObject);
             LoadedTankDefs = false;
@@ -74,7 +74,7 @@ namespace B9PartSwitch
             // Structural tank type is hard coded
             tankTypes.Add(structuralTankType.tankName, structuralTankType);
 
-            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("MINIMFT_TANK_TYPE");
+            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE");
             for (int i = 0; i < nodes.Length; i++)
             {
                 TankType t = gameObject.AddComponent<TankType>();
@@ -86,7 +86,7 @@ namespace B9PartSwitch
                     continue;
                 }
                 tankTypes.Add(t.tankName, t);
-                Debug.Log("MiniMFTSettings: registered tank type " + t.tankName);
+                Debug.Log("B9TankSettings: registered tank type " + t.tankName);
             }
 
             LoadedTankDefs = true;

@@ -52,13 +52,13 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="FARChecker.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
-    <Compile Include="MiniMFT\MiniMFTSettings.cs" />
+    <Compile Include="TankSettings\B9TankSettings.cs" />
     <Compile Include="ModularMassModifier\MassModifierModule.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MiniMFT\Tanks.cs" />
+    <Compile Include="TankSettings\Tanks.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
