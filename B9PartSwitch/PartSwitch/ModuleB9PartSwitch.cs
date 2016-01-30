@@ -571,7 +571,7 @@ namespace B9PartSwitch
                 }
                 else
                 {
-                    partResource = part.Resources[i];
+                    partResource = part.Resources[resourceIndices[i]];
                     partResource.maxAmount = resourceAmount;
                     if (forceFull)
                     {
