@@ -95,7 +95,7 @@ namespace B9PartSwitch
                     if (symPart.Modules[j].GetType() == this.GetType())
                     {
                         CFGUtilPartModule module = symPart.Modules[j] as CFGUtilPartModule;
-                        if(string.Equals(module.moduleID, moduleID))
+                        if (string.Equals(module.moduleID, moduleID))
                         {
                             returnList.Add(module);
                             foundCounterpart = true;
@@ -114,29 +114,34 @@ namespace B9PartSwitch
 
         #region Logging
 
-        protected void LogWarning(string message)
+        protected string LogString(string message)
         {
-            string log = "Warning on ";
-            log += this.ToString();
+            string log = this.ToString();
             log += ": ";
             log += message;
-            Debug.LogWarning(message);
+            return log;
+        }
+
+        protected void LogInfo(string message)
+        {
+            Debug.Log(LogString(message));
+        }
+
+        protected void LogWarning(string message)
+        {
+            Debug.LogWarning(LogString(message));
         }
 
         protected void LogError(string message)
         {
-            string log = "Error on ";
-            log += this.ToString();
-            log += ": ";
-            log += message;
-            Debug.LogError(message);
+            Debug.LogError(LogString(message));
         }
 
         public override string ToString()
         {
-            string log = "PartModule " + this.GetType().Name;
+            string log = this.GetType().Name;
             if (!string.IsNullOrEmpty(moduleID))
-                log += " with moduleID '" + moduleID + "'";
+                log += " (moduleID='" + moduleID + "')";
             if (part != null)
                 log += " on part " + part.name;
             return log;

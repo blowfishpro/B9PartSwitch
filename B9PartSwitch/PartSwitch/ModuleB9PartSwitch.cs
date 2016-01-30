@@ -198,7 +198,7 @@ namespace B9PartSwitch
                     MaxTempManaged = true;
                 if (subtype.skinMaxTemp > 0f)
                     SkinMaxTempManaged = true;
-                if (subtype.attachNode != null)
+                if (subtype.attachNode?.id != PartSubtype.DefaultAttachNodeID)
                 {
                     if (part.attachRules.allowSrfAttach  && part.srfAttachNode != null)
                     {
@@ -207,7 +207,6 @@ namespace B9PartSwitch
                     else
                     {
                         LogError("Error: Part subtype '" + subtype.Name + "' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                        subtype.attachNode = null;
                     }
                 }
             }
@@ -295,7 +294,7 @@ namespace B9PartSwitch
 
                 if (destroy)
                 {
-                    Debug.Log("ModuleB9PartSwitch with moduleID '" + otherModule.moduleID + "' is incomatible, and will be removed.");
+                    LogWarning("ModuleB9PartSwitch with moduleID '" + otherModule.moduleID + "' is incomatible, and will be removed.");
                     part.Modules.Remove(otherModule);
                     Destroy(otherModule);
                     modifiedSetup = true;
@@ -470,20 +469,11 @@ namespace B9PartSwitch
             else
                 part.skinMaxTemp = part.GetPrefab().skinMaxTemp;
 
-            if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
+            if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null && CurrentSubtype.attachNode != null)
             {
-                if (CurrentSubtype.attachNode != null)
-                {
-                    part.srfAttachNode.position = CurrentSubtype.attachNode.position;
-                    part.srfAttachNode.orientation = CurrentSubtype.attachNode.orientation;
-                    part.srfAttachNode.size = CurrentSubtype.attachNode.size;
-                }
-                else
-                {
-                    part.srfAttachNode.position = part.GetPrefab().srfAttachNode.position;
-                    part.srfAttachNode.orientation = part.GetPrefab().srfAttachNode.orientation;
-                    part.srfAttachNode.size = part.GetPrefab().srfAttachNode.size;
-                }
+                part.srfAttachNode.position = CurrentSubtype.attachNode.position;
+                part.srfAttachNode.orientation = CurrentSubtype.attachNode.orientation;
+                part.srfAttachNode.size = CurrentSubtype.attachNode.size;
             }
 
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
@@ -517,7 +507,7 @@ namespace B9PartSwitch
                 GameEvents.onVesselWasModified.Fire(this.vessel);
             }
 
-            Debug.Log(this.ToString() + ": Switched subtype to " + CurrentSubtype.Name);
+            LogInfo("Switched subtype to " + CurrentSubtype.Name);
         }
 
         private void UpdateTankSetup(bool forceFull)
