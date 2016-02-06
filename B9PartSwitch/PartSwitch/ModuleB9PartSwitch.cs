@@ -351,7 +351,7 @@ namespace B9PartSwitch
             string outStr = "<b>" + subtypes.Count.ToString() + " Subtypes:</b>";
             for (int i = 0; i < subtypes.Count; i++)
             {
-                outStr += "\n  <b>- " + subtypes[i].Name + "</b>";
+                outStr += "\n  <b>- " + subtypes[i].title + "</b>";
                 int resourceCount = subtypes[i].tankType.ResourcesCount;
                 if (resourceCount > 0)
                 {
@@ -451,7 +451,7 @@ namespace B9PartSwitch
 
         private void UpdateSubtype(bool fillTanks)
         {
-            currentSubtypeString = CurrentSubtype.Name;
+            currentSubtypeString = CurrentSubtype.title;
 
             CurrentSubtype.ActivateObjects();
             if (HighLogic.LoadedSceneIsEditor)

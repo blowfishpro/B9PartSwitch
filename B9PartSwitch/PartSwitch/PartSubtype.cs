@@ -20,6 +20,9 @@ namespace B9PartSwitch
         [ConfigField(configName = "name")]
         public string subtypeName;
 
+        [ConfigField]
+        public string title;
+
         [ConfigField(configName = "transform")]
         public List<string> transformNames = new List<string>();
 
@@ -77,6 +80,9 @@ namespace B9PartSwitch
             {
                 tankType = B9TankSettings.CloneTankType(B9TankSettings.StructuralTankType, gameObject);
             }
+
+            if (string.IsNullOrEmpty(title))
+                title = subtypeName;
         }
 
         public void SetParent(ModuleB9PartSwitch parent)
