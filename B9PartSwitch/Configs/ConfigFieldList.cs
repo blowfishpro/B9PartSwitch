@@ -87,7 +87,9 @@ namespace B9PartSwitch
 
         public void Load(ConfigNode node)
         {
+#if DEBUG
             Debug.Log("Loading " + Instance.GetType().Name + " from config");
+#endif
             for (int i = 0; i < configFields.Count; i++)
             {
                 ConfigFieldInfo field = configFields[i];
@@ -215,7 +217,9 @@ namespace B9PartSwitch
             if (source.configFields.Count != dest.configFields.Count)
                 throw new ArgumentException("Source and destination must have the same number of fields");
 
+#if DEBUG
             Debug.Log("Initiating copy on type " + source.Instance.GetType().Name);
+#endif
 
             int count = source.configFields.Count;
 
