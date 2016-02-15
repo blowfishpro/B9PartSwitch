@@ -223,9 +223,8 @@ namespace B9PartSwitch
                 currentSubtypeIndex = 0;
 
             bool editor = (state == StartState.Editor);
-
-            if (editor)
-                SetupGUI();
+            
+            SetupGUI();
 
             for (int i = 0; i < subtypes.Count; i++)
             {
