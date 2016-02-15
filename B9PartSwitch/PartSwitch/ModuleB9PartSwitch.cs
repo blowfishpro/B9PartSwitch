@@ -91,22 +91,24 @@ namespace B9PartSwitch
 
         #region Properties
 
-        public int SubtypesCount { get { return subtypes.Count; } }
+        public int SubtypesCount => subtypes.Count;
 
-        public PartSubtype CurrentSubtype { get { return subtypes[currentSubtypeIndex]; } }
+        public PartSubtype CurrentSubtype => subtypes[currentSubtypeIndex];
 
-        public TankType CurrentTankType { get { return CurrentSubtype.tankType; } }
+        public TankType CurrentTankType => CurrentSubtype.tankType;
 
         public float TankVolume
         {
             get
             {
-                if (CurrentTankType == null || CurrentTankType.ResourcesCount == 0)
-                    return 0f;
-                else
+                if (CurrentSubtype.HasTank)
                     return baseVolume * CurrentSubtype.volumeMultiplier + CurrentSubtype.volumeAdded;
+                else
+                    return 0f;
             }
         }
+
+        public PartSubtype this[int index] => subtypes[index];
 
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
@@ -385,14 +387,6 @@ namespace B9PartSwitch
         #endregion
 
         #region Public Methods
-
-        public PartSubtype this[int index]
-        {
-            get
-            {
-                return subtypes[index];
-            }
-        }
 
         public bool IsManagedResource(string resourceName)
         {

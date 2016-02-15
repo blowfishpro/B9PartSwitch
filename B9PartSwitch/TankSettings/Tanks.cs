@@ -16,7 +16,7 @@ namespace B9PartSwitch
         [ConfigField]
         public float unitsPerVolume = 1f;
 
-        public string ResourceName { get { return resourceDefinition.name; } }
+        public string ResourceName => resourceDefinition.name;
 
         public override string ToString()
         {
@@ -43,7 +43,7 @@ namespace B9PartSwitch
         [ConfigField(configName = "RESOURCE")]
         public List<TankResource> resources = new List<TankResource>();
 
-        public TankResource this[int index] { get { return resources[index]; } }
+        public TankResource this[int index] => resources[index];
 
         public TankResource this[string name]
         {
@@ -68,7 +68,7 @@ namespace B9PartSwitch
             return false;
         }
 
-        public int ResourcesCount { get { return resources.Count; } }
+        public int ResourcesCount => resources.Count;
 
         public IEnumerator<string> GetResourceNames()
         {

@@ -56,10 +56,10 @@ namespace B9PartSwitch
             }
         }
 
-        public string Name { get { return Field.Name; } }
-        public string ConfigName { get { return Attribute.configName; } }
-        public Type Type { get { return Field.FieldType; } }
-        public bool Copy { get { return Attribute.copy; } }
+        public string Name => Field.Name;
+        public string ConfigName => Attribute.configName;
+        public Type Type => Field.FieldType;
+        public bool Copy => Attribute.copy;
         private Type realType;
         public Type RealType
         {
@@ -67,7 +67,7 @@ namespace B9PartSwitch
             {
                 return realType;
             }
-            set
+            protected set
             {
                 realType = value;
 
@@ -96,7 +96,7 @@ namespace B9PartSwitch
         public bool IsConfigNodeType { get; private set; }
         public bool IsCopyFieldsType { get; private set; }
         public bool IsSerializableType { get; private set; }
-        public bool IsPersistant { get { return Attribute.persistant; } }
+        public bool IsPersistant => Attribute.persistant;
         public object Value
         {
             get
@@ -113,7 +113,7 @@ namespace B9PartSwitch
     public class ListFieldInfo : ConfigFieldInfo
     {
         public IList List { get; private set; }
-        public int Count { get { return List.Count; } }
+        public int Count => List.Count;
         public ConstructorInfo ListConstructor { get; private set; }
 
         public ListFieldInfo(Component instance, FieldInfo field, ConfigField attribute)

@@ -66,7 +66,9 @@ namespace B9PartSwitch
 
         #region Properties
 
-        public string Name { get { return subtypeName; } }
+        public string Name => subtypeName;
+
+        public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
         #endregion
 
