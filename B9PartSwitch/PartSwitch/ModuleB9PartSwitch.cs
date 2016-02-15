@@ -87,6 +87,10 @@ namespace B9PartSwitch
         [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
 
+        private BaseField currentSubtypeNameField;
+        private BaseEvent prevSubtypeEvent;
+        private BaseEvent nextSubtypeEvent;
+
         #endregion
 
         #region Properties
@@ -109,6 +113,8 @@ namespace B9PartSwitch
         }
 
         public PartSubtype this[int index] => subtypes[index];
+
+        public bool UseSmallGUI => SubtypesCount < 4;
 
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
@@ -219,13 +225,7 @@ namespace B9PartSwitch
             bool editor = (state == StartState.Editor);
 
             if (editor)
-            {
-                Fields["currentSubtypeString"].guiName = switcherDescription;
-                Events["NextSubtype"].guiName = "Next " + switcherDescription;
-                Events["PreviousSubtype"].guiName = "Previous " + switcherDescription;
-
-                Events["PreviousSubtype"].guiActiveEditor = subtypes.Count > 2;
-            }
+                SetupGUI();
 
             for (int i = 0; i < subtypes.Count; i++)
             {
@@ -418,6 +418,25 @@ namespace B9PartSwitch
 
         #region Private Methods
 
+        private void SetupGUI()
+        {
+            currentSubtypeNameField = Fields["currentSubtypeString"];
+            nextSubtypeEvent = Events["NextSubtype"];
+            prevSubtypeEvent = Events["PreviousSubtype"];
+
+            if (UseSmallGUI)
+            {
+                currentSubtypeNameField.guiActiveEditor = false;
+                prevSubtypeEvent.guiActiveEditor = false;
+            }
+            else
+            {
+                currentSubtypeNameField.guiName = switcherDescription;
+                nextSubtypeEvent.guiName = "Next " + switcherDescription;
+                prevSubtypeEvent.guiName = "Previous " + switcherDescription;
+            }
+        }
+
         private void SetNewSubtype(int newIndex, bool force)
         {
             if (newIndex == currentSubtypeIndex && !force)
@@ -445,7 +464,7 @@ namespace B9PartSwitch
 
         private void UpdateSubtype(bool fillTanks)
         {
-            currentSubtypeString = CurrentSubtype.title;
+            UpdateGUI();
 
             CurrentSubtype.ActivateObjects();
             if (HighLogic.LoadedSceneIsEditor)
@@ -502,6 +521,18 @@ namespace B9PartSwitch
             }
 
             LogInfo("Switched subtype to " + CurrentSubtype.Name);
+        }
+
+        private void UpdateGUI()
+        {
+            if (UseSmallGUI)
+            {
+                nextSubtypeEvent.guiName = switcherDescription + ": " + CurrentSubtype.title;
+            }
+            else
+            {
+                currentSubtypeString = CurrentSubtype.title;
+            }
         }
 
         private void UpdateTankSetup(bool forceFull)
