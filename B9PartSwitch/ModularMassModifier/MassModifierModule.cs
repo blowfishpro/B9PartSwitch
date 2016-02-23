@@ -15,7 +15,7 @@ namespace B9PartSwitch.ModularMassModifier
     {
         public float BaseMass { get; private set; }
         public float ModuleMass { get; private set; }
-        public float Mass { get { return BaseMass + ModuleMass; } }
+        public float Mass => BaseMass + ModuleMass;
 
         public override void OnStart(PartModule.StartState state)
         {
@@ -56,7 +56,7 @@ namespace B9PartSwitch.ModularMassModifier
 
         private void OnVesselUpdate(Vessel vessel)
         {
-            if (object.ReferenceEquals(vessel, this.part.vessel))
+            if (object.ReferenceEquals(vessel, this.vessel))
                 UpdateMass();
         }
 

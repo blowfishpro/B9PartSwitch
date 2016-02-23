@@ -72,21 +72,11 @@ namespace B9PartSwitch
             return this.GetEnumerator();
         }
 
-        public ConfigFieldInfo this[string name]
-        {
-            get
-            {
-                for (int i = 0; i < configFields.Count; i++)
-                {
-                    if (configFields[i].Name == name)
-                        return configFields[i];
-                }
-                return null;
-            }
-        }
+        public ConfigFieldInfo this[string name] => configFields.FirstOrDefault(cf => cf.Name == name);
 
         public void Load(ConfigNode node)
         {
+
 #if DEBUG
             Debug.Log("Loading " + Instance.GetType().Name + " from config");
 #endif

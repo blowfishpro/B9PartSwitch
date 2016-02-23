@@ -31,6 +31,7 @@ namespace B9PartSwitch
     [Serializable]
     public class TankType : CFGUtilObject, IEnumerable<TankResource>
     {
+        #region Loadable Fields
         [ConfigField(configName = "name")]
         public string tankName;
          
@@ -43,48 +44,23 @@ namespace B9PartSwitch
         [ConfigField(configName = "RESOURCE")]
         public List<TankResource> resources = new List<TankResource>();
 
+        #endregion
+
+        #region Properties
+
         public TankResource this[int index] => resources[index];
 
-        public TankResource this[string name]
-        {
-            get
-            {
-                foreach (TankResource resource in resources)
-                {
-                    if (resource.resourceDefinition.name == name)
-                        return resource;
-                }
-                return null;
-            }
-        }
+        public TankResource this[string name] => resources.FirstOrDefault(r => r.ResourceName == name);
 
-        public bool ContainsResource(string resourceName)
-        {
-            foreach(TankResource resource in resources)
-            {
-                if (resource.ResourceName == resourceName)
-                    return true;
-            }
-            return false;
-        }
+        public bool ContainsResource(string resourceName) => resources.Any(r => r.ResourceName == resourceName);
 
         public int ResourcesCount => resources.Count;
 
-        public IEnumerator<string> GetResourceNames()
-        {
-            for (int i = 0; i < resources.Count; i++)
-            {
-                yield return resources[i].ResourceName;
-            }
-        }
+        public IEnumerable<string> ResourceNames => resources.Select(r => r.ResourceName);
 
-        public bool IsStructuralTankType
-        {
-            get
-            {
-                return tankName == "Structural" && tankMass == 0f && tankCost == 0f && resources.Count == 0;
-            }
-        }
+        public bool IsStructuralTankType => (tankName == "Structural") && (tankMass == 0f) && (tankCost == 0f) && (resources.Count == 0);
+
+        #endregion
 
         public IEnumerator<TankResource> GetEnumerator()
         {

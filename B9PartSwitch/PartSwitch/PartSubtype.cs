@@ -170,13 +170,13 @@ namespace B9PartSwitch
 
         #endregion
 
-        #region Public Methods
+        #region Properties
 
-        public IEnumerator<string> GetNodeIDs()
-        {
-            for (int i = 0; i < nodes.Count; i++)
-                yield return nodes[i].id;
-        }
+        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
+
+        #endregion
+
+        #region Public Methods
 
         public void ActivateObjects()
         {

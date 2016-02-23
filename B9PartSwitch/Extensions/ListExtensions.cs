@@ -9,11 +9,6 @@ namespace B9PartSwitch
 {
     public static class ListExtensions
     {
-        public static void AddRange<T>(this List<T> list, IEnumerator<T> range)
-        {
-            while (range.MoveNext())
-                list.Add(range.Current);
-        }
 
         public static bool IsList(this object o)
         {

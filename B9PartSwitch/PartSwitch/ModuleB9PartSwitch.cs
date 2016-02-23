@@ -196,11 +196,11 @@ namespace B9PartSwitch
 
                 if (tank != null)
                 {
-                    managedResourceNames.AddRange(tank.GetResourceNames());
+                    managedResourceNames.AddRange(tank.ResourceNames);
                 }
 
                 managedTransformNames.AddRange(subtype.transformNames);
-                managedStackNodeIDs.AddRange(subtype.GetNodeIDs());
+                managedStackNodeIDs.AddRange(subtype.NodeIDs);
 
                 if (subtype.maxTemp > 0f)
                     MaxTempManaged = true;
