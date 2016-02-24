@@ -289,7 +289,7 @@ namespace B9PartSwitch
                         {
                             destItem = realType;
                         }
-                        else if (CFGUtil.IsParsableType(realType))
+                        else if (CFGUtil.IsConfigParsableType(realType))
                         {
                             destItem = CFGUtil.ParseConfigValue(realType, CFGUtil.FormatConfigValue(sourceItem));
                         }
@@ -327,7 +327,7 @@ namespace B9PartSwitch
                     {
                         destField.Value = sourceField.Value;
                     }
-                    else if (CFGUtil.IsParsableType(realType))
+                    else if (CFGUtil.IsConfigParsableType(realType))
                     {
                         destField.Value = CFGUtil.ParseConfigValue(realType, CFGUtil.FormatConfigValue(sourceField.Value));
                     }

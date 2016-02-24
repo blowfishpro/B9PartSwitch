@@ -45,7 +45,7 @@ namespace B9PartSwitch
             return ParseTypes.ContainsKey(type);
         }
 
-        public static bool IsParsableType(Type type)
+        public static bool IsConfigParsableType(this Type type)
         {
             return type == typeof(string) || type.IsEnum || IsRegisteredParseType(type);
         }
@@ -53,7 +53,7 @@ namespace B9PartSwitch
         public static void RegisterParseType<T>(Func<string, T> parseFunction, Func<T, string> formatFunction)
         {
             Type type = typeof(T);
-            if (IsParsableType(type))
+            if (IsConfigParsableType(type))
             {
                 Debug.LogError("The type " + type.Name + " is already a registered parse type");
                 return;

@@ -76,7 +76,7 @@ namespace B9PartSwitch
 
                 IsComponentType = RealType.IsSubclassOf(typeof(Component));
                 IsScriptableObjectType = RealType.IsSubclassOf(typeof(ScriptableObject));
-                IsRegisteredParseType = CFGUtil.IsParsableType(RealType);
+                IsRegisteredParseType = CFGUtil.IsConfigParsableType(RealType);
                 IsParsableType = IsRegisteredParseType || Attribute.parseFunction != null;
                 IsFormattableType = IsRegisteredParseType || Attribute.formatFunction != null;
                 IsConfigNodeType = IsParsableType ? false : RealType.GetInterfaces().Contains(typeof(IConfigNode));
