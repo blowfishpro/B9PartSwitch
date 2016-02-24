@@ -9,7 +9,6 @@ namespace B9PartSwitch
 {
     public static class ListExtensions
     {
-
         public static bool IsList(this object o)
         {
             if (o == null)
