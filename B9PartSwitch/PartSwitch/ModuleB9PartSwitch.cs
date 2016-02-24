@@ -342,8 +342,7 @@ namespace B9PartSwitch
         public float GetModuleCost(float baseCost)
         {
             float cost = CurrentSubtype.addedCost + (TankVolume * CurrentTankType.tankCost);
-            for (int i = 0; i < CurrentTankType.ResourcesCount; i++)
-                cost += CurrentTankType.resources[i].resourceDefinition.unitCost * TankVolume;
+            cost += TankVolume * CurrentTankType.ResourceUnitCost;
             return cost;
         }
 
