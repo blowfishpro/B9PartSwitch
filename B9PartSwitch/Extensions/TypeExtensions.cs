@@ -8,6 +8,11 @@ namespace B9PartSwitch
 {
     public static class TypeExtensions
     {
+        public static bool DerivesFrom(this Type self, Type other)
+        {
+            return other.IsAssignableFrom(self);
+        }
+
         public static bool IsUnitySerializableType(this Type t)
         {
             if (t == null)
