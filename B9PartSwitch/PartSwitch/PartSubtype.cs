@@ -70,6 +70,8 @@ namespace B9PartSwitch
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
+        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
+
         #endregion
 
         #region Setup
@@ -167,12 +169,6 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
         }
-
-        #endregion
-
-        #region Properties
-
-        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
         #endregion
 
