@@ -6,6 +6,36 @@ using UnityEngine;
 
 namespace B9PartSwitch
 {
+    public struct TransformInfo
+    {
+        public readonly Transform transform;
+        public readonly GameObject gameObject;
+        public readonly Collider collider;
+
+        public TransformInfo(Transform t)
+        {
+            transform = t;
+            gameObject = transform?.gameObject;
+            collider = t?.GetComponent<Collider>();
+        }
+
+        public void Enable()
+        {
+            gameObject?.SetActive(true);
+
+            if (collider != null)
+                collider.enabled = true;
+        }
+
+        public void Disable()
+        {
+            gameObject?.SetActive(false);
+
+            if (collider != null)
+                collider.enabled = false;
+        }
+    }
+
     [Serializable]
     public class PartSubtype : CFGUtilObject
     {
@@ -59,7 +89,7 @@ namespace B9PartSwitch
 
         private ModuleB9PartSwitch parent;
         private Part part;
-        private List<Transform> transforms = new List<Transform>();
+        private List<TransformInfo> transforms = new List<TransformInfo>();
         private List<AttachNode> nodes = new List<AttachNode>();
 
         #endregion
@@ -105,14 +135,14 @@ namespace B9PartSwitch
             if (parent == null)
                 throw new InvalidOperationException("Parent has not been set");
 
-            transforms = new List<Transform>();
+            transforms = new List<TransformInfo>();
             for (int i = 0; i < transformNames.Count; i++)
             {
                 Transform[] tempTransforms = part.FindModelTransforms(transformNames[i]);
                 if (tempTransforms == null || tempTransforms.Length == 0)
                     LogError("No transformes named " + transformNames[i] + " found");
                 else
-                    transforms.AddRange(tempTransforms);
+                    transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
             }
         }
 
@@ -176,32 +206,13 @@ namespace B9PartSwitch
 
         public void ActivateObjects()
         {
-            for (int i = 0; i < transforms.Count; i++)
-            {
-                if (transforms[i] == null || transforms[i].gameObject == null)
-                {
-                    Debug.LogError("Transform is no longer valid");
-                    transforms.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                transforms[i].gameObject.SetActive(true);
-                if (transforms[i].gameObject.collider != null)
-                    transforms[i].gameObject.collider.enabled = true;
-            }
+            transforms.ForEach(t => t.Enable());
         }
 
         public void ActivateNodes()
         {
             for (int i = 0; i < nodes.Count; i++)
             {
-                if (nodes[i] == null)
-                {
-                    LogError("Node is no longer valid");
-                    nodes.RemoveAt(i);
-                    i--;
-                    continue;
-                }
                 nodes[i].nodeType = AttachNode.NodeType.Stack;
                 nodes[i].radius = 0.4f;
             }
@@ -209,32 +220,13 @@ namespace B9PartSwitch
 
         public void DeactivateObjects()
         {
-            for (int i = 0; i < transforms.Count; i++)
-            {
-                if (transforms[i] == null || transforms[i].gameObject == null)
-                {
-                    LogError("Transform is no longer valid");
-                    transforms.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                transforms[i].gameObject.SetActive(false);
-                if (transforms[i].gameObject.collider != null)
-                    transforms[i].gameObject.collider.enabled = false;
-            }
+            transforms.ForEach(t => t.Disable());
         }
 
         public void DeactivateNodes()
         {
             for (int i = 0; i < nodes.Count; i++)
             {
-                if (nodes[i] == null)
-                {
-                    LogError("Node is no loger valid");
-                    nodes.RemoveAt(i);
-                    i--;
-                    continue;
-                }
                 nodes[i].nodeType = AttachNode.NodeType.Dock;
                 nodes[i].radius = 0.001f;
             }

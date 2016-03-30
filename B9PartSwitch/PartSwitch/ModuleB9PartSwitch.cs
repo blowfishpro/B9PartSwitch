@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using B9PartSwitch.ModularMassModifier;
 
 namespace B9PartSwitch
 {
-    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier2, IPartCostModifier, IModuleInfo
+    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
         #region Constants
 

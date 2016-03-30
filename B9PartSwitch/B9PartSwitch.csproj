@@ -32,12 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\..\..\..\Games\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Games\KSP_1-1-pre\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\..\..\..\..\Games\KSP_1-1-pre\KSP_x64_Data\Managed\KSPUtil.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\..\..\Games\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Games\KSP_1-1-pre\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -53,7 +57,6 @@
     <Compile Include="FARChecker.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="TankSettings\B9TankSettings.cs" />
-    <Compile Include="ModularMassModifier\MassModifierModule.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="PartSwitch\PartSubtype.cs" />
