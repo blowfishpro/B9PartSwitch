@@ -211,11 +211,7 @@ namespace B9PartSwitch
 
         public void ActivateNodes()
         {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].nodeType = AttachNode.NodeType.Stack;
-                nodes[i].radius = 0.4f;
-            }
+            nodes.ForEach(n => n.Unhide());
         }
 
         public void DeactivateObjects()
@@ -225,11 +221,7 @@ namespace B9PartSwitch
 
         public void DeactivateNodes()
         {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].nodeType = AttachNode.NodeType.Dock;
-                nodes[i].radius = 0.001f;
-            }
+            nodes.ForEach(n => n.Hide());
         }
 
         public override string ToString()
