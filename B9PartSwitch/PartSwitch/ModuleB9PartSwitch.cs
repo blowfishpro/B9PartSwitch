@@ -70,8 +70,9 @@ namespace B9PartSwitch
         [ConfigField]
         public bool affectFARVoxels = true;
 
-        [KSPField(guiActiveEditor = true, guiName = "Current Subtype")]
-        public string currentSubtypeString = string.Empty;
+        [KSPField(guiActiveEditor = true, guiName = "Subtype")]
+        [UI_ChooseOption(affectSymCounterparts = UI_Scene.Editor, options = new[] { "None" }, scene = UI_Scene.Editor)]
+        public int subtypeIndexControl = 0;
 
         #endregion
 
@@ -85,10 +86,6 @@ namespace B9PartSwitch
 
         [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
-
-        private BaseField currentSubtypeNameField;
-        private BaseEvent prevSubtypeEvent;
-        private BaseEvent nextSubtypeEvent;
 
         #endregion
 
@@ -118,28 +115,6 @@ namespace B9PartSwitch
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
         public bool AttachNodeManaged { get; private set; }
-
-        #endregion
-
-        #region Events
-
-        [KSPEvent(guiActiveEditor = true, guiName = "Previous Subtype")]
-        public void PreviousSubtype()
-        {
-            int newIndex = currentSubtypeIndex - 1;
-            if (newIndex < 0)
-                newIndex = subtypes.Count - 1;
-            SetNewSubtype(newIndex, false);
-        }
-
-        [KSPEvent(guiActiveEditor = true, guiName = "Next Subtype")]
-        public void NextSubtype()
-        {
-            int newIndex = currentSubtypeIndex + 1;
-            if (newIndex >= subtypes.Count)
-                newIndex = 0;
-            SetNewSubtype(newIndex, false);
-        }
 
         #endregion
 
@@ -416,21 +391,18 @@ namespace B9PartSwitch
 
         private void SetupGUI()
         {
-            currentSubtypeNameField = Fields["currentSubtypeString"];
-            nextSubtypeEvent = Events["NextSubtype"];
-            prevSubtypeEvent = Events["PreviousSubtype"];
+            var chooseField = Fields[nameof(subtypeIndexControl)];
+            chooseField.guiName = switcherDescription;
 
-            if (UseSmallGUI)
-            {
-                currentSubtypeNameField.guiActiveEditor = false;
-                prevSubtypeEvent.guiActiveEditor = false;
-            }
-            else
-            {
-                currentSubtypeNameField.guiName = switcherDescription;
-                nextSubtypeEvent.guiName = "Next " + switcherDescription;
-                prevSubtypeEvent.guiName = "Previous " + switcherDescription;
-            }
+            var chooseOption = chooseField.uiControlEditor as UI_ChooseOption;
+            chooseOption.options = subtypes.Select(s => s.title).ToArray();
+
+            GameEvents.onEditorShipModified.Add(UpdateFromGUI);
+        }
+
+        private void UpdateFromGUI(ShipConstruct data)
+        {
+            SetNewSubtype(subtypeIndexControl, false);
         }
 
         private void SetNewSubtype(int newIndex, bool force)
@@ -460,8 +432,6 @@ namespace B9PartSwitch
 
         private void UpdateSubtype(bool fillTanks)
         {
-            UpdateGUI();
-
             CurrentSubtype.ActivateObjects();
             if (HighLogic.LoadedSceneIsEditor)
                 CurrentSubtype.ActivateNodes();
@@ -518,18 +488,6 @@ namespace B9PartSwitch
             }
 
             LogInfo("Switched subtype to " + CurrentSubtype.Name);
-        }
-
-        private void UpdateGUI()
-        {
-            if (UseSmallGUI)
-            {
-                nextSubtypeEvent.guiName = switcherDescription + ": " + CurrentSubtype.title;
-            }
-            else
-            {
-                currentSubtypeString = CurrentSubtype.title;
-            }
         }
 
         private void UpdateTankSetup(bool forceFull)
