@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace B9PartSwitch
@@ -39,12 +38,6 @@ namespace B9PartSwitch
     [Serializable]
     public class PartSubtype : CFGUtilObject
     {
-        #region Constants
-
-        public const string DefaultAttachNodeID = "default-attach-node";
-
-        #endregion
-
         #region Config Fields
 
         [ConfigField(configName = "name")]
@@ -86,7 +79,7 @@ namespace B9PartSwitch
         #endregion
 
         #region Private Fields
-
+        
         private ModuleB9PartSwitch parent;
         private Part part;
         private List<TransformInfo> transforms = new List<TransformInfo>();
@@ -112,7 +105,7 @@ namespace B9PartSwitch
 
             if (tankType == null)
             {
-                tankType = B9TankSettings.CloneTankType(B9TankSettings.StructuralTankType, gameObject);
+                tankType = B9TankSettings.StructuralTankType;
             }
 
             if (string.IsNullOrEmpty(title))
@@ -177,24 +170,6 @@ namespace B9PartSwitch
         {
             if (parent == null || part == null)
                 throw new InvalidOperationException("Parent or part has not been set");
-
-            // If attach node is empty, copy part prefab's attach node
-            // Null nodes seem to become non null when re-rendering drag cubes so can't rely on node just being null
-            if (string.IsNullOrEmpty(attachNode?.id))
-            {
-                if (attachNode == null) attachNode = new AttachNode();
-                attachNode.id = DefaultAttachNodeID;
-                AttachNode referenceNode = part.GetPrefab().srfAttachNode;
-                if (referenceNode != null)
-                {
-                    attachNode.position = referenceNode.position;
-                    attachNode.orientation = referenceNode.orientation;
-                    attachNode.originalPosition = referenceNode.originalPosition;
-                    attachNode.originalOrientation = referenceNode.originalOrientation;
-                    attachNode.size = referenceNode.size;
-                    attachNode.attachMethod = referenceNode.attachMethod;
-                }
-            }
 
             FindObjects();
             FindNodes();

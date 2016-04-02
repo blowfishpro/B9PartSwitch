@@ -2,22 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using UnityEngine;
 
 namespace B9PartSwitch
 {
     [Serializable]
-    public abstract class CFGUtilObject : MonoBehaviour, IConfigNode, ICopyFields
+    public abstract class CFGUtilObject : IConfigNodeSerializable, ICloneable
     {
+        [NonSerialized]
         protected ConfigFieldList configFieldList;
 
-        public void Awake()
-        {
-            CreateFieldList();
-            OnAwake();
-        }
-
-        protected void CreateFieldList()
+        public CFGUtilObject()
         {
             configFieldList = new ConfigFieldList(this);
         }
@@ -34,23 +30,32 @@ namespace B9PartSwitch
             OnSave(node);
         }
 
-        virtual public void OnAwake() { }
+        public void SerializeToNode(ConfigNode node)
+        {
+            configFieldList.Save(node, true);
+            OnSave(node);
+        }
 
         virtual public void OnLoad(ConfigNode node) { }
 
         virtual public void OnSave(ConfigNode node) { }
 
-        public void CopyFrom(ICopyFields source)
+        public object Clone()
         {
-            if (GetType() != source.GetType())
-                throw new NotImplementedException("Can only copy fields from an object of the same type (this is " + GetType().Name + " but source is " + source.GetType().Name + ")");
+            ConstructorInfo constructor = this.GetType().GetConstructor(Type.EmptyTypes);
+            if (constructor.IsNull())
+                throw new MissingMemberException("Cannot clone because no public parameterless constructor could be found");
 
-            CFGUtilObject realSource = source as CFGUtilObject;
+            var obj = constructor.Invoke(null) as CFGUtilObject;
 
-            ConfigFieldList.CopyList(ref realSource.configFieldList, ref configFieldList);
+            ConfigNode node = new ConfigNode();
+            SerializeToNode(node);
+            obj.Load(node);
+
+            return obj;
         }
 
-        virtual public void OnDestroy()
+        ~CFGUtilObject()
         {
             configFieldList.OnDestroy();
         }

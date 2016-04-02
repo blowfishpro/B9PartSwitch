@@ -52,7 +52,10 @@
     <Compile Include="Configs\ConfigField.cs" />
     <Compile Include="Configs\ConfigFieldList.cs" />
     <Compile Include="Configs\ParseType.cs" />
+    <Compile Include="Serialization\ConfigNodeSerialized.cs" />
+    <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\PartExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="FARChecker.cs" />

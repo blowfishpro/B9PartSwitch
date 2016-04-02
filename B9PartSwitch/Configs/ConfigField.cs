@@ -14,23 +14,23 @@ namespace B9PartSwitch
     {
         public bool persistant = false;
         public string configName = null;
-        public Func<string, object> parseFunction = null;
-        public Func<object, string> formatFunction = null;
+        // public Func<string, object> parseFunction = null;
+        // public Func<object, string> formatFunction = null;
         public bool copy = true;
         public bool destroy = true;
     }
 
     public class ConfigFieldInfo
     {
-        public Component Instance { get; private set; }
+        public object Parent { get; private set; }
         public FieldInfo Field { get; private set; }
         public ConfigField Attribute { get; private set; }
         
         public ConstructorInfo Constructor { get; protected set; }
 
-        public ConfigFieldInfo(Component instance, FieldInfo field, ConfigField attribute)
+        public ConfigFieldInfo(object parent, FieldInfo field, ConfigField attribute)
         {
-            Instance = instance;
+            Parent = parent;
             Field = field;
             Attribute = attribute;
 
@@ -71,17 +71,16 @@ namespace B9PartSwitch
             {
                 realType = value;
 
-                if (Attribute.parseFunction != null && Attribute.parseFunction.Method.GetGenericArguments()[0] != RealType)
-                    throw new ArgumentException("Parse function on ConfigField attribute of field " + Field.Name + " of class " + Field.DeclaringType.Name + " should have return type " + RealType.Name + " (the same as the field), but instead has return type " + Attribute.parseFunction.Method.GetGenericArguments()[0].Name);
+                // if (Attribute.parseFunction != null && Attribute.parseFunction.Method.GetGenericArguments()[0] != RealType)
+                //     throw new ArgumentException("Parse function on ConfigField attribute of field " + Field.Name + " of class " + Field.DeclaringType.Name + " should have return type " + RealType.Name + " (the same as the field), but instead has return type " + Attribute.parseFunction.Method.GetGenericArguments()[0].Name);
 
                 IsComponentType = RealType.IsSubclassOf(typeof(Component));
                 IsScriptableObjectType = RealType.IsSubclassOf(typeof(ScriptableObject));
                 IsRegisteredParseType = CFGUtil.IsConfigParsableType(RealType);
-                IsParsableType = IsRegisteredParseType || Attribute.parseFunction != null;
-                IsFormattableType = IsRegisteredParseType || Attribute.formatFunction != null;
+                IsParsableType = IsRegisteredParseType; // || Attribute.parseFunction != null;
+                IsFormattableType = IsRegisteredParseType; // || Attribute.formatFunction != null;
                 IsConfigNodeType = IsParsableType ? false : RealType.GetInterfaces().Contains(typeof(IConfigNode));
                 IsSerializableType = RealType.IsUnitySerializableType();
-                IsCopyFieldsType = RealType.GetInterfaces().Contains(typeof(ICopyFields));
                 if (!IsSerializableType)
                     Debug.LogWarning("The type " + RealType.Name + " is not a Unity serializable type and thus will not be serialized.  This may lead to unexpected behavior, e.g. the field is null after instantiating a prefab.");
 
@@ -94,18 +93,17 @@ namespace B9PartSwitch
         public bool IsParsableType { get; private set; }
         public bool IsFormattableType { get; private set; }
         public bool IsConfigNodeType { get; private set; }
-        public bool IsCopyFieldsType { get; private set; }
         public bool IsSerializableType { get; private set; }
         public bool IsPersistant => Attribute.persistant;
         public object Value
         {
             get
             {
-                return Field.GetValue(Instance);
+                return Field.GetValue(Parent);
             }
             set
             {
-                Field.SetValue(Instance, value);
+                Field.SetValue(Parent, value);
             }
         }
     }
@@ -116,12 +114,12 @@ namespace B9PartSwitch
         public int Count => List.Count;
         public ConstructorInfo ListConstructor { get; private set; }
 
-        public ListFieldInfo(Component instance, FieldInfo field, ConfigField attribute)
-            : base(instance, field, attribute)
+        public ListFieldInfo(object parent, FieldInfo field, ConfigField attribute)
+            : base(parent, field, attribute)
         {
             if (!Type.IsListType())
                 throw new ArgumentException("The field " + field.Name + " is not a list");
-            List = Field.GetValue(Instance) as IList;
+            List = Field.GetValue(Parent) as IList;
 
             RealType = Type.GetGenericArguments()[0];
 
@@ -139,9 +137,10 @@ namespace B9PartSwitch
                 }
             }
 
-            if (Attribute.parseFunction == null && IsConfigNodeType && Constructor == null)
+            // if (Attribute.parseFunction == null && IsConfigNodeType && Constructor == null)
+            if (IsConfigNodeType && Constructor == null)
             {
-                throw new MissingMethodException("A default constructor is required for the IConfigNode type " + RealType.Name + " (constructor required to parse list field " + field.Name + " in class " + Instance.GetType().Name + ")");
+                throw new MissingMethodException("A default constructor is required for the IConfigNode type " + RealType.Name + " (constructor required to parse list field " + field.Name + " in class " + Parent.GetType().Name + ")");
             }
         }
 
@@ -167,7 +166,7 @@ namespace B9PartSwitch
             CreateListIfNecessary();
 
             bool createNewItems = false;
-            if (!IsCopyFieldsType || Count != nodes.Length)
+            if (Count != nodes.Length)
             {
                 ClearList();
                 createNewItems = true;
@@ -197,7 +196,7 @@ namespace B9PartSwitch
 
             CreateListIfNecessary();
             bool createNewItems = false;
-            if (!IsCopyFieldsType || Count != values.Length)
+            if (Count != values.Length)
             {
                 ClearList();
                 createNewItems = true;
@@ -219,7 +218,7 @@ namespace B9PartSwitch
             }
         }
 
-        public ConfigNode[] FormatNodes()
+        public ConfigNode[] FormatNodes(bool serializing = false)
         {
             if (!IsConfigNodeType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not an IConfigNode");
@@ -228,9 +227,12 @@ namespace B9PartSwitch
 
             for (int i = 0; i < Count; i++)
             {
-                nodes[i] = new ConfigNode();
-                IConfigNode obj = List[i] as IConfigNode;
-                obj.Save(nodes[i]);
+                var node = new ConfigNode();
+                if (serializing && List[i] is IConfigNodeSerializable)
+                    (List[i] as IConfigNodeSerializable).SerializeToNode(node);
+                else
+                    (List[i] as IConfigNode).Save(node);
+                nodes[i] = node;
             }
 
             return nodes;
@@ -245,14 +247,14 @@ namespace B9PartSwitch
 
             string[] values = new string[Count];
 
-            Func<object, string> formatFunction = Attribute.formatFunction != null ? Attribute.formatFunction : CFGUtil.FormatConfigValue;
+            // Func<object, string> formatFunction = Attribute.formatFunction != null ? Attribute.formatFunction : CFGUtil.FormatConfigValue;
 
-            String s = string.Empty;
-            formatFunction(s);
+            // String s = string.Empty;
+            // CFGUtil.FormatConfigValue(s);
 
             for (int i = 0; i < Count; i++)
             {
-                values[i] = formatFunction(List[i]);
+                values[i] = CFGUtil.FormatConfigValue(List[i]);
             }
 
             return values;
@@ -260,16 +262,13 @@ namespace B9PartSwitch
 
         public void ClearList()
         {
-            if ((IsComponentType || IsScriptableObjectType || IsCopyFieldsType) && Attribute.destroy)
+            if ((IsComponentType || IsScriptableObjectType) && Attribute.destroy)
             {
                 for (int i = 0; i < Count; i++)
                 {
                     if (List[i] != null)
                     {
-                        if (IsComponentType || IsScriptableObjectType)
-                            UnityEngine.Object.Destroy(List[i] as UnityEngine.Object);
-                        else if (IsCopyFieldsType)
-                            (List[i] as ICopyFields).OnDestroy();
+                        UnityEngine.Object.Destroy(List[i] as UnityEngine.Object);
                     }
                 }
             }

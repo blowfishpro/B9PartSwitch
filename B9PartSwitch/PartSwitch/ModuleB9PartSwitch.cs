@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace B9PartSwitch
@@ -52,6 +51,7 @@ namespace B9PartSwitch
 
         #region Public Fields
 
+        [ConfigNodeSerialized]
         [ConfigField(configName = "SUBTYPE")]
         public List<PartSubtype> subtypes = new List<PartSubtype>();
 
@@ -189,8 +189,7 @@ namespace B9PartSwitch
                 if (tank.ResourcesCount > 0 && (TankVolumeForSubtype(i) <= 0f))
                 {
                     LogError("Subtype " + subtype.Name + " has a tank type with resources, but no volume is specifified");
-                    Destroy(tank);
-                    subtype.tankType = tank = B9TankSettings.CloneTankType(B9TankSettings.StructuralTankType, subtype.gameObject);
+                    subtype.tankType = tank = B9TankSettings.StructuralTankType;
                 }
 
                 if (tank != null)
@@ -205,7 +204,7 @@ namespace B9PartSwitch
                     MaxTempManaged = true;
                 if (subtype.skinMaxTemp > 0f)
                     SkinMaxTempManaged = true;
-                if (subtype.attachNode?.id != PartSubtype.DefaultAttachNodeID)
+                if (subtype.attachNode.IsNotNull())
                 {
                     if (part.attachRules.allowSrfAttach  && part.srfAttachNode != null)
                     {
@@ -479,11 +478,12 @@ namespace B9PartSwitch
             else
                 part.skinMaxTemp = part.GetPrefab().skinMaxTemp;
 
-            if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null && CurrentSubtype.attachNode != null)
+            if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
             {
-                part.srfAttachNode.position = CurrentSubtype.attachNode.position;
-                part.srfAttachNode.orientation = CurrentSubtype.attachNode.orientation;
-                part.srfAttachNode.size = CurrentSubtype.attachNode.size;
+                var referenceNode = CurrentSubtype.attachNode ?? part.GetPrefab().srfAttachNode;
+                part.srfAttachNode.position = referenceNode.position;
+                part.srfAttachNode.orientation = referenceNode.orientation;
+                part.srfAttachNode.size = referenceNode.size;
             }
 
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)

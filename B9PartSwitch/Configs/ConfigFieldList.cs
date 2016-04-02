@@ -12,14 +12,14 @@ namespace B9PartSwitch
     // Note: this is not serializable and thus must be recreated in Awake()
     public class ConfigFieldList : IEnumerable<ConfigFieldInfo>
     {
-        public Component Instance { get; private set; }
+        public object Parent { get; private set; }
         private List<ConfigFieldInfo> configFields = new List<ConfigFieldInfo>();
 
-        public ConfigFieldList(Component instance)
+        public ConfigFieldList(object parent)
         {
-            Instance = instance;
+            Parent = parent;
             configFields.Clear();
-            FieldInfo[] fields = instance.GetType().GetFields();
+            FieldInfo[] fields = parent.GetType().GetFields();
             for (int i = 0; i < fields.Length; i++ )
             {
                 FieldInfo field = fields[i];
@@ -53,9 +53,9 @@ namespace B9PartSwitch
                     ConfigFieldInfo fieldInfo;
 
                     if (field.FieldType.IsListType())
-                        fieldInfo = new ListFieldInfo(instance, field, configField);
+                        fieldInfo = new ListFieldInfo(parent, field, configField);
                     else
-                        fieldInfo = new ConfigFieldInfo(instance, field, configField);
+                        fieldInfo = new ConfigFieldInfo(parent, field, configField);
 
                     configFields.Add(fieldInfo);
                 }
@@ -130,18 +130,26 @@ namespace B9PartSwitch
             }
         }
 
-        public void Save(ConfigNode node)
+        public void Save(ConfigNode node, bool serializing = false)
         {
             for (int i = 0; i < configFields.Count; i++)
             {
                 ConfigFieldInfo field = configFields[i];
-                if (!field.IsPersistant)
+                if (!field.IsPersistant && !serializing)
+                    continue;
+
+                // Most component fields don't need to be serialized since Unity will do it
+                if (serializing && Parent is Component && !field.Field.GetCustomAttributes(true).Any(a => a is ConfigNodeSerialized))
+                    continue;
+
+                if (field.Value.IsNull())
                     continue;
 
                 if (field is ListFieldInfo)
                 {
                     ListFieldInfo listInfo = field as ListFieldInfo;
-                    if (listInfo.Attribute.formatFunction != null || !listInfo.IsConfigNodeType)
+                    // if (listInfo.Attribute.formatFunction != null || !listInfo.IsConfigNodeType)
+                    if (!listInfo.IsConfigNodeType)
                     {
                         if (!listInfo.IsParsableType)
                             throw new NotImplementedException("No suitable way to format values in list field " + listInfo.Name + " of type " + listInfo.RealType.Name);
@@ -154,7 +162,7 @@ namespace B9PartSwitch
                     }
                     else if (listInfo.IsConfigNodeType)
                     {
-                        ConfigNode[] nodes = listInfo.FormatNodes();
+                        ConfigNode[] nodes = listInfo.FormatNodes(serializing);
                         for (int j = 0; j < nodes.Length; j++)
                         {
                             node.SetNode(field.ConfigName, nodes[j], j, createIfNotFound: true);
@@ -167,16 +175,19 @@ namespace B9PartSwitch
                 }
                 else
                 {
-                    if (field.Attribute.formatFunction != null)
-                    {
-                        string value = field.Attribute.formatFunction(field.Value);
-                        node.SetValue(field.ConfigName, value, createIfNotFound: true);
-                    }
-                    else if (field.IsConfigNodeType)
+                    // if (field.Attribute.formatFunction != null)
+                    // {
+                    //     string value = field.Attribute.formatFunction(field.Value);
+                    //     node.SetValue(field.ConfigName, value, createIfNotFound: true);
+                    // }
+                    if (field.IsConfigNodeType)
                     {
                         ConfigNode newNode = new ConfigNode();
-                        IConfigNode nodeObj = field.Value as IConfigNode;
-                        nodeObj.Save(newNode);
+                        if (serializing && field.Value is IConfigNodeSerializable)
+                            (field.Value as IConfigNodeSerializable).SerializeToNode(newNode);
+                        else
+                            (field.Value as IConfigNode).Save(newNode);
+
                         node.SetNode(field.ConfigName, newNode, createIfNotFound: true);
                     }
                     else if (field.IsRegisteredParseType)
@@ -192,153 +203,6 @@ namespace B9PartSwitch
             }
         }
 
-        public static void CopyList(ref ConfigFieldList source, ref ConfigFieldList dest)
-        {
-            if (source == null)
-                throw new ArgumentNullException("source cannot be null");
-            if (dest == null)
-                throw new ArgumentNullException("dest cannot be null");
-
-            if (System.Object.ReferenceEquals(source, dest))
-                return;
-
-            if (source.Instance.GetType() != dest.Instance.GetType())
-                throw new ArgumentException("Source and destination must be of the same type");
-            if (source.configFields.Count != dest.configFields.Count)
-                throw new ArgumentException("Source and destination must have the same number of fields");
-
-#if DEBUG
-            Debug.Log("Initiating copy on type " + source.Instance.GetType().Name);
-#endif
-
-            int count = source.configFields.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                ConfigFieldInfo sourceField = source.configFields[i];
-                ConfigFieldInfo destField = dest.configFields[i];
-
-                if (sourceField.Name != destField.Name)
-                    throw new ArgumentException("Source and dest fields with the same index do not have the same name (source field is " + sourceField.Name + " and dest field is " + destField.Name + ")");
-
-                if (sourceField.GetType() != destField.GetType())
-                    throw new ArgumentException("Source and dest ConfigFieldInfo with the same index do not have the same type (source field is " + sourceField.GetType().Name + " and dest field is " + destField.GetType().Name + ")");
-
-                if (sourceField.RealType != destField.RealType)
-                    throw new ArgumentException("Source and dest fields with the same index do not have the same type (source field is " + sourceField.RealType.Name + " and dest field is " + destField.RealType.Name + ")");
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                ConfigFieldInfo sourceField = source.configFields[i];
-                ConfigFieldInfo destField = dest.configFields[i];
-
-                if (!sourceField.Copy)
-                    continue;
-
-                if (sourceField.Value == null)
-                {
-                    destField.Value = null;
-                    continue;
-                }
-
-                Type realType = sourceField.RealType;
-
-                if (sourceField is ListFieldInfo)
-                {
-                    ListFieldInfo sourceListInfo = sourceField as ListFieldInfo;
-                    ListFieldInfo destListInfo = destField as ListFieldInfo;
-
-                    destListInfo.CreateListIfNecessary();
-
-                    int listCount = sourceListInfo.Count;
-
-                    bool createNewItems = false;
-                    if (destListInfo.Count != listCount)
-                    {
-                        createNewItems = true;
-                        destListInfo.ClearList();
-                    }
-
-                    for (int j = 0; j < listCount; j++)
-                    {
-                        object sourceItem = sourceListInfo.List[j];
-                        object destItem = null;
-                        if (!createNewItems)
-                            destItem = destListInfo.List[j];
-                        if (sourceListInfo.IsCopyFieldsType)
-                        {
-                            if (destItem == null)
-                            {
-                                if (destField.IsComponentType)
-                                    destItem = dest.Instance.gameObject.AddComponent(realType);
-                                else if (destField.IsScriptableObjectType)
-                                    destItem = ScriptableObject.CreateInstance(realType);
-                                else if (destField.Constructor != null)
-                                    destItem = destField.Constructor.Invoke(null);
-                                else
-                                    throw new MissingMethodException("No default constructor could be found for type " + realType.Name);
-                            }
-                            (destItem as ICopyFields).CopyFrom(sourceItem as ICopyFields);
-                        }
-                        else if (realType.GetInterfaces().Contains(typeof(ICloneable)))
-                        {
-                            destItem = (sourceItem as ICloneable).Clone();
-                        }
-                        else if (realType.IsValueType)
-                        {
-                            destItem = realType;
-                        }
-                        else if (CFGUtil.IsConfigParsableType(realType))
-                        {
-                            destItem = CFGUtil.ParseConfigValue(realType, CFGUtil.FormatConfigValue(sourceItem));
-                        }
-                        else
-                        {
-                            destItem = sourceItem;
-                        }
-
-                        if (createNewItems)
-                            destListInfo.List.Add(destItem);
-                        else
-                            destListInfo.List[j] = destItem;
-                    }
-                }
-                else
-                {
-                    if (sourceField.IsCopyFieldsType)
-                    {
-                        if (destField.Value == null)
-                        {
-                            if (destField.IsComponentType)
-                                destField.Value = dest.Instance.gameObject.AddComponent(realType);
-                            else if (destField.IsScriptableObjectType)
-                                destField.Value = ScriptableObject.CreateInstance(realType);
-                            else if (destField.Constructor != null)
-                                destField.Value = destField.Constructor.Invoke(null);
-                        }
-                        (destField.Value as ICopyFields).CopyFrom(sourceField.Value as ICopyFields);
-                    }
-                    else if (realType.GetInterfaces().Contains(typeof(ICloneable)))
-                    {
-                        destField.Value = (sourceField.Value as ICloneable).Clone();
-                    }
-                    else if (realType.IsValueType)
-                    {
-                        destField.Value = sourceField.Value;
-                    }
-                    else if (CFGUtil.IsConfigParsableType(realType))
-                    {
-                        destField.Value = CFGUtil.ParseConfigValue(realType, CFGUtil.FormatConfigValue(sourceField.Value));
-                    }
-                    else
-                    {
-                        destField.Value = sourceField.Value;
-                    }
-                }
-            }
-        }
-
         public void OnDestroy()
         {
             for (int i = 0; i < configFields.Count; i++)
@@ -348,19 +212,14 @@ namespace B9PartSwitch
                 if (!field.Attribute.destroy)
                     continue;
 
-                if (field is ListFieldInfo)
-                    (field as ListFieldInfo).ClearList();
-                else if (field.IsComponentType || field.IsScriptableObjectType)
-                    UnityEngine.Object.Destroy(field.Value as UnityEngine.Object);
-                else if (field.IsCopyFieldsType)
-                    (field.Value as ICopyFields).OnDestroy();
+                if (field.IsComponentType || field.IsScriptableObjectType)
+                {
+                    if (field is ListFieldInfo)
+                        (field as ListFieldInfo).ClearList();
+                    else
+                        UnityEngine.Object.Destroy(field.Value as UnityEngine.Object);
+                }
             }
         }
-    }
-
-    public interface ICopyFields
-    {
-        void CopyFrom(ICopyFields source);
-        void OnDestroy();
     }
 }

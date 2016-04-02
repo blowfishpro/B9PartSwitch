@@ -7,82 +7,50 @@ using KSP;
 
 namespace B9PartSwitch
 {
-    [KSPAddon(KSPAddon.Startup.Instantly, false)]
-    public class B9TankSettings : MonoBehaviour
+    public static class B9TankSettings
     {
-        private Dictionary<string, TankType> tankTypes = new Dictionary<string,TankType>();
+        private static Dictionary<string, TankType> tankTypes = new Dictionary<string,TankType>();
 
-        public static B9TankSettings Instance { get; private set; }
-
-        public static bool LoadedTankDefs { get; private set; }
-
-        private static TankType structuralTankType;
+        public static bool LoadedTankDefs { get; private set; } = false;
 
         public static TankType StructuralTankType
         {
             get
             {
-                if (!LoadedTankDefs)
-                    throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load)");
-                return structuralTankType;
+                var t = new TankType();
+                t.tankName = "Structural";
+                t.tankMass = 0f;
+                t.tankCost = 0f;
+                return t;
             }
         }
 
-        public void Awake()
+        static B9TankSettings()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(this);
-                Debug.LogWarning("Cannot create more than one B9TankSettings instance");
-                return;
-            }
-
-            Instance = this;
-
             CFGUtil.RegisterParseType<PartResourceDefinition>(FindResourceDefinition, x => x.name);
-            CFGUtil.RegisterParseType<TankType>(B9TankSettings.Instance.GetTankType, x => x.tankName);
-
-            DontDestroyOnLoad(gameObject);
-            LoadedTankDefs = false;
-
-            if (structuralTankType == null)
-            {
-                // Structural tank type is hard coded
-                structuralTankType = gameObject.AddComponent<TankType>();
-                structuralTankType.tankName = "Structural";
-                structuralTankType.tankMass = 0f;
-                structuralTankType.tankCost = 0f;
-            }
+            CFGUtil.RegisterParseType<TankType>(B9TankSettings.GetTankType, x => x.tankName);
         }
 
-        public void ModuleManagerPostLoad()
+        public static void ModuleManagerPostLoad()
         {
             ReloadTankDefs();
         }
 
-        public void ReloadTankDefs()
+        public static void ReloadTankDefs()
         {
-            for (int i = 0; i < tankTypes.Count; i++)
-            {
-                TankType value = tankTypes.ElementAt(i).Value;
-
-                if (value != structuralTankType)
-                    Destroy(value);
-            }
             tankTypes.Clear();
 
             // Structural tank type is hard coded
-            tankTypes.Add(structuralTankType.tankName, structuralTankType);
+            tankTypes.Add(StructuralTankType.tankName, StructuralTankType);
 
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE");
             for (int i = 0; i < nodes.Length; i++)
             {
-                TankType t = gameObject.AddComponent<TankType>();
+                TankType t = new TankType();
                 t.Load(nodes[i]);
                 if (tankTypes.ContainsKey(t.tankName))
                 {
                     Debug.LogError("The tank type " + t.tankName + " already exists");
-                    Destroy(t);
                     continue;
                 }
                 tankTypes.Add(t.tankName, t);
@@ -92,33 +60,20 @@ namespace B9PartSwitch
             LoadedTankDefs = true;
         }
 
-        public TankType GetTankType(string name)
+        public static TankType GetTankType(string name)
         {
             if (!LoadedTankDefs)
                 throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load)");
             if (string.IsNullOrEmpty(name))
                 return StructuralTankType;
-            return tankTypes[name];
+            return tankTypes[name].Clone() as TankType;
         }
 
-        public bool TankTypeExists(string name)
+        public static bool TankTypeExists(string name)
         {
             if (!LoadedTankDefs)
                 throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load)");
             return tankTypes.ContainsKey(name);
-        }
-
-        public TankType CloneTankType(string name, GameObject parent)
-        {
-            TankType t = GetTankType(name);
-            return CloneTankType(t, parent);
-        }
-
-        public static TankType CloneTankType(TankType original, GameObject parent)
-        {
-            TankType copy = parent.AddComponent<TankType>();
-            copy.CopyFrom(original);
-            return copy;
         }
 
         // This will raise an exception when the resource is not found

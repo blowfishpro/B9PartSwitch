@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using UnityEngine;
 
 namespace B9PartSwitch
 {
-    public abstract class CFGUtilPartModule : PartModule
+    public abstract class CFGUtilPartModule : PartModule, ISerializationCallbackReceiver
     {
         #region Fields
 
@@ -14,6 +15,9 @@ namespace B9PartSwitch
         public string moduleID;
 
         protected ConfigFieldList configFieldList;
+
+        [SerializeField]
+        private SerializedDataContainer serializedData;
 
         #endregion
 
@@ -23,7 +27,13 @@ namespace B9PartSwitch
         {
             base.OnAwake();
 
-            configFieldList = new ConfigFieldList(this);
+            CreateConfigFieldList();
+        }
+
+        public void CreateConfigFieldList()
+        {
+            if (configFieldList.IsNull())
+                configFieldList = new ConfigFieldList(this);
         }
 
         public override void OnStart(PartModule.StartState state)
@@ -108,6 +118,43 @@ namespace B9PartSwitch
             }
 
             return returnList;
+        }
+
+        #endregion
+
+        #region Serialization Methods
+
+        public void OnBeforeSerialize()
+        {
+            ConfigNode node = new ConfigNode("SERIALIZED_NODE");
+
+            configFieldList.Save(node, true);
+
+            serializedData = ScriptableObject.CreateInstance<SerializedDataContainer>();
+            serializedData.data = node.ToString();
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if (serializedData.IsNull())
+            {
+                LogError("The serialized data container is null");
+                return;
+            }
+            if (serializedData.data.IsNull())
+            {
+                LogError("The serialized data is null");
+                return;
+            }
+
+            ConfigNode node = ConfigNode.Parse(serializedData.data);
+
+            CreateConfigFieldList();
+
+            configFieldList.Load(node.GetNode("SERIALIZED_NODE"));
+
+            Destroy(serializedData);
+            serializedData = null;
         }
 
         #endregion

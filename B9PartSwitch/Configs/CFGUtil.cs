@@ -108,9 +108,9 @@ namespace B9PartSwitch
         {
             object parseResult;
 
-            if (field.Attribute.parseFunction != null)
-                parseResult = field.Attribute.parseFunction(value);
-            else if (field.IsRegisteredParseType)
+            // if (field.Attribute.parseFunction != null)
+            //     parseResult = field.Attribute.parseFunction(value);
+            if (field.IsRegisteredParseType)
                 parseResult = CFGUtil.ParseConfigValue(field.RealType, value);
             else
                 throw new ArgumentException("Cannot find a way to parse field " + field.Name + " of type " + field.RealType + " from a config value");
@@ -118,34 +118,11 @@ namespace B9PartSwitch
             if (parseResult == null)
                 return;
 
-            if (field.IsCopyFieldsType)
-            {
-                if (result == null)
-                {
-                    if (field.IsComponentType)
-                        result = field.Instance.gameObject.AddComponent(field.RealType);
-                    else if (field.IsScriptableObjectType)
-                        result = ScriptableObject.CreateInstance(field.RealType);
-                    else if (field.Constructor != null)
-                        result = field.Constructor.Invoke(null);
-                    else
-                    {
-                        Debug.LogWarning("Field " + field.Name + " is ICopyFields, but the value is null and no default constructor could be found.  It will be assigned by referece rather than copying");
-                        result = parseResult;
-                        return;
-                    }
-                }
+            if ((field.IsComponentType || field.IsScriptableObjectType) && field.Attribute.destroy)
+                UnityEngine.Object.Destroy(result as UnityEngine.Object);
 
-                (result as ICopyFields).CopyFrom(parseResult as ICopyFields);
-            }
-            else
-            {
-                if ((field.IsComponentType || field.IsScriptableObjectType) && field.Attribute.destroy)
-                    UnityEngine.Object.Destroy(result as UnityEngine.Object);
-
-                result = parseResult;
-                return;
-            }
+            result = parseResult;
+            return;
         }
 
         public static void AssignConfigObject(ConfigFieldInfo field, ConfigNode value, ref IConfigNode result)
@@ -154,8 +131,8 @@ namespace B9PartSwitch
                 throw new ArgumentException("Field is not a ConfigNode type: " + field.Name + " (type is " + field.RealType.Name + ")");
             if (result == null)
             {
-                if (field.IsComponentType)
-                    result = field.Instance.gameObject.AddComponent(field.RealType) as IConfigNode;
+                if (field.IsComponentType && field.Parent is Component)
+                    result = (field.Parent as Component).gameObject.AddComponent(field.RealType) as IConfigNode;
                 else if (field.IsScriptableObjectType)
                     result = ScriptableObject.CreateInstance(field.RealType) as IConfigNode;
                 else if (field.Constructor != null)
@@ -288,16 +265,16 @@ namespace B9PartSwitch
 
         public static string Format(this AttachNode node)
         {
-            string outStr = "";
-            outStr += node.position.ToString(null);
-            outStr += ", ";
-            outStr += node.orientation.ToString(null);
-            outStr += ", ";
-            outStr += node.size.ToString();
-            outStr += ", ";
-            outStr += Enum.Format(typeof(AttachNodeMethod), node.attachMethod, "d");
-
-            return outStr;
+            return string.Join(",", new[] {
+                node.position.x.ToString(),
+                node.position.y.ToString(),
+                node.position.z.ToString(),
+                node.orientation.x.ToString(),
+                node.orientation.y.ToString(),
+                node.orientation.z.ToString(),
+                node.size.ToString(),
+                Enum.Format(typeof(AttachNodeMethod), node.attachMethod, "d")
+            });
         }
     }
 }
