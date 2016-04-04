@@ -63,12 +63,21 @@ namespace B9PartSwitch
         {
             base.OnLoad(node);
 
-            if (!string.IsNullOrEmpty(moduleID) && node.HasValue("moduleID"))
+            if (!string.IsNullOrEmpty(moduleID) && node.HasValue(nameof(moduleID)))
             {
-                string newID = node.GetValue("moduleID");
+                string newID = node.GetValue(nameof(moduleID));
                 if (!string.Equals(moduleID, newID))
                 {
-                    LogError("Attempt to load ConfigNode with a conflicting moduleID: '" + newID + "'");
+                    var correctModule = part.Modules.OfType<CFGUtilPartModule>().FirstOrDefault(m => m != this && m.GetType() == this.GetType() && m.moduleID == newID);
+                    if (correctModule.IsNotNull())
+                    {
+                        LogWarning("OnLoad was called with the wrong ModuleID ('" + newID + "'), but found the correct module to load");
+                        correctModule.Load(node);
+                    }
+                    else
+                    {
+                        LogError("OnLoad was called with the wrong ModuleID and the correct module could not be found");
+                    }
                     return;
                 }
             }
