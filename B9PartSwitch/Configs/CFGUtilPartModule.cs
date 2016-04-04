@@ -36,23 +36,25 @@ namespace B9PartSwitch
                 configFieldList = new ConfigFieldList(this);
         }
 
-        public override void OnStart(PartModule.StartState state)
+        private void Start()
         {
-            base.OnStart(state);
-
-            List<CFGUtilPartModule> partModules = part.FindModulesImplementing<CFGUtilPartModule>();
-            for (int i = 0; i < partModules.Count; i++)
+            // Cast to array so that there aren't issues with modifying the enumerable in a loop
+            var otherModules = part.Modules.OfType<CFGUtilPartModule>().Where(m => m != this && m.GetType() == this.GetType()).ToArray();
+            if (otherModules.Length > 0 && string.IsNullOrEmpty(moduleID))
             {
-                CFGUtilPartModule m = partModules[i];
-                if (m == this) continue;
-                if (m.GetType() == GetType())
+                LogError("Must have a moduleID defined if more than one " + this.GetType().Name + " is present on a part.  This module will be removed");
+                part.Modules.Remove(this);
+                Destroy(this);
+                return;
+            }
+
+            foreach (var m in otherModules)
+            {
+                if (string.IsNullOrEmpty(m.moduleID) || m.moduleID == moduleID)
                 {
-                    if (string.IsNullOrEmpty(m.moduleID) || string.IsNullOrEmpty(moduleID) || m.moduleID == moduleID)
-                    {
-                        LogError("Two " + GetType().Name + " modules on the same part must have different (and non-empty) moduleID identifiers.  The second " + GetType().Name + " will be removed");
-                        part.Modules.Remove(m);
-                        Destroy(m);
-                    }
+                    LogError("Two " + GetType().Name + " modules on the same part must have different (and non-empty) moduleID identifiers.  The second " + GetType().Name + " will be removed");
+                    part.Modules.Remove(m);
+                    Destroy(m);
                 }
             }
         }
