@@ -70,8 +70,9 @@ namespace B9PartSwitch
         [ConfigField]
         public bool affectFARVoxels = true;
 
-        [KSPField(guiActiveEditor = true, guiName = "Subtype")]
-        [UI_ChooseOption(affectSymCounterparts = UI_Scene.Editor, options = new[] { "None" }, scene = UI_Scene.Editor)]
+        // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
+        [KSPField(guiActiveEditor = true, isPersistant = true, guiName = "Subtype")]
+        [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, options = new[] { "None" }, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int subtypeIndexControl = 0;
 
         #endregion
@@ -397,16 +398,19 @@ namespace B9PartSwitch
             var chooseOption = chooseField.uiControlEditor as UI_ChooseOption;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
 
-            GameEvents.onEditorShipModified.Add(UpdateFromGUI);
+            chooseOption.onFieldChanged = UpdateFromGUI;
         }
 
-        private void UpdateFromGUI(ShipConstruct data)
+        private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
         {
             SetNewSubtype(subtypeIndexControl, false);
         }
 
         private void SetNewSubtype(int newIndex, bool force)
         {
+            // For symmetry
+            subtypeIndexControl = newIndex;
+
             if (newIndex == currentSubtypeIndex && !force)
                 return;
 
