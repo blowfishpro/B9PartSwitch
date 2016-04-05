@@ -471,13 +471,9 @@ namespace B9PartSwitch
                 part.DragCubes.ResetCubeWeights();
             }
 
-            foreach (UIPartActionWindow window in FindObjectsOfType(typeof(UIPartActionWindow)))
-            {
-                if (window.part == part)
-                {
-                    window.displayDirty = true;
-                }
-            }
+            var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
+            if (window.IsNotNull())
+                window.displayDirty = true;
 
             if (HighLogic.LoadedSceneIsEditor)
             {
