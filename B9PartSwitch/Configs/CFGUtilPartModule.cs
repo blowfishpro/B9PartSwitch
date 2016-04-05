@@ -98,41 +98,6 @@ namespace B9PartSwitch
 
         #endregion
 
-        #region Public Methods
-
-        public List<CFGUtilPartModule> FindSymmetryCounterparts()
-        {
-            List<CFGUtilPartModule> returnList = new List<CFGUtilPartModule>();
-            if (part == null)
-                return returnList;
-
-            for (int i = 0; i < part.symmetryCounterparts.Count; i++)
-            {
-                Part symPart = part.symmetryCounterparts[i];
-                bool foundCounterpart = false;
-
-                for (int j = 0; j < symPart.Modules.Count; j++)
-                {
-                    if (symPart.Modules[j].GetType() == this.GetType())
-                    {
-                        CFGUtilPartModule module = symPart.Modules[j] as CFGUtilPartModule;
-                        if (string.Equals(module.moduleID, moduleID))
-                        {
-                            returnList.Add(module);
-                            foundCounterpart = true;
-                        }
-                    }
-                }
-
-                if (!foundCounterpart)
-                    LogWarning("No symmetry counterpart found on part counterpart " + i.ToString());
-            }
-
-            return returnList;
-        }
-
-        #endregion
-
         #region Serialization Methods
 
         public void OnBeforeSerialize()

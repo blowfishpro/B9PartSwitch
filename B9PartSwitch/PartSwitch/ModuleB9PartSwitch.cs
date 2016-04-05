@@ -428,10 +428,8 @@ namespace B9PartSwitch
 
             UpdateSubtype(true);
 
-            List<CFGUtilPartModule> symmetryCounterparts = FindSymmetryCounterparts();
-
-            for (int i = 0; i < symmetryCounterparts.Count; i++)
-                (symmetryCounterparts[i] as ModuleB9PartSwitch).SetNewSubtype(newIndex, force);
+            foreach (var counterpart in this.FindSymmetryCounterparts<ModuleB9PartSwitch>())
+                counterpart.SetNewSubtype(newIndex, force);
         }
 
         private void UpdateSubtype(bool fillTanks)
