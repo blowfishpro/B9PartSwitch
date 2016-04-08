@@ -183,27 +183,23 @@ namespace B9PartSwitch
             }
         }
 
-        public ConfigNode[] FormatNodes(bool serializing = false)
+        public IEnumerable<ConfigNode> FormatNodes(bool serializing = false)
         {
             if (!IsConfigNodeType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not an IConfigNode");
 
-            ConfigNode[] nodes = new ConfigNode[Count];
-
-            for (int i = 0; i < Count; i++)
+            foreach (var value in List)
             {
                 var node = new ConfigNode();
-                if (serializing && List[i] is IConfigNodeSerializable)
-                    (List[i] as IConfigNodeSerializable).SerializeToNode(node);
+                if (serializing && value is IConfigNodeSerializable)
+                    (value as IConfigNodeSerializable).SerializeToNode(node);
                 else
-                    (List[i] as IConfigNode).Save(node);
-                nodes[i] = node;
+                    (value as IConfigNode).Save(node);
+                yield return node;
             }
-
-            return nodes;
         }
 
-        public string[] FormatValues()
+        public IEnumerable<string> FormatValues()
         {
             if (IsConfigNodeType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is an IConfigNode");
@@ -217,12 +213,10 @@ namespace B9PartSwitch
             // String s = string.Empty;
             // CFGUtil.FormatConfigValue(s);
 
-            for (int i = 0; i < Count; i++)
+            foreach (var value in List)
             {
-                values[i] = CFGUtil.FormatConfigValue(List[i]);
+                yield return CFGUtil.FormatConfigValue(value);
             }
-
-            return values;
         }
 
         public void ClearList()

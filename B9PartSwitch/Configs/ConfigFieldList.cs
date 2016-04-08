@@ -153,19 +153,17 @@ namespace B9PartSwitch
                     {
                         if (!listInfo.IsParsableType)
                             throw new NotImplementedException("No suitable way to format values in list field " + listInfo.Name + " of type " + listInfo.RealType.Name);
-
-                        String[] values = listInfo.FormatValues();
-                        for (int j = 0; j < values.Length; j++)
+                        
+                        foreach (var value in listInfo.FormatValues())
                         {
-                            node.SetValue(field.ConfigName, values[j], j, createIfNotFound: true);
+                            node.SetValue(field.ConfigName, value, -1, createIfNotFound: true); // -1 will create a new node
                         }
                     }
                     else if (listInfo.IsConfigNodeType)
                     {
-                        ConfigNode[] nodes = listInfo.FormatNodes(serializing);
-                        for (int j = 0; j < nodes.Length; j++)
+                        foreach (var subnode in listInfo.FormatNodes(serializing))
                         {
-                            node.SetNode(field.ConfigName, nodes[j], j, createIfNotFound: true);
+                            node.SetNode(field.ConfigName, subnode, -1, createIfNotFound: true); // -1 will create a new node
                         }
                     }
                     else
