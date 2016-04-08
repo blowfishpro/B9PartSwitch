@@ -212,8 +212,6 @@ namespace B9PartSwitch
             if (!IsFormattableType)
                 throw new NotImplementedException("The generic type of this list (" + RealType.Name + ") is not a registered parse type");
 
-            string[] values = new string[Count];
-
             // Func<object, string> formatFunction = Attribute.formatFunction != null ? Attribute.formatFunction : CFGUtil.FormatConfigValue;
 
             // String s = string.Empty;
