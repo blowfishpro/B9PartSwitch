@@ -19,46 +19,29 @@ namespace B9PartSwitch
         {
             Parent = parent;
             configFields.Clear();
-            FieldInfo[] fields = parent.GetType().GetFields();
-            for (int i = 0; i < fields.Length; i++ )
+            foreach (var field in parent.GetType().GetFields())
             {
-                FieldInfo field = fields[i];
-                bool kspField = false;
-                ConfigField configField = null;
-
                 object[] attributes = field.GetCustomAttributes(true);
-                for (int j = 0; j < attributes.Length; j++)
-                {
-                    if (attributes[j] is ConfigField)
-                    {
-                        configField = attributes[j] as ConfigField;
-                    }
-                    else if (attributes[j] is KSPField)
-                    {
-                        kspField = true;
-                    }
-                }
 
-                if (configField != null)
-                {
-                    if (kspField)
-                        throw new NotSupportedException("The property ConfigField is not allowed on a field that also has the KSPField property");
+                var configField = attributes.OfType<ConfigField>().FirstOrDefault();
 
-                    for (int j = 0; j < configFields.Count; j++)
-                    {
-                        if (configFields[j].ConfigName == configField.configName)
-                            throw new NotSupportedException("Two ConfigField properties in the same class cannot have the same name (fields are " + configFields[j].Name + " and " + field.Name + ")");
-                    }
+                if (configField.IsNull())
+                    return;
 
-                    ConfigFieldInfo fieldInfo;
+                if (attributes.OfType<KSPField>().Any())
+                    throw new NotSupportedException("The property ConfigField is not allowed on a field that also has the KSPField property");
+                
+                ConfigFieldInfo fieldInfo;
 
-                    if (field.FieldType.IsListType())
-                        fieldInfo = new ListFieldInfo(parent, field, configField);
-                    else
-                        fieldInfo = new ConfigFieldInfo(parent, field, configField);
+                if (field.FieldType.IsListType())
+                    fieldInfo = new ListFieldInfo(parent, field, configField);
+                else
+                    fieldInfo = new ConfigFieldInfo(parent, field, configField);
 
-                    configFields.Add(fieldInfo);
-                }
+                if (configFields.Any(f => f.ConfigName == fieldInfo.ConfigName))
+                    throw new NotSupportedException("Two ConfigField properties in the same class cannot have the same config name ('" + fieldInfo.ConfigName + "')");
+
+                configFields.Add(fieldInfo);
             }
         }
 
@@ -80,9 +63,8 @@ namespace B9PartSwitch
 #if DEBUG
             Debug.Log("Loading " + Instance.GetType().Name + " from config");
 #endif
-            for (int i = 0; i < configFields.Count; i++)
+            foreach (var field in configFields)
             {
-                ConfigFieldInfo field = configFields[i];
                 if (field is ListFieldInfo)
                 {
                     ListFieldInfo listInfo = field as ListFieldInfo;
@@ -104,23 +86,23 @@ namespace B9PartSwitch
                     if (field.IsParsableType)
                     {
                         string value = node.GetValue(field.ConfigName);
-                        if (value != null)
-                        {
-                            object result = field.Value;
+                        if (value.IsNull()) continue;
 
-                            CFGUtil.AssignConfigObject(field, value, ref result);
-                            field.Value = result;
-                        }
+                        object result = field.Value;
+
+                        CFGUtil.AssignConfigObject(field, value, ref result);
+                        field.Value = result;
                     }
                     else if (field.IsConfigNodeType)
                     {
                         ConfigNode newNode = node.GetNode(field.ConfigName);
-                        if (newNode != null)
-                        {
-                            IConfigNode result = field.Value as IConfigNode;
-                            CFGUtil.AssignConfigObject(field, newNode, ref result);
-                            field.Value = result;
-                        }
+                        if (newNode.IsNull()) continue;
+
+                        IConfigNode result = field.Value as IConfigNode;
+
+                        CFGUtil.AssignConfigObject(field, newNode, ref result);
+                        field.Value = result;
+
                     }
                     else
                     {
@@ -132,9 +114,8 @@ namespace B9PartSwitch
 
         public void Save(ConfigNode node, bool serializing = false)
         {
-            for (int i = 0; i < configFields.Count; i++)
+            foreach (var field in configFields)
             {
-                ConfigFieldInfo field = configFields[i];
                 if (!field.IsPersistant && !serializing)
                     continue;
 
@@ -149,11 +130,8 @@ namespace B9PartSwitch
                 {
                     ListFieldInfo listInfo = field as ListFieldInfo;
                     // if (listInfo.Attribute.formatFunction != null || !listInfo.IsConfigNodeType)
-                    if (!listInfo.IsConfigNodeType)
+                    if (listInfo.IsFormattableType)
                     {
-                        if (!listInfo.IsParsableType)
-                            throw new NotImplementedException("No suitable way to format values in list field " + listInfo.Name + " of type " + listInfo.RealType.Name);
-                        
                         foreach (var value in listInfo.FormatValues())
                         {
                             node.SetValue(field.ConfigName, value, -1, createIfNotFound: true); // -1 will create a new node
@@ -203,10 +181,8 @@ namespace B9PartSwitch
 
         public void OnDestroy()
         {
-            for (int i = 0; i < configFields.Count; i++)
+            foreach (var field in configFields)
             {
-                ConfigFieldInfo field = configFields[i];
-
                 if (!field.Attribute.destroy)
                     continue;
 

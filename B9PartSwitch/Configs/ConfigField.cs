@@ -86,6 +86,12 @@ namespace B9PartSwitch
                 Field.SetValue(Parent, value);
             }
         }
+
+        public virtual void Destroy()
+        {
+            if (Attribute.destroy && Value.IsNotNull() && (IsComponentType || IsScriptableObjectType))
+                UnityEngine.Object.Destroy((UnityEngine.Object)Value);
+        }
     }
 
     public class ListFieldInfo : ConfigFieldInfo
@@ -221,18 +227,23 @@ namespace B9PartSwitch
 
         public void ClearList()
         {
-            if ((IsComponentType || IsScriptableObjectType) && Attribute.destroy)
+            if (Attribute.destroy && (IsComponentType || IsScriptableObjectType))
             {
-                for (int i = 0; i < Count; i++)
+                foreach (var item in List)
                 {
-                    if (List[i] != null)
+                    if (item.IsNotNull())
                     {
-                        UnityEngine.Object.Destroy(List[i] as UnityEngine.Object);
+                        UnityEngine.Object.Destroy((UnityEngine.Object)item);
                     }
                 }
             }
 
             List.Clear();
+        }
+
+        public override void Destroy()
+        {
+            ClearList();
         }
     }
 }
