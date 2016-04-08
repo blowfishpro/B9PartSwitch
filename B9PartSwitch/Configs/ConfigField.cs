@@ -25,8 +25,6 @@ namespace B9PartSwitch
         public object Parent { get; private set; }
         public FieldInfo Field { get; private set; }
         public ConfigField Attribute { get; private set; }
-        
-        public ConstructorInfo Constructor { get; protected set; }
 
         public ConfigFieldInfo(object parent, FieldInfo field, ConfigField attribute)
         {
@@ -38,22 +36,6 @@ namespace B9PartSwitch
                 Attribute.configName = Field.Name;
 
             RealType = Type;
-        }
-
-        protected void FindConstructor()
-        {
-            Constructor = null;
-            ConstructorInfo[] constructors = RealType.GetConstructors();
-
-            for (int i = 0; i < constructors.Length; i++)
-            {
-                ParameterInfo[] parameters = constructors[i].GetParameters();
-                if (parameters.Length == 0)
-                {
-                    Constructor = constructors[i];
-                    return;
-                }
-            }
         }
 
         public string Name => Field.Name;
@@ -83,8 +65,6 @@ namespace B9PartSwitch
                 IsSerializableType = RealType.IsUnitySerializableType();
                 if (!IsSerializableType)
                     Debug.LogWarning("The type " + RealType.Name + " is not a Unity serializable type and thus will not be serialized.  This may lead to unexpected behavior, e.g. the field is null after instantiating a prefab.");
-
-                FindConstructor();
             }
         }
         public bool IsComponentType { get; private set; }
@@ -110,50 +90,35 @@ namespace B9PartSwitch
 
     public class ListFieldInfo : ConfigFieldInfo
     {
-        public IList List { get; private set; }
+        public IList List
+        {
+            get
+            {
+                return (IList)Value;
+            }
+            set
+            {
+                Value = value;
+            }
+        }
+
         public int Count => List.Count;
-        public ConstructorInfo ListConstructor { get; private set; }
 
         public ListFieldInfo(object parent, FieldInfo field, ConfigField attribute)
             : base(parent, field, attribute)
         {
             if (!Type.IsListType())
                 throw new ArgumentException("The field " + field.Name + " is not a list");
-            List = Field.GetValue(Parent) as IList;
 
             RealType = Type.GetGenericArguments()[0];
-
-            FindConstructor();
-
-            ConstructorInfo[] constructors = Type.GetConstructors();
-
-            for (int i = 0; i < constructors.Length; i++ )
-            {
-                ParameterInfo[] parameters = constructors[i].GetParameters();
-                if (parameters.Length == 0)
-                {
-                    ListConstructor = constructors[i];
-                    break;
-                }
-            }
-
-            // if (Attribute.parseFunction == null && IsConfigNodeType && Constructor == null)
-            if (IsConfigNodeType && Constructor == null)
-            {
-                throw new MissingMethodException("A default constructor is required for the IConfigNode type " + RealType.Name + " (constructor required to parse list field " + field.Name + " in class " + Parent.GetType().Name + ")");
-            }
         }
 
         internal void CreateListIfNecessary()
         {
-            if (List == null && ListConstructor != null)
-            {
-                Value = Constructor.Invoke(null);
-                List = Value as IList;
-            }
+            if (List.IsNotNull()) return;
 
-            if (List == null)
-                throw new ArgumentNullException("Field is null and cannot initialize as new list of type " + Type.Name);
+            // If this is going to throw an exception, let it.  If we cannot create a new instance of a list, then something is seriously fucked.
+            Value = Activator.CreateInstance(Type);
         }
 
         public void ParseNodes(ConfigNode[] nodes)

@@ -135,13 +135,17 @@ namespace B9PartSwitch
                     result = (field.Parent as Component).gameObject.AddComponent(field.RealType) as IConfigNode;
                 else if (field.IsScriptableObjectType)
                     result = ScriptableObject.CreateInstance(field.RealType) as IConfigNode;
-                else if (field.Constructor != null)
-                    result = field.Constructor.Invoke(null) as IConfigNode;
                 else
                 {
-                    Debug.LogError("Error: Field " + field.Name + " is IConfigNode, but the value is null and no default constructor could be found.  It will be null");
-                    result = null;
-                    return;
+                    try
+                    {
+                        result = (IConfigNode)Activator.CreateInstance(field.RealType);
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogError("Error: Could not load field '" + field.Name + "' because an instance of " + field.RealType.FullName + "could not be created: " + e.Message);
+                        return;
+                    }
                 }
             }
 
