@@ -19,6 +19,7 @@ namespace B9PartSwitch
         {
             Parent = parent;
             configFields.Clear();
+
             foreach (var field in parent.GetType().GetFields())
             {
                 object[] attributes = field.GetCustomAttributes(true);
@@ -26,7 +27,7 @@ namespace B9PartSwitch
                 var configField = attributes.OfType<ConfigField>().FirstOrDefault();
 
                 if (configField.IsNull())
-                    return;
+                    continue;
 
                 if (attributes.OfType<KSPField>().Any())
                     throw new NotSupportedException("The property ConfigField is not allowed on a field that also has the KSPField property");
@@ -61,7 +62,7 @@ namespace B9PartSwitch
         {
 
 #if DEBUG
-            Debug.Log("Loading " + Instance.GetType().Name + " from config");
+            Debug.Log("Loading " + Parent.GetType().Name + " from config");
 #endif
             foreach (var field in configFields)
             {
