@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Globalization;
 using UnityEngine;
-using KSP;
 
 namespace B9PartSwitch
 {
@@ -15,29 +12,31 @@ namespace B9PartSwitch
 
         static CFGUtil()
         {
-            RegisterParseType<bool>(bool.Parse, null);
-            RegisterParseType<byte>(byte.Parse, null);
-            RegisterParseType<ushort>(ushort.Parse, null);
-            RegisterParseType<char>(char.Parse, null);
-            RegisterParseType<ulong>(ulong.Parse, null);
-            RegisterParseType<int>(int.Parse, null);
-            RegisterParseType<long>(long.Parse, null);
-            RegisterParseType<float>(float.Parse, null);
-            RegisterParseType<uint>(uint.Parse, null);
-            RegisterParseType<short>(short.Parse, null);
-            RegisterParseType<double>(double.Parse, null);
+            RegisterParseType<bool>(bool.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<char>(char.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<byte>(byte.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<sbyte>(sbyte.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<short>(short.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<ushort>(ushort.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<int>(int.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<uint>(uint.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<long>(long.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<ulong>(ulong.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<float>(float.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<decimal>(decimal.Parse, x => x.ToString(CultureInfo.InvariantCulture));
+            RegisterParseType<double>(double.Parse, x => x.ToString(CultureInfo.InvariantCulture));
 
-            RegisterParseType<Vector2>(x => ParseVectorType<Vector2>(x, 2), x => x.ToString(null));
-            RegisterParseType<Vector3>(x => ParseVectorType<Vector3>(x, 3), x => x.ToString(null));
-            RegisterParseType<Vector4>(x => ParseVectorType<Vector4>(x, 4), x => x.ToString(null));
-            RegisterParseType<Quaternion>(x => ParseVectorType<Quaternion>(x, 4), x => x.ToString(null));
+            RegisterParseType<Vector2>(ConfigNode.ParseVector2, ConfigNode.WriteVector);
+            RegisterParseType<Vector3>(ConfigNode.ParseVector3, ConfigNode.WriteVector);
+            RegisterParseType<Vector4>(ConfigNode.ParseVector4, ConfigNode.WriteVector);
+            RegisterParseType<Quaternion>(ConfigNode.ParseQuaternion, ConfigNode.WriteQuaternion);
+            RegisterParseType<QuaternionD>(ConfigNode.ParseQuaternionD, ConfigNode.WriteQuaternion);
+            RegisterParseType<Vector3d>(ConfigNode.ParseVector3D, ConfigNode.WriteVector);
+            RegisterParseType<Matrix4x4>(ConfigNode.ParseMatrix4x4, ConfigNode.WriteMatrix4x4);
+            RegisterParseType<Color>(ConfigNode.ParseColor, ConfigNode.WriteColor);
+            RegisterParseType<Color32>(ConfigNode.ParseColor32, ConfigNode.WriteColor);
 
-            RegisterParseType<AttachNode>(ParseAttachNode, x => x.Format()); 
-
-            // Not serializable
-            // RegisterParseType<Vector2d>(x => ParseVectorDType<Vector2d>(x, 2), null);
-            // RegisterParseType<Vector3d>(x => ParseVectorDType<Vector3d>(x, 3), null);
-            // RegisterParseType<Vector4d>(x => ParseVectorDType<Vector4d>(x, 4), null);
+            RegisterParseType<AttachNode>(ParseAttachNode, x => x.Format());
         }
 
         public static bool IsRegisteredParseType(Type type)
@@ -192,33 +191,6 @@ namespace B9PartSwitch
                     throw new FormatException("Cannot parse float from string '" + value + "': ", e);
                 }
                 constructorArgs[i] = typeof(float);
-            }
-            ConstructorInfo constructor = type.GetConstructor(constructorArgs);
-            if (constructor == null)
-                throw new MissingMethodException("Cannot find a constructor for type " + type.Name + " that takes " + vectorLength.ToString() + " floats as arguments");
-
-            return (T)constructor.Invoke(floatValues);
-        }
-
-        public static T ParseVectorDType<T>(string value, ushort vectorLength)
-        {
-            Type type = typeof(T);
-            string[] splitStr = value.Split(new char[] { '[', ',', ']' }, vectorLength);
-            if (splitStr.Length != vectorLength)
-                throw new FormatException("Attempting to parse " + type.Name + ": Expected " + vectorLength.ToString() + " values, but got " + splitStr.Length);
-            object[] floatValues = new object[vectorLength];
-            Type[] constructorArgs = new Type[vectorLength];
-            for (int i = 0; i < vectorLength; i++)
-            {
-                try
-                {
-                    floatValues[i] = double.Parse(splitStr[i]);
-                }
-                catch (FormatException e)
-                {
-                    throw new FormatException("Cannot parse float from string '" + value + "': ", e);
-                }
-                constructorArgs[i] = typeof(double);
             }
             ConstructorInfo constructor = type.GetConstructor(constructorArgs);
             if (constructor == null)
