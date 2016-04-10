@@ -105,20 +105,13 @@ namespace B9PartSwitch
 
         public static void AssignConfigObject(ConfigFieldInfo field, string value, ref object result)
         {
-            object parseResult;
-
-            // if (field.Attribute.parseFunction != null)
-            //     parseResult = field.Attribute.parseFunction(value);
-            if (field.IsRegisteredParseType)
-                parseResult = CFGUtil.ParseConfigValue(field.RealType, value);
-            else
-                throw new ArgumentException("Cannot find a way to parse field " + field.Name + " of type " + field.RealType + " from a config value");
+            object parseResult = CFGUtil.ParseConfigValue(field.ElementType, value);
 
             if (parseResult == null)
                 return;
 
-            if ((field.IsComponentType || field.IsScriptableObjectType) && field.Attribute.destroy)
-                UnityEngine.Object.Destroy(result as UnityEngine.Object);
+            if (result.IsNotNull() && (result is UnityEngine.Object) && field.Attribute.destroy)
+                UnityEngine.Object.Destroy((UnityEngine.Object)result);
 
             result = parseResult;
             return;
@@ -126,23 +119,24 @@ namespace B9PartSwitch
 
         public static void AssignConfigObject(ConfigFieldInfo field, ConfigNode value, ref IConfigNode result)
         {
-            if (!field.IsConfigNodeType)
-                throw new ArgumentException("Field is not a ConfigNode type: " + field.Name + " (type is " + field.RealType.Name + ")");
+            if (!field.ElementType.DerivesFrom(typeof(IConfigNode)))
+                throw new ArgumentException("Element type of field " + field.Name + " does not derive from IConfigNode");
+
             if (result == null)
             {
-                if (field.IsComponentType && field.Parent is Component)
-                    result = (field.Parent as Component).gameObject.AddComponent(field.RealType) as IConfigNode;
-                else if (field.IsScriptableObjectType)
-                    result = ScriptableObject.CreateInstance(field.RealType) as IConfigNode;
+                if (field.ElementType.DerivesFrom(typeof(Component)) && field.Parent is Component)
+                    result = (field.Parent as Component).gameObject.AddComponent(field.ElementType) as IConfigNode;
+                else if (field.ElementType.DerivesFrom(typeof(ScriptableObject)))
+                    result = ScriptableObject.CreateInstance(field.ElementType) as IConfigNode;
                 else
                 {
                     try
                     {
-                        result = (IConfigNode)Activator.CreateInstance(field.RealType);
+                        result = (IConfigNode)Activator.CreateInstance(field.ElementType);
                     }
                     catch(Exception e)
                     {
-                        Debug.LogError("Error: Could not load field '" + field.Name + "' because an instance of " + field.RealType.FullName + "could not be created: " + e.Message);
+                        Debug.LogError("Error: Could not load field '" + field.Name + "' because an instance of " + field.ElementType.FullName + "could not be created: " + e.Message);
                         return;
                     }
                 }
@@ -170,33 +164,6 @@ namespace B9PartSwitch
             {
                 return value.ToString();
             }
-        }
-
-        public static T ParseVectorType<T>(string value, ushort vectorLength)
-        {
-            Type type = typeof(T);
-            string[] splitStr = value.Split(new char[] { '(', ',', ')' }, vectorLength);
-            if (splitStr.Length != vectorLength)
-                throw new FormatException("Attempting to parse " + type.Name + ": Expected " + vectorLength.ToString() + " values, but got " + splitStr.Length);
-            object[] floatValues = new object[vectorLength];
-            Type[] constructorArgs = new Type[vectorLength];
-            for (int i = 0; i < vectorLength; i++)
-            {
-                try
-                {
-                    floatValues[i] = float.Parse(splitStr[i]);
-                }
-                catch (FormatException e)
-                {
-                    throw new FormatException("Cannot parse float from string '" + value + "': ", e);
-                }
-                constructorArgs[i] = typeof(float);
-            }
-            ConstructorInfo constructor = type.GetConstructor(constructorArgs);
-            if (constructor == null)
-                throw new MissingMethodException("Cannot find a constructor for type " + type.Name + " that takes " + vectorLength.ToString() + " floats as arguments");
-
-            return (T)constructor.Invoke(floatValues);
         }
 
         public static AttachNode ParseAttachNode(string value)

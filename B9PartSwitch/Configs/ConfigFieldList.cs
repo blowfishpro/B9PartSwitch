@@ -31,13 +31,24 @@ namespace B9PartSwitch
 
                 if (attributes.OfType<KSPField>().Any())
                     throw new NotSupportedException("The property ConfigField is not allowed on a field that also has the KSPField property");
+
+                var isList = field.FieldType.IsListType();
+                var elementType = isList ? field.FieldType.GetGenericArguments()[0] : field.FieldType;
+                var isIConfigNode = elementType.DerivesFrom(typeof(IConfigNode));
+                var isParsable = elementType.IsConfigParsableType();
                 
                 ConfigFieldInfo fieldInfo;
 
-                if (field.FieldType.IsListType())
-                    fieldInfo = new ListFieldInfo(parent, field, configField);
+                if (isList && isParsable)
+                    fieldInfo = new ValueListConfigFieldInfo(parent, field, configField);
+                else if (isList && isIConfigNode)
+                    fieldInfo = new NodeListConfigFieldInfo(parent, field, configField);
+                else if (isParsable)
+                    fieldInfo = new ValueScalarConfigFieldInfo(parent, field, configField);
+                else if (isIConfigNode)
+                    fieldInfo = new NodeScalarConfigFieldInfo(parent, field, configField);
                 else
-                    fieldInfo = new ConfigFieldInfo(parent, field, configField);
+                    throw new NotImplementedException("Cannot find a suitable way to make the field '" + field.Name + "' on the type " + parent.GetType().Name + " into a ConfigField");
 
                 if (configFields.Any(f => f.ConfigName == fieldInfo.ConfigName))
                     throw new NotSupportedException("Two ConfigField properties in the same class cannot have the same config name ('" + fieldInfo.ConfigName + "')");
@@ -66,50 +77,7 @@ namespace B9PartSwitch
 #endif
             foreach (var field in configFields)
             {
-                if (field is ListFieldInfo)
-                {
-                    ListFieldInfo listInfo = field as ListFieldInfo;
-                    if (listInfo.IsParsableType)
-                    {
-                        listInfo.ParseValues(node.GetValues(field.ConfigName));
-                    }
-                    else if (listInfo.IsConfigNodeType)
-                    {
-                        listInfo.ParseNodes(node.GetNodes(field.ConfigName));
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("Cannot find a suitable way to parse type " + listInfo.RealType.Name + " from a string in a ConfigNode");
-                    }
-                }
-                else
-                {
-                    if (field.IsParsableType)
-                    {
-                        string value = node.GetValue(field.ConfigName);
-                        if (value.IsNull()) continue;
-
-                        object result = field.Value;
-
-                        CFGUtil.AssignConfigObject(field, value, ref result);
-                        field.Value = result;
-                    }
-                    else if (field.IsConfigNodeType)
-                    {
-                        ConfigNode newNode = node.GetNode(field.ConfigName);
-                        if (newNode.IsNull()) continue;
-
-                        IConfigNode result = field.Value as IConfigNode;
-
-                        CFGUtil.AssignConfigObject(field, newNode, ref result);
-                        field.Value = result;
-
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("Cannot find a suitable way to parse type " + field.Type.Name + " from a string in a ConfigNode");
-                    }
-                }
+                field.LoadFromNode(node);
             }
         }
 
@@ -124,59 +92,7 @@ namespace B9PartSwitch
                 if (serializing && Parent is Component && !field.Field.GetCustomAttributes(true).Any(a => a is ConfigNodeSerialized))
                     continue;
 
-                if (field.Value.IsNull())
-                    continue;
-
-                if (field is ListFieldInfo)
-                {
-                    ListFieldInfo listInfo = field as ListFieldInfo;
-                    // if (listInfo.Attribute.formatFunction != null || !listInfo.IsConfigNodeType)
-                    if (listInfo.IsFormattableType)
-                    {
-                        foreach (var value in listInfo.FormatValues())
-                        {
-                            node.SetValue(field.ConfigName, value, -1, createIfNotFound: true); // -1 will create a new node
-                        }
-                    }
-                    else if (listInfo.IsConfigNodeType)
-                    {
-                        foreach (var subnode in listInfo.FormatNodes(serializing))
-                        {
-                            node.SetNode(field.ConfigName, subnode, -1, createIfNotFound: true); // -1 will create a new node
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError("This code should never be reached.  Please report this");
-                    }
-                }
-                else
-                {
-                    // if (field.Attribute.formatFunction != null)
-                    // {
-                    //     string value = field.Attribute.formatFunction(field.Value);
-                    //     node.SetValue(field.ConfigName, value, createIfNotFound: true);
-                    // }
-                    if (field.IsConfigNodeType)
-                    {
-                        ConfigNode newNode = new ConfigNode();
-                        if (serializing && field.Value is IConfigNodeSerializable)
-                            (field.Value as IConfigNodeSerializable).SerializeToNode(newNode);
-                        else
-                            (field.Value as IConfigNode).Save(newNode);
-
-                        node.SetNode(field.ConfigName, newNode, createIfNotFound: true);
-                    }
-                    else if (field.IsRegisteredParseType)
-                    {
-                        string value = CFGUtil.FormatConfigValue(field.Value);
-                        node.SetValue(field.ConfigName, value, createIfNotFound: true);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("Cannot find a suitable way to save an object of type " + field.RealType.Name + " in a ConfigNode");
-                    }
-                }
+                field.SaveToNode(node, serializing);
             }
         }
 
@@ -187,13 +103,7 @@ namespace B9PartSwitch
                 if (!field.Attribute.destroy)
                     continue;
 
-                if (field.IsComponentType || field.IsScriptableObjectType)
-                {
-                    if (field is ListFieldInfo)
-                        (field as ListFieldInfo).ClearList();
-                    else
-                        UnityEngine.Object.Destroy(field.Value as UnityEngine.Object);
-                }
+                field.Destroy();
             }
         }
     }
