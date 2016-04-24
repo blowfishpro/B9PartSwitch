@@ -9,13 +9,10 @@ namespace B9PartSwitch
     {
         #region Constants
 
-        public static readonly string[] IncompatibleModuleNames = { "ModuleProceduralFairing",
-                                                                    "FSfuelSwitch",
+        public static readonly string[] IncompatibleModuleNames = { "FSfuelSwitch",
                                                                     "FSmeshSwitch",
                                                                     "InterstallarFuelSwitch",
                                                                     "InterstellarMeshSwitch",
-                                                                    "ModuleFuelTanks",
-                                                                    "FARWingAerodynamicModel",
                                                                   };
         public static readonly Type[] IncompatibleModuleTypes;
 
@@ -23,24 +20,19 @@ namespace B9PartSwitch
         {
             List<Type> incompatibleTypes = new List<Type>();
 
-            for (int i = 0; i < IncompatibleModuleNames.Length; i++)
+            foreach (var moduleName in  IncompatibleModuleNames)
             {
                 try
                 {
-                    Type t = Type.GetType(IncompatibleModuleNames[i]);
+                    Type t = AssemblyLoader.GetClassByName(typeof(PartModule), moduleName);
                     if (t == null)
                         continue;
-
-                    if (!t.IsSubclassOf(typeof(PartModule)))
-                    {
-                        Debug.LogError("Error: The incompatible type " + IncompatibleModuleNames[i] + " does not derive from PartModule");
-                        continue;
-                    }
+                    
                     incompatibleTypes.Add(t);
                 }
                 catch(Exception e)
                 {
-                    Debug.LogError("Exception thrown while getting type " + IncompatibleModuleNames[i] + ": " + e.ToString());
+                    Debug.LogError("Exception thrown while getting type " + moduleName + ": " + e.ToString());
                 }
             }
 
