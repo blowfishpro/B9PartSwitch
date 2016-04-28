@@ -30,6 +30,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### 1.1.1
+
+* Fix resource cost not accounting for units per volume on tank type
+
 ### 1.1
 
 * KSP 1.1 compatibility
