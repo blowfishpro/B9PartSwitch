@@ -309,8 +309,8 @@ namespace B9PartSwitch
 
         public float GetModuleCost(float baseCost, ModifierStagingSituation situation)
         {
-            float cost = CurrentSubtype.addedCost + (TankVolume * CurrentTankType.tankCost);
-            cost += TankVolume * CurrentTankType.ResourceUnitCost;
+            float cost = CurrentSubtype.addedCost;
+            cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * TankVolume;
             return cost;
         }
 
