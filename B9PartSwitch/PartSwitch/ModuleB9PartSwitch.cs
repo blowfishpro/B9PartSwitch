@@ -10,9 +10,7 @@ namespace B9PartSwitch
         #region Constants
 
         public static readonly string[] IncompatibleModuleNames = { "FSfuelSwitch",
-                                                                    "FSmeshSwitch",
                                                                     "InterstallarFuelSwitch",
-                                                                    "InterstellarMeshSwitch",
                                                                   };
         public static readonly Type[] IncompatibleModuleTypes;
 
