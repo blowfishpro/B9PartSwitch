@@ -95,7 +95,7 @@ namespace B9PartSwitch
 
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => (parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded;
+        public float TotalVolume => HasTank ? ((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) : 0f;
 
         #endregion
 

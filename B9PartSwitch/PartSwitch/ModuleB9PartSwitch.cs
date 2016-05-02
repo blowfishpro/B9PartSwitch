@@ -88,16 +88,7 @@ namespace B9PartSwitch
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
-        public float TankVolume
-        {
-            get
-            {
-                if (CurrentSubtype.HasTank)
-                    return baseVolume * CurrentSubtype.volumeMultiplier + CurrentSubtype.volumeAdded;
-                else
-                    return 0f;
-            }
-        }
+        public float CurrentVolume => CurrentSubtype.TotalVolume;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -299,7 +290,7 @@ namespace B9PartSwitch
 
         public float GetModuleMass(float baseMass, ModifierStagingSituation situation)
         {
-            return CurrentSubtype.addedMass + (TankVolume * CurrentTankType.tankMass);
+            return CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass);
         }
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
@@ -307,7 +298,7 @@ namespace B9PartSwitch
         public float GetModuleCost(float baseCost, ModifierStagingSituation situation)
         {
             float cost = CurrentSubtype.addedCost;
-            cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * TankVolume;
+            cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * CurrentVolume;
             return cost;
         }
 
@@ -497,7 +488,7 @@ namespace B9PartSwitch
             for (int i = 0; i < CurrentTankType.resources.Count; i++)
             {
                 TankResource resource = CurrentTankType[i];
-                float resourceAmount = resource.unitsPerVolume * TankVolume;
+                float resourceAmount = resource.unitsPerVolume * CurrentVolume;
                 PartResource partResource = null;
                 if (resourceIndices[i] < 0)
                 {
