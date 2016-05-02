@@ -62,8 +62,7 @@ namespace B9PartSwitch
 
         public static TankType GetTankType(string name)
         {
-            if (!LoadedTankDefs)
-                throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load)");
+            CheckTankDefs();
             if (string.IsNullOrEmpty(name))
                 return StructuralTankType;
             return tankTypes[name].Clone() as TankType;
@@ -71,9 +70,14 @@ namespace B9PartSwitch
 
         public static bool TankTypeExists(string name)
         {
-            if (!LoadedTankDefs)
-                throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load)");
+            CheckTankDefs();
             return tankTypes.ContainsKey(name);
+        }
+
+        private static void CheckTankDefs()
+        {
+            if (!LoadedTankDefs)
+                throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load). Perhaps ModuleManager is missing or out of date?");
         }
 
         // This will raise an exception when the resource is not found
