@@ -95,6 +95,8 @@ namespace B9PartSwitch
 
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
+        public float TotalVolume => (parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded;
+
         #endregion
 
         #region Setup
@@ -104,9 +106,7 @@ namespace B9PartSwitch
             base.OnLoad(node);
 
             if (tankType == null)
-            {
                 tankType = B9TankSettings.StructuralTankType;
-            }
 
             if (string.IsNullOrEmpty(title))
                 title = subtypeName;
@@ -129,11 +129,11 @@ namespace B9PartSwitch
                 throw new InvalidOperationException("Parent has not been set");
 
             transforms = new List<TransformInfo>();
-            for (int i = 0; i < transformNames.Count; i++)
+            foreach (var transformName in transformNames)
             {
-                Transform[] tempTransforms = part.FindModelTransforms(transformNames[i]);
+                Transform[] tempTransforms = part.FindModelTransforms(transformName);
                 if (tempTransforms == null || tempTransforms.Length == 0)
-                    LogError("No transformes named " + transformNames[i] + " found");
+                    LogError($"No transformes named {transformName} found");
                 else
                     transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
             }
@@ -145,22 +145,23 @@ namespace B9PartSwitch
                 throw new InvalidOperationException("Parent has not been set");
 
             nodes = new List<AttachNode>();
-            for (int i = 0; i < nodeNames.Count; i++)
+            foreach (var nodeName in nodeNames)
             {
-                AttachNode[] tempNodes = part.findAttachNodes(nodeNames[i]);
+                AttachNode[] tempNodes = part.findAttachNodes(nodeName);
                 if (tempNodes == null || tempNodes.Length == 0)
                 {
-                    LogError("No attach nodes matching " + nodeNames[i] + "found");
+                    LogError($"No attach nodes matching {nodeName} found");
                 }
                 else
                 {
-                    for (int j = 0; j < tempNodes.Length; j++)
+                    foreach (var node in tempNodes)
                     {
-                        // Allow dock nodes to that part duplication doesn't fail
-                        if (tempNodes[j].nodeType == AttachNode.NodeType.Stack || tempNodes[j].nodeType == AttachNode.NodeType.Dock)
-                            nodes.Add(tempNodes[j]);
+                        // If a node has been deactivated then it will be a docking node
+                        // Alternative: activate all nodes on serialization
+                        if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
+                            nodes.Add(node);
                         else
-                            LogError("Node " + tempNodes[j].id + " is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier " + nodeNames[i] + ")");
+                            LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier {nodeName})");
                     }
                 }
             }
@@ -179,33 +180,21 @@ namespace B9PartSwitch
 
         #region Public Methods
 
-        public void ActivateObjects()
-        {
-            transforms.ForEach(t => t.Enable());
-        }
+        public void ActivateObjects() => transforms.ForEach(t => t.Enable());
 
-        public void ActivateNodes()
-        {
-            nodes.ForEach(n => n.Unhide());
-        }
+        public void ActivateNodes() => nodes.ForEach(n => n.Unhide());
 
-        public void DeactivateObjects()
-        {
-            transforms.ForEach(t => t.Disable());
-        }
+        public void DeactivateObjects() => transforms.ForEach(t => t.Disable());
 
-        public void DeactivateNodes()
-        {
-            nodes.ForEach(n => n.Hide());
-        }
+        public void DeactivateNodes() => nodes.ForEach(n => n.Hide());
 
         public override string ToString()
         {
             string log = "PartSubtype";
             if (!string.IsNullOrEmpty(Name))
-                log += " " + Name;
+                log += $" {Name}";
             if (parent != null)
-                log += " on part " + parent.ToString();
+                log += $" on module {parent}";
             return log;
         }
 
@@ -213,23 +202,9 @@ namespace B9PartSwitch
 
         #region Private Methods
 
-        private void LogWarning(string message)
-        {
-            string log = "Warning on ";
-            log += this.ToString();
-            log += ": ";
-            log += message;
-            Debug.LogWarning(message);
-        }
+        private void LogWarning(string message) => Debug.LogWarning($"Warning on {this}: {message}");
 
-        private void LogError(string message)
-        {
-            string log = "Error on ";
-            log += this.ToString();
-            log += ": ";
-            log += message;
-            Debug.LogWarning(message);
-        }
+        private void LogError(string message) => Debug.LogWarning($"Warning on {this}: {message}");
 
         #endregion
     }

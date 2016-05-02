@@ -30,7 +30,7 @@ namespace B9PartSwitch
                 }
                 catch(Exception e)
                 {
-                    Debug.LogError("Exception thrown while getting type " + moduleName + ": " + e.ToString());
+                    Debug.LogError($"Exception thrown while getting type {moduleName}: {e}");
                 }
             }
 
@@ -150,11 +150,11 @@ namespace B9PartSwitch
                 TankType tank = subtype.tankType;
 
                 if (tank == null)
-                    LogError("Tank is null on subtype " + subtype.Name);
+                    LogError($"Tank is null on subtype {subtype.Name}");
 
-                if (tank.ResourcesCount > 0 && (TankVolumeForSubtype(i) <= 0f))
+                if (tank.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
                 {
-                    LogError("Subtype " + subtype.Name + " has a tank type with resources, but no volume is specifified");
+                    LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
                     subtype.tankType = tank = B9TankSettings.StructuralTankType;
                 }
 
@@ -178,7 +178,7 @@ namespace B9PartSwitch
                     }
                     else
                     {
-                        LogError("Error: Part subtype '" + subtype.Name + "' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
+                        LogError($"Error: Part subtype '{subtype.Name}' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
                     }
                 }
             }
@@ -214,27 +214,27 @@ namespace B9PartSwitch
                 ModuleB9PartSwitch otherModule = otherModules[i];
                 if (otherModule == this) continue;
                 bool destroy = false;
-                for (int j = 0; j < managedResourceNames.Count; j++)
+                foreach (var resourceName in managedResourceNames)
                 {
-                    if (otherModule.IsManagedResource(managedResourceNames[j]))
+                    if (otherModule.IsManagedResource(resourceName))
                     {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same resource: " + managedResourceNames[j]);
+                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same resource: {resourceName}");
                         destroy = true;
                     }
                 }
-                for (int j = 0; j < managedTransformNames.Count; j++)
+                foreach (var transformName in managedTransformNames)
                 {
-                    if (otherModule.IsManagedTransform(managedTransformNames[j]))
+                    if (otherModule.IsManagedTransform(transformName))
                     {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same transform: " + managedTransformNames[j]);
+                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same transform: {transformName}");
                         destroy = true;
                     }
                 }
-                for (int j = 0; j < managedStackNodeIDs.Count; j++)
+                foreach (var nodeID in managedStackNodeIDs)
                 {
-                    if (otherModule.IsManagedNode(managedStackNodeIDs[j]))
+                    if (otherModule.IsManagedNode(nodeID))
                     {
-                        LogError("Two ModuleB9PartSwitch modules cannot manage the same attach node: " + managedStackNodeIDs[j]);
+                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same attach node: {nodeID}");
                         destroy = true;
                     }
                 }
@@ -259,7 +259,7 @@ namespace B9PartSwitch
 
                 if (destroy)
                 {
-                    LogWarning("ModuleB9PartSwitch with moduleID '" + otherModule.moduleID + "' is incomatible, and will be removed.");
+                    LogWarning($"ModuleB9PartSwitch with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
                     part.Modules.Remove(otherModule);
                     Destroy(otherModule);
                     modifiedSetup = true;
@@ -273,12 +273,11 @@ namespace B9PartSwitch
                     continue;
                 Type mType = m.GetType();
 
-                for (int j = 0; j < IncompatibleModuleTypes.Length; j++)
+                foreach (var testType in IncompatibleModuleTypes)
                 {
-                    Type testType = IncompatibleModuleTypes[j];
                     if (mType == testType || mType.IsSubclassOf(testType))
                     {
-                        LogError("ModuleB9PartSwitch and " + m.moduleName + " cannot exist on the same part.  " + m.moduleName + " will be removed.");
+                        LogError($"ModuleB9PartSwitch and {m.moduleName} cannot exist on the same part.  {m.moduleName} will be removed.");
                         part.Modules.Remove(m);
                         Destroy(m);
                         modifiedSetup = true;
@@ -316,39 +315,31 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = "<b>" + subtypes.Count.ToString() + " Subtypes:</b>";
-            for (int i = 0; i < subtypes.Count; i++)
+            string outStr = $"<b>{subtypes.Count}Subtypes:</b>";
+            foreach (var subtype in subtypes)
             {
-                outStr += "\n  <b>- " + subtypes[i].title + "</b>";
-                int resourceCount = subtypes[i].tankType.ResourcesCount;
-                if (resourceCount > 0)
+                outStr += $"\n  <b>- {subtype.title}</b>";
+                if (subtype.tankType.ResourcesCount > 0)
                 {
                     outStr += "\n      <b><color=#99ff00ff>Resources:</color></b>";
-                    float volume = TankVolumeForSubtype(i);
-                    for (int j = 0; j < resourceCount; j++)
-                        outStr += "\n      <b>- " + subtypes[i].tankType.resources[j].ResourceName + "</b>: " + (subtypes[i].tankType.resources[j].unitsPerVolume * volume).ToString("F1");
+                    foreach (var resource in subtype.tankType)
+                        outStr += $"\n      <b>- {resource.ResourceName}</b>: {resource.unitsPerVolume * subtype.TotalVolume: F1}";
                 }
             }
             return outStr;
         }
 
-        public string GetModuleTitle()
-        {
-            return "Switchable Part";
-        }
+        public string GetModuleTitle() => "Switchable Part";
 
         public string GetPrimaryField()
         {
-            string outStr = "<b>" + subtypes.Count.ToString() + " Subtypes</b>";
+            string outStr = $"<b>{subtypes.Count} Subtypes</b>";
             if (baseVolume > 0)
-                outStr += "\n  <b>Volume:</b> " + baseVolume.ToString("F0");
+                outStr += $"\n  <b>Volume:</b> {baseVolume : F0}";
             return outStr;
         }
 
-        public Callback<Rect> GetDrawModulePanelCallback()
-        {
-            return null;
-        }
+        public Callback<Rect> GetDrawModulePanelCallback() => null;
 
         #endregion
 
@@ -367,17 +358,6 @@ namespace B9PartSwitch
         public bool IsManagedNode(string nodeName)
         {
             return managedStackNodeIDs.Contains(nodeName);
-        }
-
-        public float TankVolumeForSubtype(int index)
-        {
-            if (index < 0 || index >= SubtypesCount)
-                throw new IndexOutOfRangeException("Index " + index.ToString() + " is out of range (there are " + SubtypesCount.ToString() + "subtypes.");
-            PartSubtype subtype = subtypes[index];
-            if (subtype == null || subtype.tankType == null || subtype.tankType.ResourcesCount == 0)
-                return 0f;
-            else
-                return baseVolume * subtype.volumeMultiplier + subtype.volumeAdded;
         }
 
         #endregion
@@ -409,7 +389,7 @@ namespace B9PartSwitch
                 return;
 
             if (newIndex < 0 || newIndex >= subtypes.Count)
-                throw new ArgumentException("Subtype index must be between 0 and " + subtypes.Count.ToString());
+                throw new ArgumentException($"Subtype index must be between 0 and {subtypes.Count}");
 
             if (newIndex != currentSubtypeIndex)
             {
@@ -479,7 +459,7 @@ namespace B9PartSwitch
                 GameEvents.onVesselWasModified.Fire(this.vessel);
             }
 
-            LogInfo("Switched subtype to " + CurrentSubtype.Name);
+            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
         private void UpdateTankSetup(bool forceFull)
