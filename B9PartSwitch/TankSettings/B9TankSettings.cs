@@ -31,10 +31,7 @@ namespace B9PartSwitch
             CFGUtil.RegisterParseType<TankType>(B9TankSettings.GetTankType, x => x.tankName);
         }
 
-        public static void ModuleManagerPostLoad()
-        {
-            ReloadTankDefs();
-        }
+        public static void ModuleManagerPostLoad() => ReloadTankDefs();
 
         public static void ReloadTankDefs()
         {
@@ -42,15 +39,14 @@ namespace B9PartSwitch
 
             // Structural tank type is hard coded
             tankTypes.Add(StructuralTankType.tankName, StructuralTankType);
-
-            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE");
-            for (int i = 0; i < nodes.Length; i++)
+            
+            foreach (var node in GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE"))
             {
                 TankType t = new TankType();
-                t.Load(nodes[i]);
+                t.Load(node);
                 if (tankTypes.ContainsKey(t.tankName))
                 {
-                    Debug.LogError($"The tank type {t.tankName} already exists");
+                    Debug.LogError($"B9TankSettings: The tank type {t.tankName} already exists");
                     continue;
                 }
                 tankTypes.Add(t.tankName, t);
