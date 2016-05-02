@@ -50,11 +50,11 @@ namespace B9PartSwitch
                 t.Load(nodes[i]);
                 if (tankTypes.ContainsKey(t.tankName))
                 {
-                    Debug.LogError("The tank type " + t.tankName + " already exists");
+                    Debug.LogError($"The tank type {t.tankName} already exists");
                     continue;
                 }
                 tankTypes.Add(t.tankName, t);
-                Debug.Log("B9TankSettings: registered tank type " + t.tankName);
+                Debug.Log($"B9TankSettings: registered tank type {t.tankName}");
             }
 
             LoadedTankDefs = true;
@@ -85,7 +85,7 @@ namespace B9PartSwitch
         {
             PartResourceDefinition resource = PartResourceLibrary.Instance.GetDefinition(name);
             if (resource == null)
-                throw new KeyNotFoundException("No resource with the name " + name + " could be found");
+                throw new KeyNotFoundException($"No resource with the name {name} could be found");
             return resource;
         }
     }
