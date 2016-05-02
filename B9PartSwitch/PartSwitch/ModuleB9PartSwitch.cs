@@ -315,7 +315,7 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = $"<b>{subtypes.Count}Subtypes:</b>";
+            string outStr = $"<b>{subtypes.Count} Subtypes:</b>";
             foreach (var subtype in subtypes)
             {
                 outStr += $"\n  <b>- {subtype.title}</b>";
@@ -323,7 +323,7 @@ namespace B9PartSwitch
                 {
                     outStr += "\n      <b><color=#99ff00ff>Resources:</color></b>";
                     foreach (var resource in subtype.tankType)
-                        outStr += $"\n      <b>- {resource.ResourceName}</b>: {resource.unitsPerVolume * subtype.TotalVolume: F1}";
+                        outStr += $"\n      <b>- {resource.ResourceName}</b>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
                 }
             }
             return outStr;
@@ -335,7 +335,7 @@ namespace B9PartSwitch
         {
             string outStr = $"<b>{subtypes.Count} Subtypes</b>";
             if (baseVolume > 0)
-                outStr += $"\n  <b>Volume:</b> {baseVolume : F0}";
+                outStr += $"\n  <b>Volume:</b> {baseVolume :F0}";
             return outStr;
         }
 
