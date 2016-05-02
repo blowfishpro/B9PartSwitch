@@ -58,7 +58,7 @@ namespace B9PartSwitch
 
         public IEnumerable<string> ResourceNames => resources.Select(r => r.ResourceName);
 
-        public bool IsStructuralTankType => (tankName == "Structural") && (tankMass == 0f) && (tankCost == 0f) && (resources.Count == 0);
+        public bool IsStructuralTankType => (tankName == B9TankSettings.structuralTankName) && (tankMass == 0f) && (tankCost == 0f) && (resources.Count == 0);
 
         public float ResourceUnitCost => resources.Sum(r => r.unitsPerVolume * r.resourceDefinition.unitCost);
 

@@ -9,6 +9,8 @@ namespace B9PartSwitch
 {
     public static class B9TankSettings
     {
+        public const string structuralTankName = "Structural";
+
         private static Dictionary<string, TankType> tankTypes = new Dictionary<string,TankType>();
 
         public static bool LoadedTankDefs { get; private set; } = false;
@@ -18,7 +20,7 @@ namespace B9PartSwitch
             get
             {
                 var t = new TankType();
-                t.tankName = "Structural";
+                t.tankName = structuralTankName;
                 t.tankMass = 0f;
                 t.tankCost = 0f;
                 return t;
@@ -38,7 +40,7 @@ namespace B9PartSwitch
             tankTypes.Clear();
 
             // Structural tank type is hard coded
-            tankTypes.Add(StructuralTankType.tankName, StructuralTankType);
+            tankTypes.Add(structuralTankName, StructuralTankType);
             
             foreach (var node in GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE"))
             {
