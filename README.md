@@ -30,6 +30,13 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### 1.1.3
+
+* Recompile against KSP 1.1.2
+* Simplify part list info a bit
+* Hopefully make some error messages clearer
+* Various internal refactors and simplifications
+
 ### 1.1.2
 
 * Remove FSmeshSwitch and InterstellarMeshSwitch from incompatible modules
