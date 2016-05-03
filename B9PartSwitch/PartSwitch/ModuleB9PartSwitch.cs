@@ -306,27 +306,23 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = $"<b>{subtypes.Count} Subtypes:</b>";
+            string outStr = "";
             foreach (var subtype in subtypes)
             {
-                outStr += $"\n  <b>- {subtype.title}</b>";
-                if (subtype.tankType.ResourcesCount > 0)
-                {
-                    outStr += "\n      <b><color=#99ff00ff>Resources:</color></b>";
-                    foreach (var resource in subtype.tankType)
-                        outStr += $"\n      <b>- {resource.ResourceName}</b>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
-                }
+                outStr += $"\n<b>- {subtype.title}</b>";
+                foreach (var resource in subtype.tankType)
+                    outStr += $"\n  <b><color=#99ff00ff>- {resource.ResourceName}</color></b>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
             }
             return outStr;
         }
 
-        public string GetModuleTitle() => "Switchable Part";
+        public string GetModuleTitle() => $"Switchable Part ({SubtypesCount} Subtypes)";
 
         public string GetPrimaryField()
         {
             string outStr = $"<b>{subtypes.Count} Subtypes</b>";
             if (baseVolume > 0)
-                outStr += $"\n  <b>Volume:</b> {baseVolume :F0}";
+                outStr += $" (<b>Volume:</b> {baseVolume :F0})";
             return outStr;
         }
 
