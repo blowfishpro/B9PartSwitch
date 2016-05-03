@@ -62,7 +62,7 @@ namespace B9PartSwitch
 
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
         [KSPField(guiActiveEditor = true, isPersistant = true, guiName = "Subtype")]
-        [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, options = new[] { "None" }, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
+        [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int subtypeIndexControl = 0;
 
         #endregion
