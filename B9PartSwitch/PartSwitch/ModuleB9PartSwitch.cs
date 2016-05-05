@@ -60,8 +60,6 @@ namespace B9PartSwitch
 
         public PartSubtype this[int index] => subtypes[index];
 
-        public bool UseSmallGUI => SubtypesCount < 4;
-
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
 
         public bool MaxTempManaged { get; private set; }
