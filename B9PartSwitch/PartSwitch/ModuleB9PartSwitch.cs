@@ -101,9 +101,8 @@ namespace B9PartSwitch
             SkinMaxTempManaged = false;
             AttachNodeManaged = false;
 
-            for (int i = 0; i < subtypes.Count; i++)
+            foreach (var subtype in subtypes)
             {
-                PartSubtype subtype = subtypes[i];
                 subtype.SetParent(this);
                 subtype.OnStart();
                 TankType tank = subtype.tankType;
@@ -118,9 +117,7 @@ namespace B9PartSwitch
                 }
 
                 if (tank != null)
-                {
                     managedResourceNames.AddRange(tank.ResourceNames);
-                }
 
                 managedTransformNames.AddRange(subtype.transformNames);
                 managedStackNodeIDs.AddRange(subtype.NodeIDs);
@@ -144,18 +141,19 @@ namespace B9PartSwitch
 
             if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
                 currentSubtypeIndex = 0;
-
-            bool editor = (state == StartState.Editor);
             
             SetupGUI();
 
-            for (int i = 0; i < subtypes.Count; i++)
+            foreach (var subtype in subtypes)
             {
-                subtypes[i].DeactivateObjects();
-                if (editor)
-                    subtypes[i].DeactivateNodes();
+                if (subtype == CurrentSubtype)
+                    continue;
+
+                subtype.DeactivateObjects();
+                if (state == StartState.Editor)
+                    subtype.DeactivateNodes();
                 else
-                    subtypes[i].ActivateNodes();
+                    subtype.ActivateNodes();
             }
 
             UpdateSubtype(false);
@@ -166,11 +164,9 @@ namespace B9PartSwitch
         {
             // Check for incompatible modules
             bool modifiedSetup = false;
-
-            List<ModuleB9PartSwitch> otherModules = part.FindModulesImplementing<ModuleB9PartSwitch>();
-            for (int i = 0; i < otherModules.Count; i++)
+            
+            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
             {
-                ModuleB9PartSwitch otherModule = otherModules[i];
                 if (otherModule == this) continue;
                 bool destroy = false;
                 foreach (var resourceName in managedResourceNames)
@@ -354,7 +350,7 @@ namespace B9PartSwitch
 
             UpdateSubtype(true);
 
-            foreach (var counterpart in this.FindSymmetryCounterparts<ModuleB9PartSwitch>())
+            foreach (var counterpart in this.FindSymmetryCounterparts())
                 counterpart.SetNewSubtype(newIndex, force);
         }
 
