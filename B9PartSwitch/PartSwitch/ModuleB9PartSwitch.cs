@@ -7,38 +7,6 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
-        #region Constants
-
-        public static readonly string[] IncompatibleModuleNames = { "FSfuelSwitch",
-                                                                    "InterstallarFuelSwitch",
-                                                                  };
-        public static readonly Type[] IncompatibleModuleTypes;
-
-        static ModuleB9PartSwitch()
-        {
-            List<Type> incompatibleTypes = new List<Type>();
-
-            foreach (var moduleName in  IncompatibleModuleNames)
-            {
-                try
-                {
-                    Type t = AssemblyLoader.GetClassByName(typeof(PartModule), moduleName);
-                    if (t == null)
-                        continue;
-                    
-                    incompatibleTypes.Add(t);
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError($"Exception thrown while getting type {moduleName}: {e}");
-                }
-            }
-
-            IncompatibleModuleTypes = incompatibleTypes.ToArray();
-        }
-
-        #endregion
-
         #region Public Fields
 
         [ConfigNodeSerialized]
@@ -93,6 +61,8 @@ namespace B9PartSwitch
         public PartSubtype this[int index] => subtypes[index];
 
         public bool UseSmallGUI => SubtypesCount < 4;
+
+        public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
 
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
@@ -251,28 +221,25 @@ namespace B9PartSwitch
                 if (destroy)
                 {
                     LogWarning($"ModuleB9PartSwitch with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
-                    part.Modules.Remove(otherModule);
-                    Destroy(otherModule);
+                    part.RemoveModule(otherModule);
                     modifiedSetup = true;
                 }
             }
 
-            for (int i = 0; i < part.Modules.Count; i++)
+            if (ManagesResources)
             {
-                PartModule m = part.Modules[i];
-                if (m == null || m is ModuleB9PartSwitch)
-                    continue;
-                Type mType = m.GetType();
-
-                foreach (var testType in IncompatibleModuleTypes)
+                var incompatibleModules = new [] { "FSfuelSwitch", "InterstellarFuelSwitch" };
+                foreach (var moduleName in incompatibleModules)
                 {
-                    if (mType == testType || mType.IsSubclassOf(testType))
+                    while (part.Modules.Contains(moduleName))
                     {
-                        LogError($"ModuleB9PartSwitch and {m.moduleName} cannot exist on the same part.  {m.moduleName} will be removed.");
-                        part.Modules.Remove(m);
-                        Destroy(m);
-                        modifiedSetup = true;
-                        break;
+                        var module = part.Modules[moduleName];
+                        if (module.IsNotNull())
+                        {
+                            LogError($"ModuleB9PartSwitch and {moduleName} cannot both manage resources on the same part.  {moduleName} will be removed.");
+                            part.RemoveModule(module);
+                            modifiedSetup = true;
+                        }
                     }
                 }
             }
