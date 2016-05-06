@@ -391,15 +391,21 @@ namespace B9PartSwitch
 
             UpdateTankSetup(fillTanks);
 
-            if (CurrentSubtype.maxTemp > 0)
-                part.maxTemp = CurrentSubtype.maxTemp;
-            else
-                part.maxTemp = part.GetPrefab().maxTemp;
+            if (MaxTempManaged)
+            {
+                if (CurrentSubtype.maxTemp > 0)
+                    part.maxTemp = CurrentSubtype.maxTemp;
+                else
+                    part.maxTemp = part.GetPrefab().maxTemp;
+            }
 
-            if (CurrentSubtype.skinMaxTemp > 0)
-                part.skinMaxTemp = CurrentSubtype.skinMaxTemp;
-            else
-                part.skinMaxTemp = part.GetPrefab().skinMaxTemp;
+            if (SkinMaxTempManaged)
+            {
+                if (CurrentSubtype.skinMaxTemp > 0)
+                    part.skinMaxTemp = CurrentSubtype.skinMaxTemp;
+                else
+                    part.skinMaxTemp = part.GetPrefab().skinMaxTemp;
+            }
 
             if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
             {
