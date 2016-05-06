@@ -6,7 +6,7 @@ This mod will not change anything by itself, but is designed to be used by other
 
 ## Requirements
 
-* KSP version 1.1.1 (build 1250) is the only supported KSP version
+* KSP version 1.1.2 (build 1260) is the only supported KSP version
 * [ModuleManager](http://forum.kerbalspaceprogram.com/index.php?showtopic=50533) is required.
 
 ## Installation
@@ -29,6 +29,12 @@ The source can be found at [Github](https://github.com/blowfishpro/B9PartSwitch)
 This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.0.en.html)
 
 ## Changelog
+
+### 1.1.4
+
+* Don't remove FSfuelSwitch or InterstellarFuelSwitch if ModuleB9PartSwitch doesn't manage resources
+* Defer rendering drag cubes until part has been attached (fixes flickering in editor)
+* Avoid firing events multiple times
 
 ### 1.1.3
 
