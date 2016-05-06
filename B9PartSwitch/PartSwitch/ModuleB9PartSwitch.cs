@@ -325,7 +325,7 @@ namespace B9PartSwitch
 
         private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
         {
-            SetNewSubtype(subtypeIndexControl, false);
+            SetNewSubtype(subtypeIndexControl, false, true);
         }
 
         private void UpdateDragCubesOnAttach()
@@ -334,7 +334,7 @@ namespace B9PartSwitch
             RenderProceduralDragCubes();
         }
 
-        private void SetNewSubtype(int newIndex, bool force)
+        private void SetNewSubtype(int newIndex, bool force, bool fireEvents)
         {
             // For symmetry
             subtypeIndexControl = newIndex;
@@ -357,9 +357,10 @@ namespace B9PartSwitch
             UpdateSubtype(true);
 
             foreach (var counterpart in this.FindSymmetryCounterparts())
-                counterpart.SetNewSubtype(newIndex, force);
+                counterpart.SetNewSubtype(newIndex, force, false);
 
-            FireEvents();
+            if (fireEvents)
+                FireEvents();
         }
 
         private void FireEvents()
