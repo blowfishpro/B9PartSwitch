@@ -334,14 +334,6 @@ namespace B9PartSwitch
             RenderProceduralDragCubes();
         }
 
-        private void RenderProceduralDragCubes()
-        {
-            DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
-            part.DragCubes.ClearCubes();
-            part.DragCubes.Cubes.Add(newCube);
-            part.DragCubes.ResetCubeWeights();
-        }
-
         private void SetNewSubtype(int newIndex, bool force)
         {
             // For symmetry
@@ -501,6 +493,14 @@ namespace B9PartSwitch
             }
 
             part.Resources.UpdateList();
+        }
+
+        private void RenderProceduralDragCubes()
+        {
+            DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
+            part.DragCubes.ClearCubes();
+            part.DragCubes.Cubes.Add(newCube);
+            part.DragCubes.ResetCubeWeights();
         }
 
         #endregion
