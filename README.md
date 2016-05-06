@@ -35,6 +35,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 * Don't remove FSfuelSwitch or InterstellarFuelSwitch if ModuleB9PartSwitch doesn't manage resources
 * Defer rendering drag cubes until part has been attached (fixes flickering in editor)
 * Avoid firing events multiple times
+* Various internal changes
 
 ### 1.1.3
 
