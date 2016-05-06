@@ -328,6 +328,20 @@ namespace B9PartSwitch
             SetNewSubtype(subtypeIndexControl, false);
         }
 
+        private void UpdateDragCubesOnAttach()
+        {
+            part.OnEditorAttach -= UpdateDragCubesOnAttach;
+            RenderProceduralDragCubes();
+        }
+
+        private void RenderProceduralDragCubes()
+        {
+            DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
+            part.DragCubes.ClearCubes();
+            part.DragCubes.Cubes.Add(newCube);
+            part.DragCubes.ResetCubeWeights();
+        }
+
         private void SetNewSubtype(int newIndex, bool force)
         {
             // For symmetry
@@ -387,10 +401,10 @@ namespace B9PartSwitch
             
             if (affectDragCubes && managedTransformNames.Count > 0)
             {
-                DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
-                part.DragCubes.ClearCubes();
-                part.DragCubes.Cubes.Add(newCube);
-                part.DragCubes.ResetCubeWeights();
+                if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
+                    part.OnEditorAttach += UpdateDragCubesOnAttach;
+                else
+                    RenderProceduralDragCubes();
             }
 
             var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
