@@ -325,7 +325,7 @@ namespace B9PartSwitch
 
         private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
         {
-            SetNewSubtype(subtypeIndexControl, false, true);
+            BeginSubtypeChange(subtypeIndexControl);
         }
 
         private void UpdateDragCubesOnAttach()
@@ -334,35 +334,36 @@ namespace B9PartSwitch
             RenderProceduralDragCubes();
         }
 
-        private void SetNewSubtype(int newIndex, bool force, bool fireEvents)
+        private void BeginSubtypeChange(int newIndex)
         {
-            // For symmetry
-            subtypeIndexControl = newIndex;
-
-            if (newIndex == currentSubtypeIndex && !force)
-                return;
-
             if (newIndex < 0 || newIndex >= subtypes.Count)
                 throw new ArgumentException($"Subtype index must be between 0 and {subtypes.Count}");
 
-            if (newIndex != currentSubtypeIndex)
-            {
-                CurrentSubtype.DeactivateObjects();
-                if (HighLogic.LoadedSceneIsEditor)
-                    CurrentSubtype.DeactivateNodes();
-            }
+            // For symmetry
+            subtypeIndexControl = newIndex;
+
+            if (newIndex == currentSubtypeIndex)
+                return;
+
+            SetNewSubtype(newIndex);
+
+            foreach (var counterpart in this.FindSymmetryCounterparts())
+                counterpart.SetNewSubtype(newIndex);
+
+            FireEvents();
+        }
+
+        private void SetNewSubtype(int newIndex)
+        {
+            CurrentSubtype.DeactivateObjects();
+            if (HighLogic.LoadedSceneIsEditor)
+                CurrentSubtype.DeactivateNodes();
 
             currentSubtypeIndex = newIndex;
 
             UpdateSubtype(true);
-
-            foreach (var counterpart in this.FindSymmetryCounterparts())
-                counterpart.SetNewSubtype(newIndex, force, false);
-
-            if (fireEvents)
-                FireEvents();
         }
-
+        
         private void FireEvents()
         {
             if (HighLogic.LoadedSceneIsEditor)
