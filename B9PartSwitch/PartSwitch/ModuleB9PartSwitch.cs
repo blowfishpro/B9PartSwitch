@@ -366,6 +366,21 @@ namespace B9PartSwitch
 
             foreach (var counterpart in this.FindSymmetryCounterparts())
                 counterpart.SetNewSubtype(newIndex, force);
+
+            FireEvents();
+        }
+
+        private void FireEvents()
+        {
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
+                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+            }
+            else if (HighLogic.LoadedSceneIsFlight)
+            {
+                GameEvents.onVesselWasModified.Fire(this.vessel);
+            }
         }
 
         private void UpdateSubtype(bool fillTanks)
@@ -410,16 +425,6 @@ namespace B9PartSwitch
             var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
             if (window.IsNotNull())
                 window.displayDirty = true;
-
-            if (HighLogic.LoadedSceneIsEditor)
-            {
-                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
-                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
-            }
-            else if (HighLogic.LoadedSceneIsFlight)
-            {
-                GameEvents.onVesselWasModified.Fire(this.vessel);
-            }
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
