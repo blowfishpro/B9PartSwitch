@@ -1,0 +1,17 @@
+language: csharp
+solution: B9PartSwitch.sln
+install:
+  - build_script/install/install_ksp_dlls.sh
+  - nuget restore ${TRAVIS_SOLUTION}
+before_script:
+  - build_script/before_script/check_version.rb
+script:
+  - xbuild /p:Configuration=Release ${TRAVIS_SOLUTION}
+  - build_script/script/make_zip.sh
+env:
+  global:
+    - PROJECT_NAME="B9PartSwitch"
+    - PROJECT_DIR="B9PartSwitch"
+    - KSP_VERSION="$(build_script/env/get_ksp_version.rb)"
+notifications:
+  email: false
