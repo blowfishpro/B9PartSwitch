@@ -8,6 +8,11 @@ before_script:
 script:
   - xbuild /p:Configuration=Release ${TRAVIS_SOLUTION}
   - build_script/script/make_zip.sh
+deploy:
+  provider: bintray
+  file: build_script/deploy/bintray_deploy.json
+  user: blowfishpro
+  key: ${BINTRAY_API_KEY}
 env:
   global:
     - PROJECT_NAME="B9PartSwitch"

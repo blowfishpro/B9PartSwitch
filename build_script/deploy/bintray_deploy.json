@@ -1,0 +1,20 @@
+{
+  "package" :
+  {
+    "name"    : "B9PartSwitch",
+    "repo"    : "KSP-Mods",
+    "subject" : "blowfishpro"
+  },
+  "version" :
+  {
+    "name" : "master"
+  },
+  "files" :
+  [
+    {
+      "includePattern"  : "zip_release/bintray/(.*\\.zip)",
+      "uploadPattern"   : "builds/$1"
+    }
+  ],
+  "publish" : true
+}
