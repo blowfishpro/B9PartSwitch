@@ -43,6 +43,9 @@
     <Reference Include="UnityEngine">
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configs\CFGUtil.cs" />
