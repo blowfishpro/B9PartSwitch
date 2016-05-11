@@ -406,7 +406,7 @@ namespace B9PartSwitch
                 var referenceNode = CurrentSubtype.attachNode ?? part.GetPrefab().srfAttachNode;
                 part.srfAttachNode.position = referenceNode.position;
                 part.srfAttachNode.orientation = referenceNode.orientation;
-                part.srfAttachNode.size = referenceNode.size;
+                // part.srfAttachNode.size = referenceNode.size;
             }
 
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
