@@ -59,7 +59,7 @@ namespace B9PartSwitch
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
-        public float CurrentVolume => CurrentSubtype.TotalVolume * CubicScale;
+        public float CurrentVolume => CurrentSubtype.TotalVolume * VolumeScale;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -69,7 +69,7 @@ namespace B9PartSwitch
         public bool SkinMaxTempManaged { get; private set; }
         public bool AttachNodeManaged { get; private set; }
 
-        public float CubicScale => scale * scale * scale;
+        public float VolumeScale => scale * scale * scale;
 
         #endregion
 
@@ -256,7 +256,7 @@ namespace B9PartSwitch
 
         public float GetModuleMass(float baseMass, ModifierStagingSituation situation)
         {
-            return (CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass)) * CubicScale;
+            return (CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass)) * VolumeScale;
         }
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
@@ -265,7 +265,7 @@ namespace B9PartSwitch
         {
             float cost = CurrentSubtype.addedCost;
             cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * CurrentVolume;
-            return cost * CubicScale;
+            return cost * VolumeScale;
         }
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
