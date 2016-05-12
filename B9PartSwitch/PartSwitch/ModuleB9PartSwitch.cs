@@ -33,10 +33,6 @@ namespace B9PartSwitch
         [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int subtypeIndexControl = 0;
 
-        // Tweakscale integration
-        [ConfigField(persistant = true)]
-        public float scale = 1f;
-
         #endregion
 
         #region Private Fields
@@ -49,6 +45,9 @@ namespace B9PartSwitch
 
         [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
+
+        // Tweakscale integration
+        private float scale = 1f;
 
         #endregion
 
