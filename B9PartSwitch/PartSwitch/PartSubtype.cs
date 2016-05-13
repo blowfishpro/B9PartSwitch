@@ -133,7 +133,7 @@ namespace B9PartSwitch
             {
                 Transform[] tempTransforms = part.FindModelTransforms(transformName);
                 if (tempTransforms == null || tempTransforms.Length == 0)
-                    LogError($"No transformes named {transformName} found");
+                    LogError($"No transforms named {transformName} found");
                 else
                     transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
             }
