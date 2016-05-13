@@ -19,6 +19,9 @@ namespace B9PartSwitch
         [ConfigField]
         public string switcherDescription = "Subtype";
 
+        [ConfigField]
+        public string switcherDescriptionPlural = "Subtypes";
+
         [ConfigField(persistant = true)]
         public int currentSubtypeIndex = 0;
 
@@ -277,11 +280,11 @@ namespace B9PartSwitch
             return outStr;
         }
 
-        public string GetModuleTitle() => $"Switchable Part ({SubtypesCount} Subtypes)";
+        public string GetModuleTitle() => $"Switchable Part ({SubtypesCount} {switcherDescriptionPlural})";
 
         public string GetPrimaryField()
         {
-            string outStr = $"<b>{subtypes.Count} Subtypes</b>";
+            string outStr = $"<b>{subtypes.Count} {switcherDescriptionPlural}</b>";
             if (baseVolume > 0)
                 outStr += $" (<b>Volume:</b> {baseVolume :F0})";
             return outStr;
