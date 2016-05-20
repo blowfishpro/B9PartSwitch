@@ -8,11 +8,20 @@ before_script:
 script:
   - xbuild /p:Configuration=Release ${TRAVIS_SOLUTION}
   - build_script/script/make_zip.sh
+before_deploy:
+  - build_script/before_deploy/copy_zip.sh
 deploy:
-  provider: bintray
-  file: build_script/deploy/bintray_deploy.json
-  user: blowfishpro
-  key: ${BINTRAY_API_KEY}
+  - provider: bintray
+    file: build_script/deploy/bintray_deploy.json
+    user: blowfishpro
+    key: ${BINTRAY_API_KEY}
+  - provider: releases
+    api_key: ${GITHUB_DEPLOY_TOKEN}
+    file: zip_release/github/*.zip
+    file_glob: true
+    name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
+    on:
+      tags: true
 env:
   global:
     - PROJECT_NAME="B9PartSwitch"
