@@ -49,6 +49,9 @@ namespace B9PartSwitch
         [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
 
+        // Tweakscale integration
+        private float scale = 1f;
+
         #endregion
 
         #region Properties
@@ -59,7 +62,7 @@ namespace B9PartSwitch
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
-        public float CurrentVolume => CurrentSubtype.TotalVolume;
+        public float CurrentVolume => CurrentSubtype.TotalVolume * VolumeScale;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -68,6 +71,8 @@ namespace B9PartSwitch
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
         public bool AttachNodeManaged { get; private set; }
+
+        public float VolumeScale => scale * scale * scale;
 
         #endregion
 
@@ -254,7 +259,7 @@ namespace B9PartSwitch
 
         public float GetModuleMass(float baseMass, ModifierStagingSituation situation)
         {
-            return CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass);
+            return (CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass)) * VolumeScale;
         }
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
@@ -263,7 +268,7 @@ namespace B9PartSwitch
         {
             float cost = CurrentSubtype.addedCost;
             cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * CurrentVolume;
-            return cost;
+            return cost * VolumeScale;
         }
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
@@ -407,9 +412,9 @@ namespace B9PartSwitch
             if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
             {
                 var referenceNode = CurrentSubtype.attachNode ?? part.GetPrefab().srfAttachNode;
-                part.srfAttachNode.position = referenceNode.position;
+                part.srfAttachNode.position = referenceNode.position * scale;
                 part.srfAttachNode.orientation = referenceNode.orientation;
-                part.srfAttachNode.size = referenceNode.size;
+                // part.srfAttachNode.size = referenceNode.size;
             }
 
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
