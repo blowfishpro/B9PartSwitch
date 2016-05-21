@@ -99,8 +99,30 @@ namespace B9PartSwitch
         {
             base.OnStart(state);
 
-            // Initialize stuff
+            SetupSubtypes();
 
+            if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
+                currentSubtypeIndex = 0;
+
+            SetupGUI();
+
+            foreach (var subtype in subtypes)
+            {
+                if (subtype == CurrentSubtype)
+                    continue;
+
+                subtype.DeactivateObjects();
+                if (state == StartState.Editor)
+                    subtype.DeactivateNodes();
+                else
+                    subtype.ActivateNodes();
+            }
+
+            UpdateSubtype(false);
+        }
+
+        private void SetupSubtypes()
+        {
             managedResourceNames = new List<string>();
             managedTransformNames = new List<string>();
             managedStackNodeIDs = new List<string>();
@@ -136,7 +158,7 @@ namespace B9PartSwitch
                     SkinMaxTempManaged = true;
                 if (subtype.attachNode.IsNotNull())
                 {
-                    if (part.attachRules.allowSrfAttach  && part.srfAttachNode != null)
+                    if (part.attachRules.allowSrfAttach && part.srfAttachNode != null)
                     {
                         AttachNodeManaged = true;
                     }
@@ -146,25 +168,6 @@ namespace B9PartSwitch
                     }
                 }
             }
-
-            if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
-                currentSubtypeIndex = 0;
-            
-            SetupGUI();
-
-            foreach (var subtype in subtypes)
-            {
-                if (subtype == CurrentSubtype)
-                    continue;
-
-                subtype.DeactivateObjects();
-                if (state == StartState.Editor)
-                    subtype.DeactivateNodes();
-                else
-                    subtype.ActivateNodes();
-            }
-
-            UpdateSubtype(false);
         }
 
         // This runs after OnStart() so everything should be initalized
