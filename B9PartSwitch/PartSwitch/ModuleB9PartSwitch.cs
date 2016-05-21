@@ -181,7 +181,7 @@ namespace B9PartSwitch
                 {
                     if (otherModule.IsManagedResource(resourceName))
                     {
-                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same resource: {resourceName}");
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
                         destroy = true;
                     }
                 }
@@ -189,7 +189,7 @@ namespace B9PartSwitch
                 {
                     if (otherModule.IsManagedTransform(transformName))
                     {
-                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same transform: {transformName}");
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transformName}");
                         destroy = true;
                     }
                 }
@@ -197,32 +197,32 @@ namespace B9PartSwitch
                 {
                     if (otherModule.IsManagedNode(nodeID))
                     {
-                        LogError($"Two ModuleB9PartSwitch modules cannot manage the same attach node: {nodeID}");
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {nodeID}");
                         destroy = true;
                     }
                 }
 
                 if (otherModule.MaxTempManaged && MaxTempManaged)
                 {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's maxTemp");
+                    LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's maxTemp");
                     destroy = true;
                 }
 
                 if (otherModule.SkinMaxTempManaged && SkinMaxTempManaged)
                 {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's skinMaxTemp");
+                    LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's skinMaxTemp");
                     destroy = true;
                 }
 
                 if (otherModule.AttachNodeManaged && AttachNodeManaged)
                 {
-                    LogError("Two ModuleB9PartSwitch modules cannot both manage the part's attach node");
+                    LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's attach node");
                     destroy = true;
                 }
 
                 if (destroy)
                 {
-                    LogWarning($"ModuleB9PartSwitch with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
+                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
                     part.RemoveModule(otherModule);
                     modifiedSetup = true;
                 }
@@ -230,20 +230,24 @@ namespace B9PartSwitch
 
             if (ManagesResources)
             {
-                var incompatibleModules = new [] { "FSfuelSwitch", "InterstellarFuelSwitch" };
-                foreach (var moduleName in incompatibleModules)
+                bool incompatible = false;
+                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
+                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
                 {
-                    while (part.Modules.Contains(moduleName))
-                    {
-                        var module = part.Modules[moduleName];
-                        if (module.IsNotNull())
-                        {
-                            LogError($"ModuleB9PartSwitch and {moduleName} cannot both manage resources on the same part.  {moduleName} will be removed.");
-                            part.RemoveModule(module);
-                            modifiedSetup = true;
-                        }
-                    }
+                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
+                    incompatible = true;
                 }
+
+                if (incompatible)
+                {
+                    foreach (var subtype in subtypes)
+                    {
+                        if (!subtype.tankType.IsStructuralTankType)
+                            subtype.tankType = B9TankSettings.StructuralTankType;
+                    }
+                    modifiedSetup = true;
+                }
+
             }
 
             // If there were incompatible modules, they might have messed with things
