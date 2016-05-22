@@ -42,11 +42,7 @@ namespace B9PartSwitch
 
         public object Clone()
         {
-            ConstructorInfo constructor = this.GetType().GetConstructor(Type.EmptyTypes);
-            if (constructor.IsNull())
-                throw new MissingMemberException("Cannot clone because no public parameterless constructor could be found");
-
-            var obj = constructor.Invoke(null) as CFGUtilObject;
+            IConfigNode obj = (IConfigNode)Activator.CreateInstance(this.GetType());
 
             ConfigNode node = new ConfigNode();
             SerializeToNode(node);
