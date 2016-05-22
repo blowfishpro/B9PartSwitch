@@ -270,7 +270,7 @@ namespace B9PartSwitch
             {
                 IConfigNode obj = null;
                 if (!createNewItems)
-                    obj = List[i] as IConfigNode;
+                    obj = (IConfigNode)List[i];
 
                 CFGUtil.AssignConfigObject(this, nodes[i], ref obj);
 
@@ -289,9 +289,9 @@ namespace B9PartSwitch
             {
                 var newNode = new ConfigNode(ConfigName);
                 if (serializing && value is IConfigNodeSerializable)
-                    (value as IConfigNodeSerializable).SerializeToNode(newNode);
+                    ((IConfigNodeSerializable)value).SerializeToNode(newNode);
                 else
-                    (value as IConfigNode).Save(newNode);
+                    ((IConfigNode)value).Save(newNode);
 
                 node.AddNode(newNode);
             }

@@ -332,7 +332,7 @@ namespace B9PartSwitch
             var chooseField = Fields[nameof(subtypeIndexControl)];
             chooseField.guiName = switcherDescription;
 
-            var chooseOption = chooseField.uiControlEditor as UI_ChooseOption;
+            var chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
 
             chooseOption.onFieldChanged = UpdateFromGUI;
