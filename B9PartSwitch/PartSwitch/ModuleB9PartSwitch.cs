@@ -121,55 +121,6 @@ namespace B9PartSwitch
             UpdateSubtype(false);
         }
 
-        private void SetupSubtypes()
-        {
-            managedResourceNames = new List<string>();
-            managedTransformNames = new List<string>();
-            managedStackNodeIDs = new List<string>();
-
-            MaxTempManaged = false;
-            SkinMaxTempManaged = false;
-            AttachNodeManaged = false;
-
-            foreach (var subtype in subtypes)
-            {
-                subtype.SetParent(this);
-                subtype.OnStart();
-                TankType tank = subtype.tankType;
-
-                if (tank == null)
-                    LogError($"Tank is null on subtype {subtype.Name}");
-
-                if (tank.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
-                {
-                    LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
-                    subtype.tankType = tank = B9TankSettings.StructuralTankType;
-                }
-
-                if (tank != null)
-                    managedResourceNames.AddRange(tank.ResourceNames);
-
-                managedTransformNames.AddRange(subtype.transformNames);
-                managedStackNodeIDs.AddRange(subtype.NodeIDs);
-
-                if (subtype.maxTemp > 0f)
-                    MaxTempManaged = true;
-                if (subtype.skinMaxTemp > 0f)
-                    SkinMaxTempManaged = true;
-                if (subtype.attachNode.IsNotNull())
-                {
-                    if (part.attachRules.allowSrfAttach && part.srfAttachNode != null)
-                    {
-                        AttachNodeManaged = true;
-                    }
-                    else
-                    {
-                        LogError($"Error: Part subtype '{subtype.Name}' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                    }
-                }
-            }
-        }
-
         // This runs after OnStart() so everything should be initalized
         public void Start()
         {
@@ -326,6 +277,55 @@ namespace B9PartSwitch
         #endregion
 
         #region Private Methods
+
+        private void SetupSubtypes()
+        {
+            managedResourceNames = new List<string>();
+            managedTransformNames = new List<string>();
+            managedStackNodeIDs = new List<string>();
+
+            MaxTempManaged = false;
+            SkinMaxTempManaged = false;
+            AttachNodeManaged = false;
+
+            foreach (var subtype in subtypes)
+            {
+                subtype.SetParent(this);
+                subtype.OnStart();
+                TankType tank = subtype.tankType;
+
+                if (tank == null)
+                    LogError($"Tank is null on subtype {subtype.Name}");
+
+                if (tank.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
+                {
+                    LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
+                    subtype.tankType = tank = B9TankSettings.StructuralTankType;
+                }
+
+                if (tank != null)
+                    managedResourceNames.AddRange(tank.ResourceNames);
+
+                managedTransformNames.AddRange(subtype.transformNames);
+                managedStackNodeIDs.AddRange(subtype.NodeIDs);
+
+                if (subtype.maxTemp > 0f)
+                    MaxTempManaged = true;
+                if (subtype.skinMaxTemp > 0f)
+                    SkinMaxTempManaged = true;
+                if (subtype.attachNode.IsNotNull())
+                {
+                    if (part.attachRules.allowSrfAttach && part.srfAttachNode != null)
+                    {
+                        AttachNodeManaged = true;
+                    }
+                    else
+                    {
+                        LogError($"Error: Part subtype '{subtype.Name}' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
+                    }
+                }
+            }
+        }
 
         private void SetupGUI()
         {
