@@ -446,42 +446,23 @@ namespace B9PartSwitch
 
         private void UpdateTankSetup(bool forceFull)
         {
-            List<PartResource> partResources = part.Resources.list;
-            int[] resourceIndices = Enumerable.Repeat<int>(-1, CurrentTankType.resources.Count).ToArray();
-            bool tmp = false;
-
-            for (int i = 0; i < partResources.Count; i++)
+            List<PartResource> resourceList = part.Resources.list;
+            for (int i = resourceList.Count - 1; i >= 0; i--)
             {
-                string resourceName = partResources[i].resourceName;
-                tmp = false;
-
-                for (int j = 0; j < CurrentTankType.resources.Count; j++)
+                PartResource resource = resourceList[i];
+                if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
-                    if (resourceName == CurrentTankType.resources[j].ResourceName)
-                    {
-                        resourceIndices[j] = i;
-                        tmp = true;
-                        break;
-                    }
-                }
-
-                if (tmp)
-                    continue;
-
-                if (IsManagedResource(resourceName))
-                {
-                    DestroyImmediate(partResources[i]);
-                    partResources.RemoveAt(i);
-                    i--;
+                    resourceList.RemoveAt(i);
+                    Destroy(resource);
                 }
             }
 
-            for (int i = 0; i < CurrentTankType.resources.Count; i++)
+            foreach (TankResource resource in CurrentTankType.resources)
             {
-                TankResource resource = CurrentTankType[i];
+                PartResource partResource = part.Resources[resource.ResourceName];
                 float resourceAmount = resource.unitsPerVolume * CurrentVolume;
-                PartResource partResource = null;
-                if (resourceIndices[i] < 0)
+
+                if (partResource == null)
                 {
                     partResource = part.gameObject.AddComponent<PartResource>();
                     partResource.SetInfo(resource.resourceDefinition);
@@ -491,11 +472,10 @@ namespace B9PartSwitch
                     partResource.isTweakable = resource.resourceDefinition.isTweakable;
                     partResource.hideFlow = false;
                     partResource.flowMode = PartResource.FlowMode.Both;
-                    partResources.Add(partResource);
+                    resourceList.Add(partResource);
                 }
                 else
                 {
-                    partResource = part.Resources[resourceIndices[i]];
                     partResource.maxAmount = resourceAmount;
                     if (forceFull)
                     {
@@ -508,8 +488,6 @@ namespace B9PartSwitch
                     }
                 }
             }
-
-            part.Resources.UpdateList();
         }
 
         private void RenderProceduralDragCubes()
