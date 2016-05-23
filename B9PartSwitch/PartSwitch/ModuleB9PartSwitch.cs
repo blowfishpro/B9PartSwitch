@@ -199,6 +199,7 @@ namespace B9PartSwitch
                         if (!subtype.tankType.IsStructuralTankType)
                             subtype.tankType = B9TankSettings.StructuralTankType;
                     }
+                    managedResourceNames.Clear();
                     modifiedSetup = true;
                 }
 
