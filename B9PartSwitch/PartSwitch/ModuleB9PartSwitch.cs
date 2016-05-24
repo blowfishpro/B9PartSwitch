@@ -67,6 +67,8 @@ namespace B9PartSwitch
         public PartSubtype this[int index] => subtypes[index];
 
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
+        public bool ChangesMass => subtypes.Any(s => s.ChangesMass);
+        public bool ChangesCost => subtypes.Any(s => s.ChangesCost);
 
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
@@ -74,6 +76,8 @@ namespace B9PartSwitch
         public bool CrashToleranceManaged { get; private set; }
 
         public float VolumeScale => scale * scale * scale;
+
+        public bool DisplayInfo => ChangesMass || ChangesCost || MaxTempManaged || SkinMaxTempManaged || CrashToleranceManaged;
 
         #endregion
 

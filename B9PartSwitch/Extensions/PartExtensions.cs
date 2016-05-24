@@ -12,5 +12,8 @@ namespace B9PartSwitch
         {
             return part.partInfo.partPrefab;
         }
+        
+        public static float GetResourceCostMax(this Part part) => part.Resources.list.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
+        public static float GetResourceCostOffset(this Part part) => part.Resources.list.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
     }
 }

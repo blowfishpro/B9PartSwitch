@@ -55,6 +55,7 @@
     <Compile Include="Configs\ConfigFieldList.cs" />
     <Compile Include="Configs\ParseType.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
+    <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="Serialization\ConfigNodeSerialized.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />

@@ -100,6 +100,9 @@ namespace B9PartSwitch
 
         public float TotalVolume => HasTank ? ((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) : 0f;
 
+        public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
+        public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
+
         #endregion
 
         #region Setup
