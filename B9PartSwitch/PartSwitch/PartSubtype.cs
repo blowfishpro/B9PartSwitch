@@ -76,6 +76,9 @@ namespace B9PartSwitch
         [ConfigField]
         public AttachNode attachNode = null;
 
+        [ConfigField]
+        public float crashTolerance = 0f;
+
         #endregion
 
         #region Private Fields

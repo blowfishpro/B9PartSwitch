@@ -71,6 +71,7 @@ namespace B9PartSwitch
         public bool MaxTempManaged { get; private set; }
         public bool SkinMaxTempManaged { get; private set; }
         public bool AttachNodeManaged { get; private set; }
+        public bool CrashToleranceManaged { get; private set; }
 
         public float VolumeScale => scale * scale * scale;
 
@@ -171,6 +172,12 @@ namespace B9PartSwitch
                 if (otherModule.AttachNodeManaged && AttachNodeManaged)
                 {
                     LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's attach node");
+                    destroy = true;
+                }
+
+                if (otherModule.CrashToleranceManaged && CrashToleranceManaged)
+                {
+                    LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's crash tolerance");
                     destroy = true;
                 }
 
@@ -288,6 +295,7 @@ namespace B9PartSwitch
             MaxTempManaged = false;
             SkinMaxTempManaged = false;
             AttachNodeManaged = false;
+            CrashToleranceManaged = false;
 
             foreach (var subtype in subtypes)
             {
@@ -325,6 +333,8 @@ namespace B9PartSwitch
                         LogError($"Error: Part subtype '{subtype.Name}' has an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
                     }
                 }
+                if (subtype.crashTolerance > 0f)
+                    CrashToleranceManaged = true;
             }
         }
 
@@ -423,6 +433,14 @@ namespace B9PartSwitch
                 part.srfAttachNode.position = referenceNode.position * scale;
                 part.srfAttachNode.orientation = referenceNode.orientation;
                 // part.srfAttachNode.size = referenceNode.size;
+            }
+
+            if (CrashToleranceManaged)
+            {
+                if (CurrentSubtype.crashTolerance > 0f)
+                    part.crashTolerance = CurrentSubtype.crashTolerance;
+                else
+                    part.crashTolerance = part.GetPrefab().crashTolerance;
             }
 
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
