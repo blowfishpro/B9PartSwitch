@@ -52,14 +52,10 @@ namespace B9PartSwitch
             GameEvents.onEditorShipModified.Add(EditorShipModified);
         }
 
-        private void Update()
-        {
-            UpdateFields();
-        }
-
         private void EditorShipModified(ShipConstruct construct)
         {
             SetupGUI();
+            UpdateFields();
         }
 
         private void SetupGUI()
