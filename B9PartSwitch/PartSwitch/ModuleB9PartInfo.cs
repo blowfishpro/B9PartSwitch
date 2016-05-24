@@ -97,14 +97,5 @@ namespace B9PartSwitch
             skinMaxTemp = (float)part.skinMaxTemp;
             crashTolerance = part.crashTolerance;
         }
-
-        public static void EnsureOnPart(Part part)
-        {
-            if (!part.Modules.Contains<ModuleB9PartInfo>())
-            {
-                ModuleB9PartInfo info = part.gameObject.AddComponent<ModuleB9PartInfo>();
-                part.Modules.Add(info);
-            }
-        }
     }
 }
