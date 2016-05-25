@@ -487,15 +487,7 @@ namespace B9PartSwitch
 
                 if (partResource == null)
                 {
-                    partResource = part.gameObject.AddComponent<PartResource>();
-                    partResource.SetInfo(resource.resourceDefinition);
-                    partResource.maxAmount = resourceAmount;
-                    partResource.amount = resourceAmount;
-                    partResource.flowState = true;
-                    partResource.isTweakable = resource.resourceDefinition.isTweakable;
-                    partResource.hideFlow = false;
-                    partResource.flowMode = PartResource.FlowMode.Both;
-                    resourceList.Add(partResource);
+                    partResource = part.AddResource(resource.resourceDefinition, resourceAmount, resourceAmount);
                 }
                 else
                 {
