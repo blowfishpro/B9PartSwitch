@@ -227,19 +227,11 @@ namespace B9PartSwitch
 
         #region Interface Methods
 
-        public float GetModuleMass(float baseMass, ModifierStagingSituation situation)
-        {
-            return (CurrentSubtype.addedMass + (CurrentVolume * CurrentTankType.tankMass)) * VolumeScale;
-        }
+        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => CurrentSubtype.TotalMass * VolumeScale;
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
 
-        public float GetModuleCost(float baseCost, ModifierStagingSituation situation)
-        {
-            float cost = CurrentSubtype.addedCost;
-            cost += (CurrentTankType.tankCost + CurrentTankType.ResourceUnitCost) * CurrentVolume;
-            return cost * VolumeScale;
-        }
+        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) => CurrentSubtype.TotalCost * VolumeScale;
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
 
