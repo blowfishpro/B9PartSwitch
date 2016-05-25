@@ -82,8 +82,9 @@ namespace B9PartSwitch
 
         private void UpdateFields()
         {
-            dryMass = part.mass;
-            wetMass = part.mass + part.GetResourceMass();
+            float prefabMass = part.GetPrefab().mass;
+            dryMass = prefabMass + part.GetModuleMass(prefabMass);
+            wetMass = dryMass + part.GetResourceMass();
 
             float partCost = part.partInfo.cost + part.GetModuleCosts(part.partInfo.cost);
             wetCost = partCost + part.GetResourceCostOffset();
