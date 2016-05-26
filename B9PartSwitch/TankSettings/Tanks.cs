@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace B9PartSwitch
 {
-    [Serializable]
     public class TankResource : CFGUtilObject
     {
         [ConfigField(configName = "name")]
@@ -27,11 +26,11 @@ namespace B9PartSwitch
             return outStr;
         }
     }
-
-    [Serializable]
+    
     public class TankType : CFGUtilObject, IEnumerable<TankResource>
     {
         #region Loadable Fields
+
         [ConfigField(configName = "name")]
         public string tankName;
          

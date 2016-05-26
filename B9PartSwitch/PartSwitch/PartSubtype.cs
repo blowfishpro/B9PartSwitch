@@ -34,8 +34,7 @@ namespace B9PartSwitch
                 collider.enabled = false;
         }
     }
-
-    [Serializable]
+    
     public class PartSubtype : CFGUtilObject
     {
         #region Config Fields

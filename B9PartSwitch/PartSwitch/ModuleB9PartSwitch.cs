@@ -39,14 +39,9 @@ namespace B9PartSwitch
         #endregion
 
         #region Private Fields
-
-        [SerializeField]
+        
         private List<string> managedResourceNames = new List<string>();
-
-        [SerializeField]
         private List<string> managedTransformNames = new List<string>();
-
-        [SerializeField]
         private List<string> managedStackNodeIDs = new List<string>();
 
         // Tweakscale integration

@@ -7,10 +7,8 @@ using UnityEngine;
 
 namespace B9PartSwitch
 {
-    [Serializable]
     public abstract class CFGUtilObject : IConfigNodeSerializable, ICloneable
     {
-        [NonSerialized]
         protected ConfigFieldList configFieldList;
 
         public CFGUtilObject()
