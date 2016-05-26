@@ -4,6 +4,10 @@ A Kerbal Space Program plugin designed to implement switching of part meshes, re
 
 This mod will not change anything by itself, but is designed to be used by other mods to enable part subtype switching
 
+## Forum Thread
+
+http://forum.kerbalspaceprogram.com/index.php?showtopic=140541
+
 ## Requirements
 
 * KSP version 1.1.2 (build 1260) is the only supported KSP version
