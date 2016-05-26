@@ -34,6 +34,13 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v1.3.0
+
+* Do not destroy incompatible fuel switchers.  Instead, disable fuel switching
+* Allow part's crash tolerance to be edited
+* Add info module to display changes to part in the info window.  Only displays things that can be changed.
+* Various internal changes
+
 ### v1.2.0
 
 * Support TweakScale integration
