@@ -94,7 +94,8 @@ namespace B9PartSwitch
         public string Name => subtypeName;
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
-
+        
+        public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
         public float TotalVolume => HasTank ? ((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) : 0f;

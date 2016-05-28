@@ -23,7 +23,10 @@ namespace B9PartSwitch
         public string switcherDescriptionPlural = "Subtypes";
 
         [ConfigField(persistant = true)]
-        public int currentSubtypeIndex = 0;
+        public int currentSubtypeIndex = -1;
+
+        [ConfigField(persistant = true)]
+        public string currentSubtypeName = null;
 
         [ConfigField]
         public bool affectDragCubes = true;
@@ -53,7 +56,9 @@ namespace B9PartSwitch
 
         public int SubtypesCount => subtypes.Count;
 
-        public PartSubtype CurrentSubtype => subtypes[currentSubtypeIndex];
+        // Provide a default of zero in case best subtype has not yet been determined
+        public int SubtypeIndex => subtypes.ValidIndex(currentSubtypeIndex) ? currentSubtypeIndex : 0;
+        public PartSubtype CurrentSubtype => subtypes[SubtypeIndex];
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
@@ -94,8 +99,8 @@ namespace B9PartSwitch
 
             SetupSubtypes();
 
-            if (currentSubtypeIndex >= subtypes.Count || currentSubtypeIndex < 0)
-                currentSubtypeIndex = 0;
+            FindBestSubtype();
+            subtypeIndexControl = currentSubtypeIndex;
 
             SetupGUI();
 
@@ -335,6 +340,57 @@ namespace B9PartSwitch
             }
         }
 
+        private void FindBestSubtype()
+        {
+            // First try to identify subtype by name
+            if (!string.IsNullOrEmpty(currentSubtypeName))
+            {
+                int index = subtypes.FindIndex(subtype => subtype.Name == currentSubtypeName);
+
+                if (index != -1)
+                {
+                    currentSubtypeIndex = index;
+                    return;
+                }
+                else
+                {
+                    LogError($"Cannot find subtype named '{currentSubtypeName}'");
+                }
+            }
+
+            // Now try to use index
+            if (currentSubtypeIndex > -1 && currentSubtypeIndex < subtypes.Count)
+            {
+                currentSubtypeName = CurrentSubtype.Name;
+                return;
+            }
+
+            // Now use resources
+            // This finds all the managed resources that currently exist on teh part
+            string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.list.Select(resource => resource.resourceName)).ToArray();
+
+#if DEBUG
+            LogInfo($"Managed resources found on part: [\n\t{string.Join("\n\t", resourcesOnPart)}\n]");
+#endif
+
+            // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
+            // Otherwise, look for a structural subtype (no resources)
+            if (resourcesOnPart.Any())
+            {
+                currentSubtypeIndex = subtypes.FindIndex(subtype => subtype.HasTank && subtype.ResourceNames.SameElementsAs(resourcesOnPart));
+                LogInfo($"Inferred subtype based on part's resources: '{CurrentSubtype.Name}'");
+            }
+            else
+            {
+                currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
+            }
+            
+            if (currentSubtypeIndex == -1)
+                currentSubtypeIndex = 0;
+
+            currentSubtypeName = CurrentSubtype.Name;
+        }
+
         private void SetupGUI()
         {
             var chooseField = Fields[nameof(subtypeIndexControl)];
@@ -385,6 +441,7 @@ namespace B9PartSwitch
                 CurrentSubtype.DeactivateNodes();
 
             currentSubtypeIndex = newIndex;
+            currentSubtypeName = CurrentSubtype.Name;
 
             UpdateSubtype(true);
         }
