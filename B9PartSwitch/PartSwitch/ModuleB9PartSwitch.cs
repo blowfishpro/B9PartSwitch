@@ -83,16 +83,9 @@ namespace B9PartSwitch
             base.OnLoad(node);
 
             // This will deactivate objects before the part icon is created, avoiding a visual mess
-            for (int i = 0; i < subtypes.Count; i++)
-            {
-                PartSubtype subtype = subtypes[i];
-                subtype.SetParent(this);
-                subtype.FindObjects();
 
-                subtype.DeactivateObjects();
-            }
-
-            CurrentSubtype.ActivateObjects();
+            if (!this.ParsedPrefab())
+                SetupForIcon();
         }
 
         public override void OnStart(PartModule.StartState state)
@@ -277,6 +270,19 @@ namespace B9PartSwitch
 
         #region Private Methods
 
+        #region Setup
+
+        private void SetupForIcon()
+        {
+            foreach (var subtype in subtypes)
+            {
+                subtype.SetParent(this);
+                subtype.FindObjects();
+                subtype.DeactivateObjects();
+            }
+            CurrentSubtype.ActivateObjects();
+        }
+
         private void SetupSubtypes()
         {
             managedResourceNames = new List<string>();
@@ -339,6 +345,8 @@ namespace B9PartSwitch
 
             chooseOption.onFieldChanged = UpdateFromGUI;
         }
+
+        #endregion
 
         private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
         {
