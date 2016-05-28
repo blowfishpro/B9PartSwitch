@@ -27,6 +27,15 @@ namespace B9PartSwitch
 
             return resource;
         }
+
+        public static void RemoveResource(this Part part, PartResource resource)
+        {
+            if (!ReferenceEquals(resource.gameObject, part.gameObject) || !part.Resources.list.Contains(resource))
+                Debug.LogError($"Cannot remove resource '{resource.resourceName}' because it was not found on part ${part.partName}");
+
+            part.Resources.list.Remove(resource);
+            UnityEngine.Object.Destroy(resource);
+        }
         
         public static float GetResourceCostMax(this Part part) => part.Resources.list.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.list.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
