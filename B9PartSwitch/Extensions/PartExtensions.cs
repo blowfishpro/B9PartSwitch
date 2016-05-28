@@ -13,7 +13,7 @@ namespace B9PartSwitch
             return part.partInfo.partPrefab;
         }
 
-        public static PartResource AddResource(this Part part, PartResourceDefinition info, float amount, float maxAmount)
+        public static PartResource AddResource(this Part part, PartResourceDefinition info, float maxAmount, float amount)
         {
             PartResource resource = part.gameObject.AddComponent<PartResource>();
             resource.SetInfo(info);
