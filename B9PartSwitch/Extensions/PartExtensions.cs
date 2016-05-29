@@ -31,7 +31,7 @@ namespace B9PartSwitch
         public static void RemoveResource(this Part part, PartResource resource)
         {
             if (!ReferenceEquals(resource.gameObject, part.gameObject) || !part.Resources.list.Contains(resource))
-                Debug.LogError($"Cannot remove resource '{resource.resourceName}' because it was not found on part ${part.partName}");
+                part.LogError($"Cannot remove resource '{resource.resourceName}' because it was not found");
 
             part.Resources.list.Remove(resource);
             UnityEngine.Object.Destroy(resource);
@@ -39,5 +39,9 @@ namespace B9PartSwitch
         
         public static float GetResourceCostMax(this Part part) => part.Resources.list.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.list.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
+
+        public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");
+        public static void LogWarning(this Part part, object message) => Debug.LogWarning($"[WARNING] [Part {part.name}] {message}");
+        public static void LogError(this Part part, object message) => Debug.LogError($"[ERROR] [Part {part.name}] {message}");
     }
 }
