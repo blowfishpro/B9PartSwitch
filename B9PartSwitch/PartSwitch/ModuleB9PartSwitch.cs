@@ -281,8 +281,7 @@ namespace B9PartSwitch
         {
             foreach (var subtype in subtypes)
             {
-                subtype.SetParent(this);
-                subtype.FindObjects();
+                subtype.Setup(this);
                 subtype.DeactivateObjects();
             }
             CurrentSubtype.ActivateObjects();
@@ -301,8 +300,7 @@ namespace B9PartSwitch
 
             foreach (var subtype in subtypes)
             {
-                subtype.SetParent(this);
-                subtype.OnStart();
+                subtype.Setup(this);
                 TankType tank = subtype.tankType;
 
                 if (tank == null)

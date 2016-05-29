@@ -121,7 +121,7 @@ namespace B9PartSwitch
                 title = subtypeName;
         }
 
-        public void SetParent(ModuleB9PartSwitch parent)
+        public void Setup(ModuleB9PartSwitch parent)
         {
             if (parent == null)
                 throw new ArgumentNullException("parent cannot be null");
@@ -130,6 +130,9 @@ namespace B9PartSwitch
 
             this.parent = parent;
             part = parent.part;
+
+            FindObjects();
+            FindNodes();
         }
 
         public void FindObjects()
@@ -174,15 +177,6 @@ namespace B9PartSwitch
                     }
                 }
             }
-        }
-
-        public void OnStart()
-        {
-            if (parent == null || part == null)
-                throw new InvalidOperationException("Parent or part has not been set");
-
-            FindObjects();
-            FindNodes();
         }
 
         #endregion
