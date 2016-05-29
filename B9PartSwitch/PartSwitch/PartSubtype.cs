@@ -83,7 +83,6 @@ namespace B9PartSwitch
         #region Private Fields
         
         private ModuleB9PartSwitch parent;
-        private Part part;
         private List<TransformInfo> transforms = new List<TransformInfo>();
         private List<AttachNode> nodes = new List<AttachNode>();
 
@@ -92,6 +91,8 @@ namespace B9PartSwitch
         #region Properties
 
         public string Name => subtypeName;
+
+        public Part Part => parent.part;
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
         
@@ -129,7 +130,6 @@ namespace B9PartSwitch
                 throw new ArgumentNullException("parent.part cannot be null");
 
             this.parent = parent;
-            part = parent.part;
 
             FindObjects();
             FindNodes();
@@ -143,7 +143,7 @@ namespace B9PartSwitch
             transforms = new List<TransformInfo>();
             foreach (var transformName in transformNames)
             {
-                Transform[] tempTransforms = part.FindModelTransforms(transformName);
+                Transform[] tempTransforms = Part.FindModelTransforms(transformName);
                 if (tempTransforms == null || tempTransforms.Length == 0)
                     LogError($"No transforms named {transformName} found");
                 else
@@ -159,7 +159,7 @@ namespace B9PartSwitch
             nodes = new List<AttachNode>();
             foreach (var nodeName in nodeNames)
             {
-                AttachNode[] tempNodes = part.findAttachNodes(nodeName);
+                AttachNode[] tempNodes = Part.findAttachNodes(nodeName);
                 if (tempNodes == null || tempNodes.Length == 0)
                 {
                     LogError($"No attach nodes matching {nodeName} found");
