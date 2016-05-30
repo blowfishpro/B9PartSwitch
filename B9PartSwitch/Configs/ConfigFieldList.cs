@@ -67,10 +67,6 @@ namespace B9PartSwitch
 
         public void Load(ConfigNode node)
         {
-
-#if DEBUG
-            Debug.Log("Loading " + Parent.GetType().Name + " from config");
-#endif
             foreach (var field in configFields)
             {
                 field.LoadFromNode(node);
