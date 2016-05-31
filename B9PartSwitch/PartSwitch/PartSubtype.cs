@@ -183,6 +183,42 @@ namespace B9PartSwitch
 
         #region Public Methods
 
+        public void DeactivateOnStart()
+        {
+            DeactivateObjects();
+
+            if (HighLogic.LoadedSceneIsEditor)
+                DeactivateNodes();
+            else
+                ActivateNodes();
+        }
+
+        public void ActivateOnStart()
+        {
+            ActivateObjects();
+            ActivateNodes();
+            AddResources(false);
+        }
+
+        public void DeactivateOnSwitch()
+        {
+            DeactivateObjects();
+
+            if (HighLogic.LoadedSceneIsEditor)
+                DeactivateNodes();
+            else
+                ActivateNodes();
+
+            RemoveResources();
+        }
+
+        public void ActivateOnSwitch()
+        {
+            ActivateObjects();
+            ActivateNodes();
+            AddResources(true);
+        }
+
         public void ActivateObjects() => transforms.ForEach(t => t.Enable());
 
         public void ActivateNodes() => nodes.ForEach(n => n.Unhide());
@@ -190,6 +226,23 @@ namespace B9PartSwitch
         public void DeactivateObjects() => transforms.ForEach(t => t.Disable());
 
         public void DeactivateNodes() => nodes.ForEach(n => n.Hide());
+
+        public void AddResources(bool fillTanks)
+        {
+            foreach (TankResource resource in tankType.resources)
+            {
+                float amount = TotalVolume * resource.unitsPerVolume;
+                Part.AddOrCreateResource(resource.resourceDefinition, amount, fillTanks ? amount : -1f);
+            }
+        }
+
+        public void RemoveResources()
+        {
+            foreach (TankResource resource in tankType.resources)
+            {
+                Part.RemoveResource(resource.ResourceName);
+            }
+        }
 
         public override string ToString()
         {

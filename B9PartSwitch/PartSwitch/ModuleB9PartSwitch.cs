@@ -22,27 +22,24 @@ namespace B9PartSwitch
         [ConfigField]
         public string switcherDescriptionPlural = "Subtypes";
 
-        [ConfigField(persistant = true)]
-        public int currentSubtypeIndex = -1;
-
-        [ConfigField(persistant = true)]
-        public string currentSubtypeName = null;
-
         [ConfigField]
         public bool affectDragCubes = true;
 
         [ConfigField]
         public bool affectFARVoxels = true;
 
+        [ConfigField(persistant = true)]
+        public string currentSubtypeName = null;
+
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
         [KSPField(guiActiveEditor = true, isPersistant = true, guiName = "Subtype")]
         [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
-        public int subtypeIndexControl = 0;
+        public int currentSubtypeIndex = -1;
 
         #endregion
 
         #region Private Fields
-        
+
         private List<string> managedResourceNames = new List<string>();
         private List<string> managedTransformNames = new List<string>();
         private List<string> managedStackNodeIDs = new List<string>();
@@ -100,23 +97,10 @@ namespace B9PartSwitch
             SetupSubtypes();
 
             FindBestSubtype();
-            subtypeIndexControl = currentSubtypeIndex;
 
             SetupGUI();
 
-            foreach (var subtype in subtypes)
-            {
-                if (subtype == CurrentSubtype)
-                    continue;
-
-                subtype.DeactivateObjects();
-                if (state == StartState.Editor)
-                    subtype.DeactivateNodes();
-                else
-                    subtype.ActivateNodes();
-            }
-
-            UpdateSubtype(false);
+            UpdateOnStart();
         }
 
         // This runs after OnStart() so everything should be initalized
@@ -212,7 +196,7 @@ namespace B9PartSwitch
             // If there were incompatible modules, they might have messed with things
             if (modifiedSetup)
             {
-                UpdateSubtype(false);
+                UpdateOnStart();
             }
         }
 
@@ -357,33 +341,37 @@ namespace B9PartSwitch
             }
 
             // Now try to use index
-            if (currentSubtypeIndex > -1 && currentSubtypeIndex < subtypes.Count)
+            if (subtypes.ValidIndex(currentSubtypeIndex))
             {
                 currentSubtypeName = CurrentSubtype.Name;
                 return;
             }
 
-            // Now use resources
-            // This finds all the managed resources that currently exist on teh part
-            string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.list.Select(resource => resource.resourceName)).ToArray();
+            if (ManagesResources)
+            {
+                // Now use resources
+                // This finds all the managed resources that currently exist on teh part
+                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.list.Select(resource => resource.resourceName)).ToArray();
 
 #if DEBUG
-            LogInfo($"Managed resources found on part: [\n\t{string.Join("\n\t", resourcesOnPart)}\n]");
+                LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
 #endif
 
-            // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
-            // Otherwise, look for a structural subtype (no resources)
-            if (resourcesOnPart.Any())
-            {
-                currentSubtypeIndex = subtypes.FindIndex(subtype => subtype.HasTank && subtype.ResourceNames.SameElementsAs(resourcesOnPart));
-                LogInfo($"Inferred subtype based on part's resources: '{CurrentSubtype.Name}'");
-            }
-            else
-            {
-                currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
+                // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
+                // Otherwise, look for a structural subtype (no resources)
+                if (resourcesOnPart.Any())
+                {
+                    currentSubtypeIndex = subtypes.FindIndex(subtype => subtype.HasTank && subtype.ResourceNames.SameElementsAs(resourcesOnPart));
+                    LogInfo($"Inferred subtype based on part's resources: '{CurrentSubtype.Name}'");
+                }
+                else
+                {
+                    currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
+                }
             }
             
-            if (currentSubtypeIndex == -1)
+            // No useful way to determine correct subtype, just pick first
+            if (!subtypes.ValidIndex(currentSubtypeIndex))
                 currentSubtypeIndex = 0;
 
             currentSubtypeName = CurrentSubtype.Name;
@@ -391,7 +379,7 @@ namespace B9PartSwitch
 
         private void SetupGUI()
         {
-            var chooseField = Fields[nameof(subtypeIndexControl)];
+            var chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
 
             var chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
@@ -400,48 +388,72 @@ namespace B9PartSwitch
             chooseOption.onFieldChanged = UpdateFromGUI;
         }
 
+        private void UpdateOnStart()
+        {
+            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
+            RemoveUnusedResources();
+            CurrentSubtype.ActivateOnStart();
+            UpdatePartParams();
+            UpdateGeometry();
+
+            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+        }
+
+        private void RemoveUnusedResources()
+        {
+            List<PartResource> resourceList = part.Resources.list;
+            for (int i = resourceList.Count - 1; i >= 0; i--)
+            {
+                PartResource resource = resourceList[i];
+                if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
+                {
+                    resourceList.RemoveAt(i);
+                    Destroy(resource);
+                }
+            }
+        }
+
         #endregion
 
         private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
         {
-            BeginSubtypeChange(subtypeIndexControl);
+            int oldIndex = (int)oldFieldValueObj;
+
+            if (oldIndex == currentSubtypeIndex) return;
+
+            subtypes[oldIndex].DeactivateOnSwitch();
+
+            currentSubtypeName = CurrentSubtype.Name;
+
+            CurrentSubtype.ActivateOnSwitch();
+            UpdatePartParams();
+            UpdateGeometry();
+            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+
+            foreach (var counterpart in this.FindSymmetryCounterparts())
+                counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+
+            UpdatePartActionWindow();
+            FireEvents();
+        }
+
+        private void UpdateFromSymmetry(int newIndex)
+        {
+            CurrentSubtype.DeactivateOnSwitch();
+
+            currentSubtypeIndex = newIndex;
+            currentSubtypeName = CurrentSubtype.Name;
+
+            CurrentSubtype.ActivateOnSwitch();
+            UpdatePartParams();
+            UpdateGeometry();
+            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
         private void UpdateDragCubesOnAttach()
         {
             part.OnEditorAttach -= UpdateDragCubesOnAttach;
             RenderProceduralDragCubes();
-        }
-
-        private void BeginSubtypeChange(int newIndex)
-        {
-            if (newIndex < 0 || newIndex >= subtypes.Count)
-                throw new ArgumentException($"Subtype index must be between 0 and {subtypes.Count}");
-
-            // For symmetry
-            subtypeIndexControl = newIndex;
-
-            if (newIndex == currentSubtypeIndex)
-                return;
-
-            SetNewSubtype(newIndex);
-
-            foreach (var counterpart in this.FindSymmetryCounterparts())
-                counterpart.SetNewSubtype(newIndex);
-
-            FireEvents();
-        }
-
-        private void SetNewSubtype(int newIndex)
-        {
-            CurrentSubtype.DeactivateObjects();
-            if (HighLogic.LoadedSceneIsEditor)
-                CurrentSubtype.DeactivateNodes();
-
-            currentSubtypeIndex = newIndex;
-            currentSubtypeName = CurrentSubtype.Name;
-
-            UpdateSubtype(true);
         }
         
         private void FireEvents()
@@ -457,28 +469,16 @@ namespace B9PartSwitch
             }
         }
 
-        private void UpdateSubtype(bool fillTanks)
+        private void UpdatePartParams()
         {
-            CurrentSubtype.ActivateObjects();
-            if (HighLogic.LoadedSceneIsEditor)
-                CurrentSubtype.ActivateNodes();
-
-            UpdateTankSetup(fillTanks);
-
             if (MaxTempManaged)
             {
-                if (CurrentSubtype.maxTemp > 0)
-                    part.maxTemp = CurrentSubtype.maxTemp;
-                else
-                    part.maxTemp = part.GetPrefab().maxTemp;
+                part.maxTemp = (CurrentSubtype.maxTemp > 0f) ? CurrentSubtype.maxTemp : part.GetPrefab().maxTemp;
             }
 
             if (SkinMaxTempManaged)
             {
-                if (CurrentSubtype.skinMaxTemp > 0)
-                    part.skinMaxTemp = CurrentSubtype.skinMaxTemp;
-                else
-                    part.skinMaxTemp = part.GetPrefab().skinMaxTemp;
+                part.maxTemp = (CurrentSubtype.skinMaxTemp > 0f) ? CurrentSubtype.skinMaxTemp : part.GetPrefab().skinMaxTemp;
             }
 
             if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
@@ -491,17 +491,17 @@ namespace B9PartSwitch
 
             if (CrashToleranceManaged)
             {
-                if (CurrentSubtype.crashTolerance > 0f)
-                    part.crashTolerance = CurrentSubtype.crashTolerance;
-                else
-                    part.crashTolerance = part.GetPrefab().crashTolerance;
+                part.maxTemp = (CurrentSubtype.crashTolerance > 0f) ? CurrentSubtype.crashTolerance : part.GetPrefab().crashTolerance;
             }
+        }
 
+        private void UpdateGeometry()
+        {
             if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
             {
                 part.SendMessage("GeometryPartModuleRebuildMeshData");
             }
-            
+
             if (affectDragCubes && managedTransformNames.Count > 0)
             {
                 if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
@@ -509,50 +509,13 @@ namespace B9PartSwitch
                 else
                     RenderProceduralDragCubes();
             }
+        }
 
+        private void UpdatePartActionWindow()
+        {
             var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
             if (window.IsNotNull())
                 window.displayDirty = true;
-
-            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
-        }
-
-        private void UpdateTankSetup(bool forceFull)
-        {
-            List<PartResource> resourceList = part.Resources.list;
-            for (int i = resourceList.Count - 1; i >= 0; i--)
-            {
-                PartResource resource = resourceList[i];
-                if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
-                {
-                    resourceList.RemoveAt(i);
-                    Destroy(resource);
-                }
-            }
-
-            foreach (TankResource resource in CurrentTankType.resources)
-            {
-                PartResource partResource = part.Resources[resource.ResourceName];
-                float resourceAmount = resource.unitsPerVolume * CurrentVolume;
-
-                if (partResource == null)
-                {
-                    partResource = part.AddResource(resource.resourceDefinition, resourceAmount, resourceAmount);
-                }
-                else
-                {
-                    partResource.maxAmount = resourceAmount;
-                    if (forceFull)
-                    {
-                        partResource.amount = resourceAmount;
-                    }
-                    else
-                    {
-                        if (partResource.amount > resourceAmount)
-                            partResource.amount = resourceAmount;
-                    }
-                }
-            }
         }
 
         private void RenderProceduralDragCubes()
