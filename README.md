@@ -34,6 +34,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v1.3.1
+
+* Fix bug where having ModuleB9PartInfo on a root part would cause physics to break due to an exception (really a stock issue but no sense waiting for a fix)
+
 ### v1.3.0
 
 * Do not destroy incompatible fuel switchers.  Instead, disable fuel switching
