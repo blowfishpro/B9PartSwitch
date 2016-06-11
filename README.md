@@ -40,7 +40,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
   * If subtype name was previously set, use it to find the correct subtype (allows subtypes to be reordered without breaking craft)
   * If name was not previously set or not found, but index was, use it (this allows transitioning from current setup and renaming subtypes if necessary)
   * If index was not previously set, try to infer subtype based on part's resources (this allows easy transitioning from a non-switching setup)
-  * Finally, just guess first node setup
+  * Finally, just use first subtype
 * Add unit testing for subtype finding
 * Get rid of some unnecessary logging in debug mode
 * Refactor part switching a bit
