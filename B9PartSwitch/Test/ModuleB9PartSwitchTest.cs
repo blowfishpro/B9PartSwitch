@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿#if DEBUG
+
 using KSP.Testing;
-using UnityEngine;
 
 namespace B9PartSwitch.Test
 {
@@ -90,3 +90,5 @@ namespace B9PartSwitch.Test
         }
     }
 }
+
+#endif
