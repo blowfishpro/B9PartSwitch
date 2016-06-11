@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace B9PartSwitch
@@ -137,28 +133,11 @@ namespace B9PartSwitch
 
         #region Logging
 
-        protected string LogString(string message)
-        {
-            string log = this.ToString();
-            log += ": ";
-            log += message;
-            return log;
-        }
+        protected void LogInfo(object message) => ((PartModule)this).LogInfo(message);
 
-        protected void LogInfo(string message)
-        {
-            Debug.Log(LogString(message));
-        }
+        protected void LogWarning(object message) => ((PartModule)this).LogWarning(message);
 
-        protected void LogWarning(string message)
-        {
-            Debug.LogWarning(LogString(message));
-        }
-
-        protected void LogError(string message)
-        {
-            Debug.LogError(LogString(message));
-        }
+        protected void LogError(object message) => ((PartModule)this).LogError(message);
 
         public override string ToString()
         {
@@ -169,7 +148,6 @@ namespace B9PartSwitch
                 log += " on part " + part.name;
             return log;
         }
-
         #endregion
     }
 }

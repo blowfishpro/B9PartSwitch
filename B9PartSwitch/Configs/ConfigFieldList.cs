@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
 using UnityEngine;
-using KSP;
 
 namespace B9PartSwitch
 {
@@ -71,10 +67,6 @@ namespace B9PartSwitch
 
         public void Load(ConfigNode node)
         {
-
-#if DEBUG
-            Debug.Log("Loading " + Parent.GetType().Name + " from config");
-#endif
             foreach (var field in configFields)
             {
                 field.LoadFromNode(node);
