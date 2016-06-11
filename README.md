@@ -34,6 +34,17 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v1.4.0
+
+* Find best subtype intelligently
+  * If subtype name was previously set, use it to find the correct subtype (allows subtypes to be reordered without breaking craft)
+  * If name was not previously set or not found, but index was, use it (this allows transitioning from current setup and renaming subtypes if necessary)
+  * If index was not previously set, try to infer subtype based on part's resources (this allows easy transitioning from a non-switching setup)
+  * Finally, just guess first node setup
+* Add unit testing for subtype finding
+* Get rid of some unnecessary logging in debug mode
+* Refactor part switching a bit
+
 ### v1.3.1
 
 * Fix bug where having ModuleB9PartInfo on a root part would cause physics to break due to an exception (really a stock issue but no sense waiting for a fix)
