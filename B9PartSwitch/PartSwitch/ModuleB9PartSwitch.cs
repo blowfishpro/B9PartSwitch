@@ -478,7 +478,7 @@ namespace B9PartSwitch
 
             if (SkinMaxTempManaged)
             {
-                part.maxTemp = (CurrentSubtype.skinMaxTemp > 0f) ? CurrentSubtype.skinMaxTemp : part.GetPrefab().skinMaxTemp;
+                part.skinMaxTemp = (CurrentSubtype.skinMaxTemp > 0f) ? CurrentSubtype.skinMaxTemp : part.GetPrefab().skinMaxTemp;
             }
 
             if (AttachNodeManaged && part.attachRules.allowSrfAttach && part.srfAttachNode != null)
@@ -491,7 +491,7 @@ namespace B9PartSwitch
 
             if (CrashToleranceManaged)
             {
-                part.maxTemp = (CurrentSubtype.crashTolerance > 0f) ? CurrentSubtype.crashTolerance : part.GetPrefab().crashTolerance;
+                part.crashTolerance = (CurrentSubtype.crashTolerance > 0f) ? CurrentSubtype.crashTolerance : part.GetPrefab().crashTolerance;
             }
         }
 
