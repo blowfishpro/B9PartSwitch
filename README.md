@@ -35,6 +35,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.4.2
+
+* Fix TweakScale interaction - resource amounts did not account for scaling (broken since v1.4.0)
+
 ### v1.4.1
 
 * Fix bug where we were setting maxTemp when we should have been setting skinMaxTemp or crashTolerance
