@@ -231,7 +231,7 @@ namespace B9PartSwitch
         {
             foreach (TankResource resource in tankType.resources)
             {
-                float amount = TotalVolume * resource.unitsPerVolume;
+                float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
                 Part.AddOrCreateResource(resource.resourceDefinition, amount, fillTanks ? amount : -1f);
             }
         }
