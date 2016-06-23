@@ -35,6 +35,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.4.3
+
+* Recompile against KSP 1.1.3
+* Remove some code which is unnecessary in KSP 1.1.3
+
 ### v1.4.2
 
 * Fix TweakScale interaction - resource amounts did not account for scaling (broken since v1.4.0)
