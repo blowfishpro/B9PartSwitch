@@ -419,8 +419,6 @@ namespace B9PartSwitch
         {
             int oldIndex = (int)oldFieldValueObj;
 
-            if (oldIndex == currentSubtypeIndex) return;
-
             subtypes[oldIndex].DeactivateOnSwitch();
 
             currentSubtypeName = CurrentSubtype.Name;
