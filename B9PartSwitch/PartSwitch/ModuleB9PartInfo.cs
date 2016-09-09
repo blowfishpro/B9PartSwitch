@@ -63,7 +63,7 @@ namespace B9PartSwitch
         private void SetupGUI()
         {
             List<ModuleB9PartSwitch> switcherModules = part.FindModulesImplementing<ModuleB9PartSwitch>();
-            bool hasResources = part.Resources.list.Any(resource => resource.info.density != 0f);
+            bool hasResources = part.Resources.Any(resource => resource.info.density != 0f);
             bool showMass = switcherModules.Any(module => module.ChangesMass);
             bool showCost = switcherModules.Any(module => module.ChangesCost);
 

@@ -315,7 +315,7 @@ namespace B9PartSwitch
             {
                 // Now use resources
                 // This finds all the managed resources that currently exist on teh part
-                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.list.Select(resource => resource.resourceName)).ToArray();
+                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
 
 #if DEBUG
                 LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
@@ -364,14 +364,11 @@ namespace B9PartSwitch
 
         private void RemoveUnusedResources()
         {
-            List<PartResource> resourceList = part.Resources.list;
-            for (int i = resourceList.Count - 1; i >= 0; i--)
+            foreach (PartResource resource in part.Resources)
             {
-                PartResource resource = resourceList[i];
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
-                    resourceList.RemoveAt(i);
-                    Destroy(resource);
+                    part.RemoveResource(resource);
                 }
             }
         }
