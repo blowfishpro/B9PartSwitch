@@ -176,7 +176,7 @@ namespace B9PartSwitch
             nodes = new List<AttachNode>();
             foreach (var nodeName in nodeNames)
             {
-                AttachNode[] tempNodes = Part.findAttachNodes(nodeName);
+                AttachNode[] tempNodes = Part.FindAttachNodes(nodeName);
                 if (tempNodes == null || tempNodes.Length == 0)
                 {
                     LogError($"No attach nodes matching {nodeName} found");
