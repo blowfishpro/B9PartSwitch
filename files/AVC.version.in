@@ -1,0 +1,19 @@
+{
+  'NAME'         => 'B9 Part Switch',
+  'DOWNLOAD'     => 'https://github.com/blowfishpro/B9PartSwitch/releases',
+  'URL'          => 'https://raw.githubusercontent.com/blowfishpro/B9PartSwitch/master/GameData/B9PartSwitch/B9PartSwitch.version',
+  'GITHUB' => {
+    'USERNAME'   => 'blowfishpro',
+    'REPOSITORY' => 'B9PartSwitch'
+  },
+  'VERSION' => {
+    'MAJOR' => version.major,
+    'MINOR' => version.minor,
+    'PATCH' => version.patch
+  },
+  'KSP_VERSION' => {
+    'MAJOR' => ksp_version.major,
+    'MINOR' => ksp_version.minor,
+    'PATCH' => ksp_version.patch
+  }
+}
