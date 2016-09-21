@@ -3,7 +3,7 @@
 require_relative '../version/tag_version'
 
 version = get_tag_version
-project_name = ENV['PROJECT_NAME']
+project_name = ENV['PROJECT_NAME'].strip
 
 attributes_data = {
   'AssemblyVersion' 	=> ["\"#{version.full_version}\""],
@@ -20,6 +20,9 @@ assembly_info_elements = [assembly_info_in] + attributes + [nil]
 assembly_info_out = assembly_info_elements.join("\n")
 
 assembly_info_dir = File.join(project_name, 'Properties')
+
+puts Dir.pwd
+puts assembly_info_dir
 
 Dir.mkdir(assembly_info_dir) unless Dir.exists? assembly_info_dir
 File.open(File.join(assembly_info_dir, 'AssemblyInfo.cs'), 'w+') { |f| f.write(assembly_info_out) }
