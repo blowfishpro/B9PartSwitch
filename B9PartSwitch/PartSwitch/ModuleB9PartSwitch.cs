@@ -74,14 +74,11 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public override void OnLoad(ConfigNode node)
+        public override void OnIconCreate()
         {
-            base.OnLoad(node);
+            base.OnIconCreate();
 
-            // This will deactivate objects before the part icon is created, avoiding a visual mess
-
-            if (!this.ParsedPrefab())
-                SetupForIcon();
+            SetupForIcon();
         }
 
         public override void OnStart(PartModule.StartState state)
@@ -244,6 +241,7 @@ namespace B9PartSwitch
 
         private void SetupForIcon()
         {
+            // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
             foreach (var subtype in subtypes)
             {
                 subtype.Setup(this);
