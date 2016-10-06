@@ -55,27 +55,6 @@ namespace B9PartSwitch
             return resource;
         }
 
-        public static void RemoveResource(this Part part, PartResource resource)
-        {
-            if (!ReferenceEquals(resource.part, part) || !part.Resources.Contains(resource.resourceName))
-            {
-                part.LogError($"Cannot remove resource '{resource.resourceName}' because it is not on the correct part");
-                return;
-            }
-
-            part.Resources.dict.Remove(resource.resourceName.GetHashCode());
-        }
-
-        public static void RemoveResource(this Part part, string name)
-        {
-            bool result = part.Resources.dict.Remove(name.GetHashCode());
-
-            if (!result)
-            {
-                part.LogError($"Cannot remove resource '{name}' because it was not found");
-            }
-        }
-
         public static float GetResourceCostMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
 
