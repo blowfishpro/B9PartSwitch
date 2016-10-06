@@ -399,8 +399,9 @@ namespace B9PartSwitch
 
         private void RemoveUnusedResources()
         {
-            foreach (PartResource resource in part.Resources)
+            for (int i = part.Resources.Count - 1; i >= 0 ; i --)
             {
+                PartResource resource = part.Resources[i];
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
                     part.RemoveResource(resource);
