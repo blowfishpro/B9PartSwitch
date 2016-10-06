@@ -94,6 +94,8 @@ namespace B9PartSwitch
 
         public Part Part => parent.part;
 
+        public PartSubtypeContext Context => new PartSubtypeContext(Part, parent, this);
+
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
         
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
@@ -198,6 +200,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             AddResources(false);
+            UpdatePartParams();
         }
 
         public void DeactivateOnSwitch()
@@ -217,6 +220,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             AddResources(true);
+            UpdatePartParams();
         }
 
         public void ActivateObjects() => transforms.ForEach(t => t.Enable());
@@ -258,9 +262,21 @@ namespace B9PartSwitch
 
         #region Private Methods
 
+        private void UpdatePartParams()
+        {
+            foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
+            {
+                field.AssignValueOnSubtype(Context);
+            }
+        }
+
+        #region Logging
+
         private void LogWarning(string message) => Debug.LogWarning($"Warning on {this}: {message}");
 
         private void LogError(string message) => Debug.LogWarning($"Warning on {this}: {message}");
+
+        #endregion
 
         #endregion
     }
