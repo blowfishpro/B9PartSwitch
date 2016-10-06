@@ -404,7 +404,7 @@ namespace B9PartSwitch
                 PartResource resource = part.Resources[i];
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
-                    part.RemoveResource(resource);
+                    part.Resources.Remove(resource);
                 }
             }
         }
