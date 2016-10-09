@@ -87,6 +87,12 @@ namespace B9PartSwitch
         [ConfigField]
         public Vector3 CoLOffset = Vector3Extensions.NaN();
 
+        [ConfigField]
+        public Vector3 CenterOfBuoyancy = Vector3Extensions.NaN();
+
+        [ConfigField]
+        public Vector3 CenterOfDisplacement = Vector3Extensions.NaN();
+
         #endregion
 
         #region Private Fields

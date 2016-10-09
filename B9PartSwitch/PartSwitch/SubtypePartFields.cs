@@ -59,6 +59,20 @@ namespace B9PartSwitch
             part => part.CoLOffset,
             (context, vector) => context.Part.CoLOffset = vector);
 
+        public static readonly SubtypePartField<Vector3> CenterOfBuoyancy = new SubtypePartField<Vector3>(
+            "CenterOfBuoyancy",
+            context => context.Subtype.CenterOfBuoyancy,
+            vector => vector.IsFinite(),
+            part => part.CenterOfBuoyancy,
+            (context, vector) => context.Part.CenterOfBuoyancy = vector);
+
+        public static readonly SubtypePartField<Vector3> CenterOfDisplacement = new SubtypePartField<Vector3>(
+            "CenterOfDisplacement",
+            context => context.Subtype.CenterOfDisplacement,
+            vector => vector.IsFinite(),
+            part => part.CenterOfDisplacement,
+            (context, vector) => context.Part.CenterOfDisplacement = vector);
+
         public static readonly ReadOnlyCollection<ISubtypePartField> All = new ReadOnlyCollection<ISubtypePartField>(new ISubtypePartField[] {
             MaxTemp,
             SkinMaxTemp,
@@ -66,7 +80,9 @@ namespace B9PartSwitch
             SrfAttachNode,
             CoMOffset,
             CoPOffset,
-            CoLOffset
+            CoLOffset,
+            CenterOfBuoyancy,
+            CenterOfDisplacement
         });
     }
 }
