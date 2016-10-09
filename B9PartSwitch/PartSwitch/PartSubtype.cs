@@ -81,6 +81,9 @@ namespace B9PartSwitch
         [ConfigField]
         public Vector3 CoMOffset = Vector3Extensions.NaN();
 
+        [ConfigField]
+        public Vector3 CoPOffset = Vector3Extensions.NaN();
+
         #endregion
 
         #region Private Fields
