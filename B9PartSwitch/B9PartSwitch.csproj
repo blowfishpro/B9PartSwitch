@@ -56,7 +56,11 @@
     <Compile Include="Configs\ParseType.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />
+    <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
+    <Compile Include="PartSwitch\PartSubtypeContext.cs" />
+    <Compile Include="PartSwitch\SubtypePartField.cs" />
+    <Compile Include="PartSwitch\SubtypePartFields.cs" />
     <Compile Include="Serialization\ConfigNodeSerialized.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />

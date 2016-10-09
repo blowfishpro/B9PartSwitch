@@ -78,10 +78,25 @@ namespace B9PartSwitch
         [ConfigField]
         public float crashTolerance = 0f;
 
+        [ConfigField]
+        public Vector3 CoMOffset = Vector3Extensions.NaN();
+
+        [ConfigField]
+        public Vector3 CoPOffset = Vector3Extensions.NaN();
+
+        [ConfigField]
+        public Vector3 CoLOffset = Vector3Extensions.NaN();
+
+        [ConfigField]
+        public Vector3 CenterOfBuoyancy = Vector3Extensions.NaN();
+
+        [ConfigField]
+        public Vector3 CenterOfDisplacement = Vector3Extensions.NaN();
+
         #endregion
 
         #region Private Fields
-        
+
         private ModuleB9PartSwitch parent;
         private List<TransformInfo> transforms = new List<TransformInfo>();
         private List<AttachNode> nodes = new List<AttachNode>();
@@ -93,6 +108,8 @@ namespace B9PartSwitch
         public string Name => subtypeName;
 
         public Part Part => parent.part;
+
+        public PartSubtypeContext Context => new PartSubtypeContext(Part, parent, this);
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
         
@@ -198,6 +215,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             AddResources(false);
+            UpdatePartParams();
         }
 
         public void DeactivateOnSwitch()
@@ -217,6 +235,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             AddResources(true);
+            UpdatePartParams();
         }
 
         public void ActivateObjects() => transforms.ForEach(t => t.Enable());
@@ -258,9 +277,21 @@ namespace B9PartSwitch
 
         #region Private Methods
 
+        private void UpdatePartParams()
+        {
+            foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
+            {
+                field.AssignValueOnSubtype(Context);
+            }
+        }
+
+        #region Logging
+
         private void LogWarning(string message) => Debug.LogWarning($"Warning on {this}: {message}");
 
         private void LogError(string message) => Debug.LogWarning($"Warning on {this}: {message}");
+
+        #endregion
 
         #endregion
     }
