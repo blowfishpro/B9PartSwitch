@@ -78,6 +78,9 @@ namespace B9PartSwitch
         [ConfigField]
         public float crashTolerance = 0f;
 
+        [ConfigField]
+        public Vector3 CoMOffset = Vector3Extensions.NaN();
+
         #endregion
 
         #region Private Fields

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using UnityEngine;
+using System.Collections.ObjectModel;
 
 namespace B9PartSwitch
 {
@@ -37,11 +38,19 @@ namespace B9PartSwitch
                 context.Part.srfAttachNode.orientation = attachNode.orientation;
             });
 
+        public static readonly SubtypePartField<Vector3> CoMOffset = new SubtypePartField<Vector3>(
+            "CoMOffset",
+            context => context.Subtype.CoMOffset,
+            vector => vector.IsFinite(),
+            part => part.CoMOffset,
+            (context, vector) => context.Part.CoMOffset = vector);
+
         public static readonly ReadOnlyCollection<ISubtypePartField> All = new ReadOnlyCollection<ISubtypePartField>(new ISubtypePartField[] {
             MaxTemp,
             SkinMaxTemp,
             CrashTolerance,
-            SrfAttachNode
+            SrfAttachNode,
+            CoMOffset
         });
     }
 }
