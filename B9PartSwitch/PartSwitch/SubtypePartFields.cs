@@ -52,13 +52,21 @@ namespace B9PartSwitch
             part => part.CoPOffset,
             (context, vector) => context.Part.CoPOffset = vector);
 
+        public static readonly SubtypePartField<Vector3> CoLOffset = new SubtypePartField<Vector3>(
+            "CoLOffset",
+            context => context.Subtype.CoLOffset,
+            vector => vector.IsFinite(),
+            part => part.CoLOffset,
+            (context, vector) => context.Part.CoLOffset = vector);
+
         public static readonly ReadOnlyCollection<ISubtypePartField> All = new ReadOnlyCollection<ISubtypePartField>(new ISubtypePartField[] {
             MaxTemp,
             SkinMaxTemp,
             CrashTolerance,
             SrfAttachNode,
             CoMOffset,
-            CoPOffset
+            CoPOffset,
+            CoLOffset
         });
     }
 }

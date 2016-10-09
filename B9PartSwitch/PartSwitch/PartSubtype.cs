@@ -84,10 +84,13 @@ namespace B9PartSwitch
         [ConfigField]
         public Vector3 CoPOffset = Vector3Extensions.NaN();
 
+        [ConfigField]
+        public Vector3 CoLOffset = Vector3Extensions.NaN();
+
         #endregion
 
         #region Private Fields
-        
+
         private ModuleB9PartSwitch parent;
         private List<TransformInfo> transforms = new List<TransformInfo>();
         private List<AttachNode> nodes = new List<AttachNode>();
