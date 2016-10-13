@@ -7,13 +7,13 @@
   },
   "version" :
   {
-    "name" : "master"
+    "name" : "avc_version"
   },
   "files" :
   [
     {
-      "includePattern"  : "zip_release/bintray/(.*\\.zip)",
-      "uploadPattern"   : "builds/$1"
+      "includePattern"  : "release/GameData/B9PartSwitch/B9PartSwitch.version",
+      "uploadPattern"   : "avc_version/$1"
     }
   ],
   "publish" : true

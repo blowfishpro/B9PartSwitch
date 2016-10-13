@@ -21,6 +21,12 @@ deploy:
     name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
     on:
       tags: true
+  - provider: bintray
+    file: build_script/deploy/bintray_release_version.json
+    user: blowfishpro
+    key: ${BINTRAY_API_KEY}
+    on:
+      tags: true
 env:
   global:
     - PROJECT_NAME="B9PartSwitch"
