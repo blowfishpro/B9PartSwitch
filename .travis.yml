@@ -3,10 +3,9 @@ solution: B9PartSwitch.sln
 install:
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
-before_script:
-  - build_script/before_script/check_version.rb
 script:
   - xbuild /p:Configuration=Release ${TRAVIS_SOLUTION}
+  - build_script/script/avc_version.rb
   - build_script/script/make_zip.sh
 before_deploy:
   - build_script/before_deploy/copy_zip.sh
@@ -22,10 +21,16 @@ deploy:
     name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
     on:
       tags: true
+  - provider: bintray
+    file: build_script/deploy/bintray_release_version.json
+    user: blowfishpro
+    key: ${BINTRAY_API_KEY}
+    on:
+      tags: true
 env:
   global:
     - PROJECT_NAME="B9PartSwitch"
     - PROJECT_DIR="B9PartSwitch"
-    - KSP_VERSION="$(build_script/env/get_ksp_version.rb)"
+    - KSP_VERSION="$(cat KSP_VERSION)"
 notifications:
   email: false
