@@ -66,8 +66,8 @@ namespace B9PartSwitch
 
         #endregion
 
-        public IEnumerator<TankResource> GetEnumerator() => resources.GetEnumerator();
-
+        public List<TankResource>.Enumerator GetEnumerator() => resources.GetEnumerator();
+        IEnumerator<TankResource> IEnumerable<TankResource>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public override string ToString()
