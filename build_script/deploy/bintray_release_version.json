@@ -13,7 +13,7 @@
   [
     {
       "includePattern"  : "release/GameData/B9PartSwitch/B9PartSwitch.version",
-      "uploadPattern"   : "avc_version/$1"
+      "uploadPattern"   : "avc_version/B9PartSwitch.version"
     }
   ],
   "publish" : true
