@@ -74,14 +74,11 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public override void OnLoad(ConfigNode node)
+        public override void OnIconCreate()
         {
-            base.OnLoad(node);
+            base.OnIconCreate();
 
-            // This will deactivate objects before the part icon is created, avoiding a visual mess
-
-            if (!this.ParsedPrefab())
-                SetupForIcon();
+            SetupForIcon();
         }
 
         public override void OnStart(PartModule.StartState state)
@@ -244,6 +241,7 @@ namespace B9PartSwitch
 
         private void SetupForIcon()
         {
+            // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
             foreach (var subtype in subtypes)
             {
                 subtype.Setup(this);
@@ -315,7 +313,7 @@ namespace B9PartSwitch
             {
                 // Now use resources
                 // This finds all the managed resources that currently exist on teh part
-                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.list.Select(resource => resource.resourceName)).ToArray();
+                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
 
 #if DEBUG
                 LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
@@ -364,14 +362,12 @@ namespace B9PartSwitch
 
         private void RemoveUnusedResources()
         {
-            List<PartResource> resourceList = part.Resources.list;
-            for (int i = resourceList.Count - 1; i >= 0; i--)
+            for (int i = part.Resources.Count - 1; i >= 0 ; i --)
             {
-                PartResource resource = resourceList[i];
+                PartResource resource = part.Resources[i];
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
-                    resourceList.RemoveAt(i);
-                    Destroy(resource);
+                    part.Resources.Remove(resource);
                 }
             }
         }

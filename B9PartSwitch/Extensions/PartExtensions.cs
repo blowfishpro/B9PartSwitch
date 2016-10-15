@@ -12,15 +12,16 @@ namespace B9PartSwitch
 
         public static PartResource AddResource(this Part part, PartResourceDefinition info, float maxAmount, float amount)
         {
-            PartResource resource = part.gameObject.AddComponent<PartResource>();
+            PartResource resource = new PartResource(part);
             resource.SetInfo(info);
             resource.maxAmount = maxAmount;
             resource.amount = amount;
             resource.flowState = true;
             resource.isTweakable = info.isTweakable;
+            resource.isVisible = info.isVisible;
             resource.hideFlow = false;
             resource.flowMode = PartResource.FlowMode.Both;
-            part.Resources.list.Add(resource);
+            part.Resources.dict.Add(info.name.GetHashCode(), resource);
 
             return resource;
         }
@@ -54,35 +55,8 @@ namespace B9PartSwitch
             return resource;
         }
 
-        public static void RemoveResource(this Part part, PartResource resource)
-        {
-            if (!ReferenceEquals(resource.gameObject, part.gameObject) || !part.Resources.list.Contains(resource))
-            {
-                part.LogError($"Cannot remove resource '{resource.resourceName}' because it is not on the correct part");
-                return;
-            }
-
-            part.Resources.list.Remove(resource);
-            UnityEngine.Object.Destroy(resource);
-        }
-
-        public static void RemoveResource(this Part part, string name)
-        {
-            PartResource resource = part.Resources[name];
-
-            if (resource.IsNotNull())
-            {
-                part.Resources.list.Remove(resource);
-                UnityEngine.Object.Destroy(resource);
-            }
-            else
-            {
-                part.LogError($"Cannot remove resource '{resource.resourceName}' because it was not found");
-            }
-        }
-        
-        public static float GetResourceCostMax(this Part part) => part.Resources.list.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
-        public static float GetResourceCostOffset(this Part part) => part.Resources.list.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
+        public static float GetResourceCostMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
+        public static float GetResourceCostOffset(this Part part) => part.Resources.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
 
         public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");
         public static void LogWarning(this Part part, object message) => Debug.LogWarning($"[WARNING] [Part {part.name}] {message}");
