@@ -35,6 +35,12 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.5.0
+
+* Update for KSP 1.2
+* Add CoMOffset, CoPOffset, CoLOffset, CenterOfBuoyancy, CenterOfDisplacement to editable part fields
+* Hopefully reduce GC allocation a little bit
+
 ### v1.4.3
 
 * Recompile against KSP 1.1.3
