@@ -74,10 +74,18 @@ namespace B9PartSwitch
 
         #region Setup
 
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            InitializeSubtypes();
+        }
+
         public override void OnIconCreate()
         {
             base.OnIconCreate();
 
+            InitializeSubtypes();
             SetupForIcon();
         }
 
@@ -85,6 +93,7 @@ namespace B9PartSwitch
         {
             base.OnStart(state);
 
+            InitializeSubtypes();
             SetupSubtypes();
 
             FindBestSubtype();
@@ -239,12 +248,19 @@ namespace B9PartSwitch
 
         #region Setup
 
+        private void InitializeSubtypes()
+        {
+            foreach (PartSubtype subtype in subtypes)
+            {
+                subtype.Setup(this);
+            }
+        }
+
         private void SetupForIcon()
         {
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
             foreach (var subtype in subtypes)
             {
-                subtype.Setup(this);
                 subtype.DeactivateObjects();
             }
             CurrentSubtype.ActivateObjects();
@@ -258,7 +274,6 @@ namespace B9PartSwitch
 
             foreach (var subtype in subtypes)
             {
-                subtype.Setup(this);
                 TankType tank = subtype.tankType;
 
                 if (tank == null)
