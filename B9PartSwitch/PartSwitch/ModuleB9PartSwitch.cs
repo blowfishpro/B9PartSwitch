@@ -199,17 +199,17 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
-            string outStr = "";
+            string outStr = $"<b><color=#7fdfffff>{SubtypesCount} {switcherDescriptionPlural}</color></b>";
             foreach (var subtype in subtypes)
             {
                 outStr += $"\n<b>- {subtype.title}</b>";
                 foreach (var resource in subtype.tankType)
-                    outStr += $"\n  <b><color=#99ff00ff>- {resource.ResourceName}</color></b>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
+                    outStr += $"\n  <color=#99ff00ff>- {resource.ResourceName}</color>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
             }
             return outStr;
         }
 
-        public string GetModuleTitle() => $"Switchable Part ({SubtypesCount} {switcherDescriptionPlural})";
+        public string GetModuleTitle() => "Switchable Part";
 
         public string GetPrimaryField()
         {
