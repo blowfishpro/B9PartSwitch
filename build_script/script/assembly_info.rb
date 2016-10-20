@@ -6,9 +6,9 @@ version = get_tag_version
 project_name = ENV['PROJECT_NAME'].strip
 
 attributes_data = {
-  'AssemblyVersion' 	=> ["\"#{version.full_version}\""],
+  'AssemblyVersion' 	  => ["\"#{version.full_version}\""],
   'AssemblyFileVersion' => ["\"#{version.full_version}\""],
-  'KSPAssembly'		 	=> ["\"#{project_name}\"", version.major, version.minor],
+  'KSPAssembly'		   	  => ["\"#{project_name}\"", version.major, version.minor],
 }
 
 attributes = attributes_data.map { |key, val| "[assembly: #{key}(#{val.join(', ')})]" }
