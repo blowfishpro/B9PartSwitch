@@ -16,5 +16,6 @@
       "uploadPattern"   : "avc_version/B9PartSwitch.version"
     }
   ],
-  "publish" : true
+  "publish" : true,
+  "override" : true
 }
