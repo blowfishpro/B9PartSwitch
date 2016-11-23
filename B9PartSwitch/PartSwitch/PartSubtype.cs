@@ -154,50 +154,6 @@ namespace B9PartSwitch
             FindNodes();
         }
 
-        public void FindObjects()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            transforms = new List<TransformInfo>();
-            foreach (var transformName in transformNames)
-            {
-                Transform[] tempTransforms = Part.FindModelTransforms(transformName);
-                if (tempTransforms == null || tempTransforms.Length == 0)
-                    LogError($"No transforms named {transformName} found");
-                else
-                    transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
-            }
-        }
-
-        public void FindNodes()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            nodes = new List<AttachNode>();
-            foreach (var nodeName in nodeNames)
-            {
-                AttachNode[] tempNodes = Part.FindAttachNodes(nodeName);
-                if (tempNodes == null || tempNodes.Length == 0)
-                {
-                    LogError($"No attach nodes matching {nodeName} found");
-                }
-                else
-                {
-                    foreach (var node in tempNodes)
-                    {
-                        // If a node has been deactivated then it will be a docking node
-                        // Alternative: activate all nodes on serialization
-                        if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
-                            nodes.Add(node);
-                        else
-                            LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier {nodeName})");
-                    }
-                }
-            }
-        }
-
         #endregion
 
         #region Public Methods
@@ -293,6 +249,50 @@ namespace B9PartSwitch
         #endregion
 
         #region Private Methods
+
+        private void FindObjects()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
+            transforms = new List<TransformInfo>();
+            foreach (var transformName in transformNames)
+            {
+                Transform[] tempTransforms = Part.FindModelTransforms(transformName);
+                if (tempTransforms == null || tempTransforms.Length == 0)
+                    LogError($"No transforms named {transformName} found");
+                else
+                    transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
+            }
+        }
+
+        private void FindNodes()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
+            nodes = new List<AttachNode>();
+            foreach (var nodeName in nodeNames)
+            {
+                AttachNode[] tempNodes = Part.FindAttachNodes(nodeName);
+                if (tempNodes == null || tempNodes.Length == 0)
+                {
+                    LogError($"No attach nodes matching {nodeName} found");
+                }
+                else
+                {
+                    foreach (var node in tempNodes)
+                    {
+                        // If a node has been deactivated then it will be a docking node
+                        // Alternative: activate all nodes on serialization
+                        if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
+                            nodes.Add(node);
+                        else
+                            LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier {nodeName})");
+                    }
+                }
+            }
+        }
 
         private void UpdatePartParams()
         {
