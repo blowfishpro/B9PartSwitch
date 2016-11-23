@@ -112,7 +112,9 @@ namespace B9PartSwitch
         public PartSubtypeContext Context => new PartSubtypeContext(Part, parent, this);
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
-        
+
+        public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
+        public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
@@ -262,6 +264,10 @@ namespace B9PartSwitch
                 Part.RemoveResource(resource.ResourceName);
             }
         }
+
+        public bool TransformIsManaged(Transform transform) => transforms.Any(info => object.ReferenceEquals(info.transform, transform));
+        public bool NodeManaged(AttachNode node) => nodes.Contains(node);
+        public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
 
         public override string ToString()
         {

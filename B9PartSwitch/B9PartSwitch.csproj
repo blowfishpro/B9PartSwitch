@@ -52,6 +52,7 @@
     <Compile Include="Configs\ConfigFieldList.cs" />
     <Compile Include="Configs\ParseType.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
