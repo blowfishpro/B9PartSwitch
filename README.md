@@ -35,6 +35,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.5.2
+
+* Recompile against KSP 1.2.1
+
 ### v1.5.1
 
 * Fix resource amounts displaying incorrectly in part tooltip
