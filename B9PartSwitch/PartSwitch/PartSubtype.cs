@@ -269,6 +269,17 @@ namespace B9PartSwitch
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
         public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
 
+        public void AssignStructuralTankType()
+        {
+            if (!tankType.IsStructuralTankType)
+                tankType = B9TankSettings.StructuralTankType;
+        }
+
+        public void ClearAttachNode()
+        {
+            attachNode = null;
+        }
+
         public override string ToString()
         {
             string log = "PartSubtype";

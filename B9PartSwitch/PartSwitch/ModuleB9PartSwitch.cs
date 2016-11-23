@@ -172,7 +172,7 @@ namespace B9PartSwitch
                     foreach (var subtype in subtypes)
                     {
                         if (!subtype.tankType.IsStructuralTankType)
-                            subtype.tankType = B9TankSettings.StructuralTankType;
+                            subtype.AssignStructuralTankType();
                     }
                     modifiedSetup = true;
                 }
@@ -260,22 +260,20 @@ namespace B9PartSwitch
         {
             foreach (var subtype in subtypes)
             {
-                TankType tank = subtype.tankType;
-
-                if (tank == null)
+                if (subtype.tankType == null)
                     LogError($"Tank is null on subtype {subtype.Name}");
 
-                if (tank.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
+                if (subtype.tankType.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
                 {
                     LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
-                    subtype.tankType = tank = B9TankSettings.StructuralTankType;
+                    subtype.AssignStructuralTankType();
                 }
             }
 
             if (PartFieldManaged(SubtypePartFields.SrfAttachNode) && !part.attachRules.allowSrfAttach || part.srfAttachNode.IsNull())
             {
                 LogError($"Error: One or more subtypes have an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                subtypes.ForEach(subtype => subtype.attachNode = null);
+                subtypes.ForEach(subtype => subtype.ClearAttachNode());
             }
         }
 
