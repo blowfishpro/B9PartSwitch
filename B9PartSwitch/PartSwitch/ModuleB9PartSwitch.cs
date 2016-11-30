@@ -40,10 +40,6 @@ namespace B9PartSwitch
 
         #region Private Fields
 
-        private List<string> managedResourceNames = new List<string>();
-        private List<string> managedTransformNames = new List<string>();
-        private List<string> managedStackNodeIDs = new List<string>();
-
         // Tweakscale integration
         private float scale = 1f;
 
@@ -63,6 +59,12 @@ namespace B9PartSwitch
 
         public PartSubtype this[int index] => subtypes[index];
 
+        public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
+        public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
+        public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
+
+        public bool ManagesTransforms => ManagedTransforms.Any();
+        public bool ManagesNodes => ManagedNodes.Any();
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
         public bool ChangesMass => subtypes.Any(s => s.ChangesMass);
         public bool ChangesCost => subtypes.Any(s => s.ChangesCost);
@@ -113,7 +115,7 @@ namespace B9PartSwitch
             {
                 if (otherModule == this) continue;
                 bool destroy = false;
-                foreach (var resourceName in managedResourceNames)
+                foreach (string resourceName in ManagedResourceNames)
                 {
                     if (otherModule.IsManagedResource(resourceName))
                     {
@@ -121,19 +123,19 @@ namespace B9PartSwitch
                         destroy = true;
                     }
                 }
-                foreach (var transformName in managedTransformNames)
+                foreach (Transform transform in ManagedTransforms)
                 {
-                    if (otherModule.IsManagedTransform(transformName))
+                    if (otherModule.IsManagedTransform(transform))
                     {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transformName}");
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transform.name}");
                         destroy = true;
                     }
                 }
-                foreach (var nodeID in managedStackNodeIDs)
+                foreach (AttachNode node in ManagedNodes)
                 {
-                    if (otherModule.IsManagedNode(nodeID))
+                    if (otherModule.IsManagedNode(node))
                     {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {nodeID}");
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {node.id}");
                         destroy = true;
                     }
                 }
@@ -170,9 +172,8 @@ namespace B9PartSwitch
                     foreach (var subtype in subtypes)
                     {
                         if (!subtype.tankType.IsStructuralTankType)
-                            subtype.tankType = B9TankSettings.StructuralTankType;
+                            subtype.AssignStructuralTankType();
                     }
-                    managedResourceNames.Clear();
                     modifiedSetup = true;
                 }
 
@@ -225,20 +226,9 @@ namespace B9PartSwitch
 
         #region Public Methods
 
-        public bool IsManagedResource(string resourceName)
-        {
-            return managedResourceNames.Contains(resourceName);
-        }
-
-        public bool IsManagedTransform(string transformName)
-        {
-            return managedTransformNames.Contains(transformName);
-        }
-
-        public bool IsManagedNode(string nodeName)
-        {
-            return managedStackNodeIDs.Contains(nodeName);
-        }
+        public bool IsManagedResource(string resourceName) => ManagedResourceNames.Contains(resourceName);
+        public bool IsManagedTransform(Transform transform) => ManagedTransforms.Contains(transform);
+        public bool IsManagedNode(AttachNode node) => ManagedNodes.Contains(node);
 
         public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
 
@@ -268,34 +258,22 @@ namespace B9PartSwitch
 
         private void SetupSubtypes()
         {
-            managedResourceNames = new List<string>();
-            managedTransformNames = new List<string>();
-            managedStackNodeIDs = new List<string>();
-
             foreach (var subtype in subtypes)
             {
-                TankType tank = subtype.tankType;
-
-                if (tank == null)
+                if (subtype.tankType == null)
                     LogError($"Tank is null on subtype {subtype.Name}");
 
-                if (tank.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
+                if (subtype.tankType.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
                 {
                     LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
-                    subtype.tankType = tank = B9TankSettings.StructuralTankType;
+                    subtype.AssignStructuralTankType();
                 }
-
-                if (tank != null)
-                    managedResourceNames.AddRange(tank.ResourceNames);
-
-                managedTransformNames.AddRange(subtype.transformNames);
-                managedStackNodeIDs.AddRange(subtype.NodeIDs);
             }
 
             if (PartFieldManaged(SubtypePartFields.SrfAttachNode) && !part.attachRules.allowSrfAttach || part.srfAttachNode.IsNull())
             {
                 LogError($"Error: One or more subtypes have an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                subtypes.ForEach(subtype => subtype.attachNode = null);
+                subtypes.ForEach(subtype => subtype.ClearAttachNode());
             }
         }
 
@@ -328,7 +306,7 @@ namespace B9PartSwitch
             {
                 // Now use resources
                 // This finds all the managed resources that currently exist on teh part
-                string[] resourcesOnPart = managedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
+                string[] resourcesOnPart = ManagedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
 
 #if DEBUG
                 LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
@@ -441,12 +419,14 @@ namespace B9PartSwitch
 
         private void UpdateGeometry()
         {
-            if (FARWrapper.FARLoaded && affectFARVoxels && managedTransformNames.Count > 0)
+            if (!ManagesTransforms) return;
+
+            if (FARWrapper.FARLoaded && affectFARVoxels)
             {
                 part.SendMessage("GeometryPartModuleRebuildMeshData");
             }
 
-            if (affectDragCubes && managedTransformNames.Count > 0)
+            if (affectDragCubes)
             {
                 if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
                     part.OnEditorAttach += UpdateDragCubesOnAttach;
