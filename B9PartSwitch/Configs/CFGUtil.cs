@@ -53,7 +53,7 @@ namespace B9PartSwitch
             Type type = typeof(T);
             if (IsConfigParsableType(type))
             {
-                Debug.LogError("The type " + type.Name + " is already a registered parse type");
+                Debug.LogError($"The type {type.Name} is already a registered parse type");
                 return;
             }
             ParseTypes.Add(type, new ParseType<T>(parseFunction, formatFunction));
@@ -91,12 +91,12 @@ namespace B9PartSwitch
                 }
                 catch (Exception e)
                 {
-                    throw new FormatException("Cannot parse enum value of type " + type.Name + " from string '" + value + "': ", e);
+                    throw new FormatException($"Cannot parse enum value of type {type.Name} from string '{value}'", e);
                 }
             }
             else
             {
-                throw new NotImplementedException("No format converter has been implemented to parse type " + type.Name + " from string");
+                throw new NotImplementedException($"No format converter has been implemented to parse type {type.Name} from string");
             }
         }
 
@@ -131,9 +131,9 @@ namespace B9PartSwitch
                     {
                         result = (IConfigNode)Activator.CreateInstance(field.ElementType);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        Debug.LogError("Error: Could not load field '" + field.Name + "' because an instance of " + field.ElementType.FullName + "could not be created: " + e.Message);
+                        Debug.LogError($"Error: Could not load field '{field.Name}' because an instance of {field.ElementType.FullName} could not be created: " + e.Message);
                         return;
                     }
                 }
@@ -171,7 +171,7 @@ namespace B9PartSwitch
 
             if (length < 6)
             {
-                throw new FormatException("Not enough values to parse an AttachNode: '" + value + "'");
+                throw new FormatException($"Not enough values to parse an AttachNode: '{value}'");
             }
 
             for (int i = 0; i < 6; i++)
@@ -197,7 +197,7 @@ namespace B9PartSwitch
                     attachNode.attachMethod = (AttachNodeMethod)int.Parse(splitStr[7]);
 
                 if (length > 8)
-                    Debug.LogWarning("Too many values encountered to parse an AttachNode: values after 8 will be ignored: '" + value + "'");
+                    Debug.LogWarning($"Too many values encountered to parse an AttachNode: values after the 8th will be ignored: '{value}'");
             }
 
             return attachNode;
