@@ -27,28 +27,30 @@ namespace B9PartSwitch
         }
 
         // Amount < 0 signifies use existing amount if exists, or create with max amount
-        public static PartResource AddOrCreateResource(this Part part, PartResourceDefinition info, float maxAmount, float amount)
+        public static PartResource AddOrCreateResource(this Part part, PartResourceDefinition info, float maxAmount, float amount, bool modifyAmountIfPresent)
         {
             if (amount > maxAmount)
             {
                 part.LogWarning($"Cannot add resource '{info.name}' with amount > maxAmount, will use maxAmount (amount = {amount}, maxAmount = {maxAmount})");
                 amount = maxAmount;
             }
+            else if (amount < 0f)
+            {
+                part.LogWarning($"Cannot add resource '{info.name}' with amount < 0, will use 0 (amount = {amount})");
+                amount = 0f;
+            }
 
             PartResource resource = part.Resources[info.name];
 
             if (resource == null)
             {
-                if (amount < 0f)
-                    amount = maxAmount;
-
                 resource = part.AddResource(info, maxAmount, amount);
             }
             else
             {
                 resource.maxAmount = maxAmount;
 
-                if (amount >= 0f)
+                if (modifyAmountIfPresent)
                     resource.amount = amount;
             }
 
