@@ -15,6 +15,9 @@ namespace B9PartSwitch
         [NodeData]
         public float unitsPerVolume = 1f;
 
+        [NodeData]
+        public float? percentFilled;
+
         public string ResourceName => resourceDefinition.name;
 
         public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
@@ -31,19 +34,22 @@ namespace B9PartSwitch
             return outStr;
         }
     }
-    
+
     public class TankType : IContextualNode, IEnumerable<TankResource>
     {
         #region Loadable Fields
 
         [NodeData(name = "name")]
         public string tankName;
-         
+
         [NodeData]
         public float tankMass = 0f;
 
         [NodeData]
         public float tankCost = 0f;
+
+        [NodeData]
+        public float? percentFilled;
 
         [NodeData(name = "RESOURCE")]
         public List<TankResource> resources = new List<TankResource>();

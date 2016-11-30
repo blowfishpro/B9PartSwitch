@@ -36,7 +36,7 @@ namespace B9PartSwitch
                 collider.enabled = false;
         }
     }
-    
+
     public class PartSubtype : IContextualNode
     {
         #region Config Fields
@@ -68,6 +68,9 @@ namespace B9PartSwitch
 
         [NodeData]
         public float volumeAdded = 0f;
+
+        [NodeData]
+        public float? percentFilled;
 
         [NodeData]
         public float maxTemp;
@@ -222,7 +225,8 @@ namespace B9PartSwitch
             foreach (TankResource resource in tankType.resources)
             {
                 float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                Part.AddOrCreateResource(resource.resourceDefinition, amount, amount, fillTanks);
+                float filledProportion = (percentFilled ?? resource.percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
             }
         }
 
