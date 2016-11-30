@@ -73,6 +73,9 @@ namespace B9PartSwitch
         public float? percentFilled;
 
         [NodeData]
+        public bool? resourcesTweakable;
+
+        [NodeData]
         public float maxTemp;
 
         [NodeData]
@@ -226,7 +229,12 @@ namespace B9PartSwitch
             {
                 float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
                 float filledProportion = (percentFilled ?? resource.percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
-                Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
+                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
+
+                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
+
+                if (tweakable.HasValue)
+                    partResource.isTweakable = tweakable.Value;
             }
         }
 

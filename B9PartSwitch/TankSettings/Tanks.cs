@@ -51,6 +51,9 @@ namespace B9PartSwitch
         [NodeData]
         public float? percentFilled;
 
+        [NodeData]
+        public bool? resourcesTweakable;
+
         [NodeData(name = "RESOURCE")]
         public List<TankResource> resources = new List<TankResource>();
 
