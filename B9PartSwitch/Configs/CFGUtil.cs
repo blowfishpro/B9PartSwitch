@@ -56,8 +56,6 @@ namespace B9PartSwitch
                 Debug.LogError("The type " + type.Name + " is already a registered parse type");
                 return;
             }
-            if (!type.IsUnitySerializableType())
-                Debug.LogWarning("The type '" + type.Name + "' is being registed as a config parse type, but is not a Unity-serializable type.  Unexpected results may occur.");
             ParseTypes.Add(type, new ParseType<T>(parseFunction, formatFunction));
 
             Debug.Log("CFGUtil: Registered parse type " + type.Name);
