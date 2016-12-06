@@ -5,26 +5,23 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartInfo : PartModule
     {
-        public static class Constants
-        {
-            public const string DryMassGUIString = "Mass (Dry)";
-            public const string MassGUIString = "Mass";
+        public const string DryMassGUIString = "Mass (Dry)";
+        public const string MassGUIString = "Mass";
 
-            public const string DryCostGUIString = "Cost (Dry)";
-            public const string CostGUIString = "Cost";
-        }
+        public const string DryCostGUIString = "Cost (Dry)";
+        public const string CostGUIString = "Cost";
 
         [UI_Toggle(enabledText = "Enabled", disabledText = "Hidden")]
         [KSPField(guiActiveEditor = true, guiName = "Part Info")]
         public bool showInfo = false;
 
-        [KSPField(guiName = Constants.DryMassGUIString, guiFormat = "N3", guiUnits = "t")]
+        [KSPField(guiName = DryMassGUIString, guiFormat = "N3", guiUnits = "t")]
         public float dryMass = 0f;
 
         [KSPField(guiName = "Mass (Wet)", guiFormat = "N3", guiUnits = "t")]
         public float wetMass = 0f;
 
-        [KSPField(guiName = Constants.DryCostGUIString, guiFormat = "N2")]
+        [KSPField(guiName = DryCostGUIString, guiFormat = "N2")]
         public float dryCost = 0f;
 
         [KSPField(guiName = "Cost (Wet)", guiFormat = "N2")]
@@ -69,12 +66,12 @@ namespace B9PartSwitch
 
             var dryMassField = Fields[nameof(dryMass)];
             dryMassField.guiActiveEditor = showInfo && showMass;
-            dryMassField.guiName = hasResources ? Constants.DryMassGUIString : Constants.MassGUIString;
+            dryMassField.guiName = hasResources ? DryMassGUIString : MassGUIString;
             Fields[nameof(wetMass)].guiActiveEditor = showInfo && showMass && hasResources;
 
             var dryCostField = Fields[nameof(dryCost)];
             dryCostField.guiActiveEditor = showInfo && showCost;
-            dryCostField.guiName = hasResources ? Constants.DryCostGUIString : Constants.CostGUIString;
+            dryCostField.guiName = hasResources ? DryCostGUIString : CostGUIString;
             Fields[nameof(wetCost)].guiActiveEditor = showInfo && showCost && hasResources;
 
             Fields[nameof(maxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.PartFieldManaged(SubtypePartFields.MaxTemp));
