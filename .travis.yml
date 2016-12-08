@@ -4,7 +4,7 @@ install:
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
 script:
-  - xbuild /p:Configuration=Release ${TRAVIS_SOLUTION}
+  - xbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - build_script/script/avc_version.rb
   - build_script/script/make_zip.sh
 before_deploy:
@@ -32,5 +32,6 @@ env:
     - PROJECT_NAME="B9PartSwitch"
     - PROJECT_DIR="B9PartSwitch"
     - KSP_VERSION="$(cat KSP_VERSION)"
+    - KSP_DLL_PATH="${TRAVIS_BUILD_DIR}/KSP_DLLs/${KSP_VERSION}"
 notifications:
   email: false
