@@ -2,15 +2,15 @@
 
 namespace B9PartSwitch.Fishbones.Parsers
 {
-    public class ValueParser<T> : IParseType
+    public class ValueParser<T> : IValueParser
     {
         private Func<string, T> parseFunction;
         private Func<T, string> formatFunction;
 
         public ValueParser(Func<string, T> parseFunction, Func<T, string> formatFunction)
         {
-            parseFunction.RaiseIfNullArgument(nameof(parseFunction));
-            formatFunction.RaiseIfNullArgument(nameof(formatFunction));
+            parseFunction.ThrowIfNullArgument(nameof(parseFunction));
+            formatFunction.ThrowIfNullArgument(nameof(formatFunction));
 
             this.parseFunction = parseFunction;
             this.formatFunction = formatFunction;
@@ -18,14 +18,14 @@ namespace B9PartSwitch.Fishbones.Parsers
 
         public object Parse(string value)
         {
-            value.RaiseIfNullArgument(nameof(value));
+            value.ThrowIfNullArgument(nameof(value));
 
             return parseFunction(value);
         }
 
         public string Format(object value)
         {
-            value.RaiseIfNullArgument(nameof(value));
+            value.ThrowIfNullArgument(nameof(value));
 
             return formatFunction((T)value);
         }

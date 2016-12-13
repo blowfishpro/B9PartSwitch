@@ -14,7 +14,7 @@ namespace B9PartSwitch
             return (o != null);
         }
 
-        public static void RaiseIfNullArgument(this object o, string paramName)
+        public static void ThrowIfNullArgument(this object o, string paramName)
         {
             if (o.IsNull()) throw new ArgumentNullException(paramName);
         }
