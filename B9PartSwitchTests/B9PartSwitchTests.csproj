@@ -55,7 +55,7 @@
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestUtils\WrappedConfigNode.cs" />
+    <Compile Include="TestUtils\TestConfigNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

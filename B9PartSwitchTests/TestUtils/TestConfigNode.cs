@@ -3,7 +3,7 @@ using System;
 
 namespace B9PartSwitchTests.TestUtils
 {
-    internal class WrappedConfigNode : ConfigNode, IEnumerable
+    internal class TestConfigNode : ConfigNode, IEnumerable
     {
         public void Add(string name, string value) => AddValue(name, value);
         public void Add(string name, ConfigNode node) => AddNode(name, node);

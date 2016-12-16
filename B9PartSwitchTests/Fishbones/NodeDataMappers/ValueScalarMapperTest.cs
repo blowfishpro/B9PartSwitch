@@ -12,7 +12,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestLoad()
         {
-            WrappedConfigNode node = new WrappedConfigNode
+            TestConfigNode node = new TestConfigNode
             {
                 { "foo", "bar" },
                 { "omg", "bbq" }
@@ -26,7 +26,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestLoad__NoValue()
         {
-            WrappedConfigNode node = new WrappedConfigNode
+            TestConfigNode node = new TestConfigNode
             {
                 { "boo", "bar" },
                 { "omg", "bbq" }
