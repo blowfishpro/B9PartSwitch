@@ -31,9 +31,9 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 { "omg", "bbq" }
             };
 
-            object value = null;
+            object value = "abc";
             Assert.False(mapper.Load(node, ref value));
-            Assert.Null(value);
+            Assert.Equal("abc", value);
         }
 
         [Fact]
