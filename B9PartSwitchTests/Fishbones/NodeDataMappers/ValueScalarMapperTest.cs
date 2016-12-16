@@ -51,6 +51,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.True(mapper.Save(node, ref value));
             Assert.Equal("$$bar$$", node.GetValue("foo"));
+            Assert.Equal("bar", value);
         }
 
         [Fact]
