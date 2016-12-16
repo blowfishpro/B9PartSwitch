@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
-namespace B9PartSwitchTests
+
+namespace B9PartSwitchTests.TestUtils
 {
     internal class WrappedConfigNode : ConfigNode, IEnumerable
     {

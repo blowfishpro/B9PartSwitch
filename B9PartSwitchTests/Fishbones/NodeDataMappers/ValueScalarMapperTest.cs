@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitchTests.TestUtils;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 {
