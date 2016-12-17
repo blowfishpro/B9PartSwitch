@@ -99,7 +99,7 @@ namespace B9PartSwitch
     {
         public NodeScalarConfigFieldInfo(object parent, FieldInfo field, ConfigField attribute) : base(parent, field, attribute)
         {
-            if (!ElementType.DerivesFrom(typeof(IConfigNode)))
+            if (!ElementType.Implements<IConfigNode>())
                 throw new ArgumentException("The type " + ElementType.Name + " does not derive from IConfigNode");
         }
 
@@ -173,7 +173,7 @@ namespace B9PartSwitch
 
         protected void DestroyUnityObjects()
         {
-            if (Attribute.destroy && ElementType.DerivesFrom(typeof(UnityEngine.Object)))
+            if (Attribute.destroy && ElementType.Implements<UnityEngine.Object>())
             {
                 foreach (var item in List)
                 {
@@ -243,7 +243,7 @@ namespace B9PartSwitch
     {
         public NodeListConfigFieldInfo(object parent, FieldInfo field, ConfigField attribute) : base(parent, field, attribute)
         {
-            if (!ElementType.DerivesFrom(typeof(IConfigNode)))
+            if (!ElementType.Implements<IConfigNode>())
                 throw new ArgumentException("The type " + ElementType.Name + " does not derive from IConfigNode");
         }
 

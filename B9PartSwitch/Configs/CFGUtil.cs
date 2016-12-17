@@ -116,14 +116,14 @@ namespace B9PartSwitch
 
         public static void AssignConfigObject(ConfigFieldInfo field, ConfigNode value, ref IConfigNode result)
         {
-            if (!field.ElementType.DerivesFrom(typeof(IConfigNode)))
+            if (!field.ElementType.Implements<IConfigNode>())
                 throw new ArgumentException("Element type of field " + field.Name + " does not derive from IConfigNode");
 
             if (result == null)
             {
-                if (field.ElementType.DerivesFrom(typeof(Component)) && field.Parent is Component)
+                if (field.ElementType.Implements<Component>() && field.Parent is Component)
                     result = (IConfigNode)((Component)field.Parent).gameObject.AddComponent(field.ElementType);
-                else if (field.ElementType.DerivesFrom(typeof(ScriptableObject)))
+                else if (field.ElementType.Implements<ScriptableObject>())
                     result = (IConfigNode)ScriptableObject.CreateInstance(field.ElementType);
                 else
                 {

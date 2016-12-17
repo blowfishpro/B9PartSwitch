@@ -31,7 +31,7 @@ namespace B9PartSwitch
 
                 var isList = field.FieldType.IsListType();
                 var elementType = isList ? field.FieldType.GetGenericArguments()[0] : field.FieldType;
-                var isIConfigNode = elementType.DerivesFrom(typeof(IConfigNode));
+                var isIConfigNode = elementType.Implements<IConfigNode>();
                 var isParsable = elementType.IsConfigParsableType();
                 
                 ConfigFieldInfo fieldInfo;
