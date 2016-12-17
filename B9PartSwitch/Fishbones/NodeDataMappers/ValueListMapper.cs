@@ -7,11 +7,11 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 {
     public class ValueListMapper : INodeDataMapper
     {
-        private string name;
-        private IValueParser parser;
+        private readonly string name;
+        private readonly IValueParser parser;
 
-        private Type elementType;
-        private Type listType;
+        private readonly Type elementType;
+        private readonly Type listType;
 
         public ValueListMapper(string name, IValueParser parser)
         {
