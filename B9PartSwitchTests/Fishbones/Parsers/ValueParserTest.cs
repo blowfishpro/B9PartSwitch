@@ -46,5 +46,17 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             Assert.Throws<ArgumentNullException>(() => parser.Format(null));
         }
+
+        [Fact]
+        public void TestParseType()
+        {
+            ValueParser<string> parser1 = new ValueParser<string>(s => s, s => s);
+
+            Assert.Equal(typeof(string), parser1.ParseType);
+
+            ValueParser<int> parser2 = new ValueParser<int>(s => 0, i => "int");
+
+            Assert.Equal(typeof(int), parser2.ParseType);
+        }
     }
 }

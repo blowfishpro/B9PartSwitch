@@ -29,5 +29,7 @@ namespace B9PartSwitch.Fishbones.Parsers
 
             return formatFunction((T)value);
         }
+
+        public Type ParseType => typeof(T);
     }
 }
