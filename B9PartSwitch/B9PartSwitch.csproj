@@ -56,6 +56,7 @@
     <Compile Include="Extensions\PartModuleExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapper.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapper.cs" />

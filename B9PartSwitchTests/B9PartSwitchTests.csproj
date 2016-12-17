@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="DummyTest.cs" />
     <Compile Include="Exemplars.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeListMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperTest.cs" />
