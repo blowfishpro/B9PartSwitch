@@ -38,10 +38,10 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 
             if (fieldValue.IsNull()) return false;
 
-            ConfigNode innerNode = new ConfigNode(name);
+            ConfigNode innerNode = new ConfigNode();
             ((IConfigNode)fieldValue).Save(innerNode);
 
-            node.AddNode(innerNode);
+            node.AddNode(name, innerNode);
 
             return true;
         }
