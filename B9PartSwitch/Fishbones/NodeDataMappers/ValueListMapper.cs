@@ -31,7 +31,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));
 
             string[] values = node.GetValues(name);
-            if (values.Length == 0) return false;
+            if (values.IsNullOrEmpty()) return false;
 
             if (fieldValue.IsNull()) fieldValue = Activator.CreateInstance(listType);
             IList list = (IList)fieldValue;
