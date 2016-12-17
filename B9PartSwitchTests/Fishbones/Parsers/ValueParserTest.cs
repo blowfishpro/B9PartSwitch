@@ -13,6 +13,8 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             Assert.Throws<ArgumentNullException>(() => new ValueParser<string>(s => s, null));
         }
 
+        #region Parse
+
         [Fact]
         public void TestParse()
         {
@@ -29,6 +31,10 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             Assert.Throws<ArgumentNullException>(() => parser.Parse(null));
         }
+
+        #endregion
+
+        #region Format
 
         [Fact]
         public void TestFormat()
@@ -54,6 +60,8 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             Assert.Throws<ArgumentException>(() => parser.Format(123));
         }
+
+        #endregion
 
         [Fact]
         public void TestParseType()
