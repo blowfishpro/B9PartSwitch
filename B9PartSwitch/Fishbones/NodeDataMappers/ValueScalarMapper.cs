@@ -17,23 +17,23 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             this.parser = parser;
         }
 
-        public bool Load(ConfigNode node, ref object result)
+        public bool Load(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
 
             string value = node.GetValue(name);
             if (value.IsNull()) return false;
 
-            result = parser.Parse(value);
+            fieldValue = parser.Parse(value);
             return true;
         }
 
-        public bool Save(ConfigNode node, ref object input)
+        public bool Save(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
-            if (input.IsNull()) return false;
+            if (fieldValue.IsNull()) return false;
 
-            string value = parser.Format(input);
+            string value = parser.Format(fieldValue);
             if (value.IsNull()) return false;
 
             node.SetValue(name, value, true);

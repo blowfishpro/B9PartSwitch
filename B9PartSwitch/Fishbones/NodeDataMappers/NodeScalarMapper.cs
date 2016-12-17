@@ -16,30 +16,30 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             this.fieldType = fieldType;
         }
 
-        public bool Load(ConfigNode node, ref object result)
+        public bool Load(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
-            if (result.IsNotNull() && !(result is IConfigNode)) throw new ArgumentException($"{nameof(result)} must be of type '{nameof(IConfigNode)}' (got '{result.GetType()}')");
+            if (fieldValue.IsNotNull() && !(fieldValue is IConfigNode)) throw new ArgumentException($"{nameof(fieldValue)} must be of type '{nameof(IConfigNode)}' (got '{fieldValue.GetType()}')");
 
             ConfigNode innerNode = node.GetNode(name);
             if (innerNode.IsNull()) return false;
 
-            if (result.IsNull()) result = Activator.CreateInstance(fieldType);
+            if (fieldValue.IsNull()) fieldValue = Activator.CreateInstance(fieldType);
 
-            ((IConfigNode)result).Load(innerNode);
+            ((IConfigNode)fieldValue).Load(innerNode);
 
             return true;
         }
 
-        public bool Save(ConfigNode node, ref object input)
+        public bool Save(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
-            if (input.IsNotNull() && !(input is IConfigNode)) throw new ArgumentException($"{nameof(input)} must be of type '{nameof(IConfigNode)}' (got '{input.GetType().ToString()}')");
+            if (fieldValue.IsNotNull() && !(fieldValue is IConfigNode)) throw new ArgumentException($"{nameof(fieldValue)} must be of type '{nameof(IConfigNode)}' (got '{fieldValue.GetType().ToString()}')");
 
-            if (input.IsNull()) return false;
+            if (fieldValue.IsNull()) return false;
 
             ConfigNode innerNode = new ConfigNode(name);
-            ((IConfigNode)input).Save(innerNode);
+            ((IConfigNode)fieldValue).Save(innerNode);
 
             node.AddNode(innerNode);
 
