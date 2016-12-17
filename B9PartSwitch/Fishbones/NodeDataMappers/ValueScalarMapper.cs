@@ -28,11 +28,11 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, ref object result)
+        public bool Save(ConfigNode node, ref object input)
         {
             node.ThrowIfNullArgument(nameof(node));
 
-            string value = parser.Format(result);
+            string value = parser.Format(input);
             if (value.IsNull()) return false;
 
             node.SetValue(name, value, true);
