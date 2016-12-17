@@ -56,6 +56,16 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         }
 
         [Fact]
+        public void TestSave__NullValue()
+        {
+            ConfigNode node = new ConfigNode();
+            object value = null;
+
+            Assert.False(mapper.Save(node, ref value));
+            Assert.Null(node.GetValue("foo"));
+        }
+
+        [Fact]
         public void TestSave__NodeNull()
         {
             object value = "bar";

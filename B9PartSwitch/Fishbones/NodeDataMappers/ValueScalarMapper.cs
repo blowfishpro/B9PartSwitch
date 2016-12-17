@@ -31,6 +31,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         public bool Save(ConfigNode node, ref object input)
         {
             node.ThrowIfNullArgument(nameof(node));
+            if (input.IsNull()) return false;
 
             string value = parser.Format(input);
             if (value.IsNull()) return false;
