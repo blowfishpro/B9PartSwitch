@@ -50,7 +50,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             Assert.True(mapper.Load(node, ref dummy));
-            Assert.ReferenceEquals(dummyRef, dummy);
+            Assert.Same(dummyRef, dummy);
             Assert.Equal("something", ((NodeDummy)dummy).value);
         }
 
@@ -95,7 +95,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             Assert.False(mapper.Load(node, ref dummy));
-            Assert.ReferenceEquals(dummyRef, dummy);
+            Assert.Same(dummyRef, dummy);
             Assert.Equal("abc", ((NodeDummy)dummy).value);
         }
 
