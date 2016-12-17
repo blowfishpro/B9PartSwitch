@@ -26,6 +26,7 @@ namespace B9PartSwitch.Fishbones.Parsers
         public string Format(object value)
         {
             value.ThrowIfNullArgument(nameof(value));
+            value.EnsureArgumentType<T>(nameof(value));
 
             return formatFunction((T)value);
         }

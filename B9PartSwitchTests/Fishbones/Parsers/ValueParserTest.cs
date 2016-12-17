@@ -48,6 +48,14 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         }
 
         [Fact]
+        public void TestForm__WrongType()
+        {
+            ValueParser<string> parser = new ValueParser<string>(s => s, s => s);
+
+            Assert.Throws<ArgumentException>(() => parser.Format(123));
+        }
+
+        [Fact]
         public void TestParseType()
         {
             ValueParser<string> parser1 = new ValueParser<string>(s => s, s => s);
