@@ -10,6 +10,8 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
     {
         private ValueListMapper mapper = new ValueListMapper("someValue", Exemplars.ValueParser);
 
+        #region Load
+
         [Fact]
         public void TestLoad()
         {
@@ -116,6 +118,10 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Throws<ArgumentException>(() => mapper.Load(node, ref dummy));
         }
 
+        #endregion
+
+        #region Save
+
         [Fact]
         public void TestSave()
         {
@@ -198,5 +204,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), dummy));
             Assert.Throws<ArgumentException>(() => mapper.Save(node, dummy));
         }
+
+        #endregion
     }
 }

@@ -9,6 +9,8 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
     {
         private ValueScalarMapper mapper = new ValueScalarMapper("foo", Exemplars.ValueParser);
 
+        #region Load
+
         [Fact]
         public void TestLoad()
         {
@@ -44,6 +46,10 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref value));
         }
 
+        #endregion
+
+        #region Save
+
         [Fact]
         public void TestSave()
         {
@@ -71,5 +77,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             object value = "bar";
             Assert.Throws<ArgumentNullException>(() => mapper.Save(null, value));
         }
+
+        #endregion
     }
 }
