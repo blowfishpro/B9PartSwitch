@@ -69,7 +69,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NodeNull()
         {
             object value = "bar";
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref value));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, ref value));
         }
     }
 }
