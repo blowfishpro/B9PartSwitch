@@ -127,15 +127,15 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave()
         {
             ConfigNode node = new ConfigNode();
-            object dummy = new NodeDummy { value = "foo" };
+            NodeDummy dummy = new NodeDummy { value = "foo" };
 
-            Assert.True(mapper.Save(node, ref dummy));
+            Assert.True(mapper.Save(node, dummy));
 
             ConfigNode innerNode = node.GetNode("SOME_NODE");
             Assert.NotNull(innerNode);
             Assert.Equal("foo", innerNode.GetValue("value"));
 
-            Assert.Equal("foo", ((NodeDummy)dummy).value);
+            Assert.Equal("foo", dummy.value);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object dummy = null;
 
-            Assert.False(mapper.Save(node, ref dummy));
+            Assert.False(mapper.Save(node, dummy));
 
             Assert.Null(node.GetNode("SOME_NODE"));
         }
@@ -152,16 +152,16 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestSave__NullNode()
         {
-            object dummy = new NodeDummy { value = "abc" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, ref dummy));
+            NodeDummy dummy = new NodeDummy { value = "abc" };
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, dummy));
         }
 
         [Fact]
         public void TestSave__WrongType()
         {
-            object dummy = "why are you passing a string?";
+            string dummy = "why are you passing a string?";
 
-            Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), ref dummy));
+            Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), dummy));
         }
     }
 }

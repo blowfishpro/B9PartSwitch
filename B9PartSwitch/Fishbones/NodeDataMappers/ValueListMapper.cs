@@ -45,7 +45,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, ref object fieldValue)
+        public bool Save(ConfigNode node, object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));

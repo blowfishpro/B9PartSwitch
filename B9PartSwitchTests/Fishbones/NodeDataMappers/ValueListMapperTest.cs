@@ -120,10 +120,9 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave()
         {
             List<string> list = new List<string> { "blah1", "blah2" };
-            object value = list;
             ConfigNode node = new ConfigNode();
 
-            Assert.True(mapper.Save(node, ref value));
+            Assert.True(mapper.Save(node, list));
             Assert.Equal(new[] { "$$blah1$$", "$$blah2$$" }, node.GetValues("someValue"));
 
             Assert.Equal(new[] { "blah1", "blah2" }, list.ToArray());
@@ -135,7 +134,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             object value = null;
             ConfigNode node = new ConfigNode();
 
-            Assert.False(mapper.Save(node, ref value));
+            Assert.False(mapper.Save(node, value));
             Assert.Empty(node.GetValues("someValue"));
             Assert.Null(value);
         }
@@ -143,28 +142,27 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestSave__Empty()
         {
-            object value = new List<string>();
+            List<string> value = new List<string>();
             ConfigNode node = new TestConfigNode
             {
                 { "someValue", "blah0" },
             };
 
-            Assert.False(mapper.Save(node, ref value));
+            Assert.False(mapper.Save(node, value));
             Assert.Equal(new[] { "blah0" }, node.GetValues("someValue"));
-            Assert.Empty((List<string>)value);
+            Assert.Empty(value);
         }
 
         [Fact]
         public void TestSave__ExistingValue()
         {
             List<string> list = new List<string> { "blah1", "blah2" };
-            object value = list;
             ConfigNode node = new TestConfigNode
             {
                 { "someValue", "blah0" },
             };
 
-            Assert.True(mapper.Save(node, ref value));
+            Assert.True(mapper.Save(node, list));
             Assert.Equal(new[] { "blah0", "$$blah1$$", "$$blah2$$" }, node.GetValues("someValue"));
 
             Assert.Equal(new[] { "blah1", "blah2" }, list.ToArray());
@@ -174,32 +172,31 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NullInList()
         {
             List<string> list = new List<string> { "blah1", null, "blah2" };
-            object value = list;
             ConfigNode node = new ConfigNode();
 
-            Assert.True(mapper.Save(node, ref value));
+            Assert.True(mapper.Save(node, list));
             Assert.Equal(new[] { "$$blah1$$", "$$blah2$$" }, node.GetValues("someValue"));
         }
 
         [Fact]
         public void TestSave__NullNode()
         {
-            object dummy = new List<string> { "blah0" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, ref dummy));
+            List<string> dummy = new List<string> { "blah0" };
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, dummy));
         }
 
         [Fact]
         public void TestSave__WrongType()
         {
-            object dummy = "why are you passing a string?";
+            string dummy = "why are you passing a string?";
 
             ConfigNode node = new TestConfigNode
             {
                 { "someValue", "something" },
             };
 
-            Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), ref dummy));
-            Assert.Throws<ArgumentException>(() => mapper.Save(node, ref dummy));
+            Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), dummy));
+            Assert.Throws<ArgumentException>(() => mapper.Save(node, dummy));
         }
     }
 }

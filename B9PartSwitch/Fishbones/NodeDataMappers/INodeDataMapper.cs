@@ -2,7 +2,7 @@
 {
     public interface INodeDataMapper
     {
-        bool Load(ConfigNode node, ref object result);
-        bool Save(ConfigNode node, ref object result);
+        bool Load(ConfigNode node, ref object fieldValue);
+        bool Save(ConfigNode node, object fieldValue);
     }
 }

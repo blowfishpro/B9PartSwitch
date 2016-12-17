@@ -50,7 +50,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = "bar";
 
-            Assert.True(mapper.Save(node, ref value));
+            Assert.True(mapper.Save(node, value));
             Assert.Equal("$$bar$$", node.GetValue("foo"));
             Assert.Equal("bar", value);
         }
@@ -61,7 +61,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = null;
 
-            Assert.False(mapper.Save(node, ref value));
+            Assert.False(mapper.Save(node, value));
             Assert.Null(node.GetValue("foo"));
         }
 
@@ -69,7 +69,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NodeNull()
         {
             object value = "bar";
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, ref value));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, value));
         }
     }
 }
