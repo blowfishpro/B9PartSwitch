@@ -19,7 +19,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         public bool Load(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
-            if (fieldValue.IsNotNull() && !(fieldValue is IConfigNode)) throw new ArgumentException($"{nameof(fieldValue)} must be of type '{nameof(IConfigNode)}' (got '{fieldValue.GetType()}')");
+            fieldValue.EnsureArgumentType<IConfigNode>(nameof(fieldValue));
 
             ConfigNode innerNode = node.GetNode(name);
             if (innerNode.IsNull()) return false;
@@ -34,7 +34,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         public bool Save(ConfigNode node, ref object fieldValue)
         {
             node.ThrowIfNullArgument(nameof(node));
-            if (fieldValue.IsNotNull() && !(fieldValue is IConfigNode)) throw new ArgumentException($"{nameof(fieldValue)} must be of type '{nameof(IConfigNode)}' (got '{fieldValue.GetType().ToString()}')");
+            fieldValue.EnsureArgumentType<IConfigNode>(nameof(fieldValue));
 
             if (fieldValue.IsNull()) return false;
 
