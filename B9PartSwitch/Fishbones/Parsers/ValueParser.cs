@@ -4,8 +4,8 @@ namespace B9PartSwitch.Fishbones.Parsers
 {
     public class ValueParser<T> : IValueParser
     {
-        private Func<string, T> parseFunction;
-        private Func<T, string> formatFunction;
+        private readonly Func<string, T> parseFunction;
+        private readonly Func<T, string> formatFunction;
 
         public ValueParser(Func<string, T> parseFunction, Func<T, string> formatFunction)
         {
