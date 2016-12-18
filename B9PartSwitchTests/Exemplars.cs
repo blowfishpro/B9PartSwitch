@@ -5,6 +5,6 @@ namespace B9PartSwitchTests
 {
     internal static class Exemplars
     {
-        public static ValueParser<string> ValueParser => new ValueParser<string>(s => "!!" + s + "!!", s => "$$" + s + "$$");
+        public static readonly ValueParser<string> ValueParser = new ValueParser<string>(s => "!!" + s + "!!", s => "$$" + s + "$$");
     }
 }
