@@ -61,6 +61,7 @@
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapper.cs" />
     <Compile Include="Fishbones\Parsers\IValueParser.cs" />
+    <Compile Include="Fishbones\Parsers\Exceptions.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartSubtypeContext.cs" />
