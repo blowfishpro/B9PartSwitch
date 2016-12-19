@@ -9,7 +9,10 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         private static IValueParser parser = new ValueParser<string>(s => s, s => s);
         private class DummyParseMap : IValueParseMap
         {
+            public bool canParse;
+
             public IValueParser GetParser(Type parseType) => parser;
+            public bool CanParse(Type parseType) => canParse;
         }
 
         [Fact]
@@ -34,6 +37,28 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             ValueParseMapWrapper wrapper = new ValueParseMapWrapper(map);
 
             Assert.Throws<ArgumentNullException>(() => wrapper.GetParser(null));
+        }
+
+        [Fact]
+        public void TestCanParse()
+        {
+            DummyParseMap map = new DummyParseMap();
+            ValueParseMapWrapper wrapper = new ValueParseMapWrapper(map);
+
+            map.canParse = true;
+            Assert.True(wrapper.CanParse(typeof(string)));
+
+            map.canParse = false;
+            Assert.False(wrapper.CanParse(typeof(string)));
+        }
+
+        [Fact]
+        public void TestCanParse__Null()
+        {
+            DummyParseMap map = new DummyParseMap();
+            ValueParseMapWrapper wrapper = new ValueParseMapWrapper(map);
+
+            Assert.Throws<ArgumentNullException>(() => wrapper.CanParse(null));
         }
     }
 }

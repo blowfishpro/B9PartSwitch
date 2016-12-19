@@ -17,5 +17,11 @@ namespace B9PartSwitch.Fishbones.Parsers
             parseType.ThrowIfNullArgument(nameof(parseType));
             return map.GetParser(parseType);
         }
+
+        public bool CanParse(Type parseType)
+        {
+            parseType.ThrowIfNullArgument(nameof(parseType));
+            return map.CanParse(parseType);
+        }
     }
 }

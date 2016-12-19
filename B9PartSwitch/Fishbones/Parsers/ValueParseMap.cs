@@ -29,11 +29,11 @@ namespace B9PartSwitch.Fishbones.Parsers
         public void AddParser(IValueParser parser)
         {
             parser.ThrowIfNullArgument(nameof(parser));
-            if (ParserRegistered(parser.ParseType)) throw new ParseTypeAlreadyRegisteredException(parser.ParseType);
+            if (CanParse(parser.ParseType)) throw new ParseTypeAlreadyRegisteredException(parser.ParseType);
             parsers[parser.ParseType] = parser;
         }
 
-        public bool ParserRegistered(Type parseType)
+        public bool CanParse(Type parseType)
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
             return parsers.ContainsKey(parseType);
