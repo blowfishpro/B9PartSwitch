@@ -5,9 +5,9 @@ namespace B9PartSwitch.Fishbones.Parsers
 {
     public class ValueParseMap : IMutableValueParseMap
     {
-        private Dictionary<Type, IValueParser> parsers = new Dictionary<Type, IValueParser>();
+        protected Dictionary<Type, IValueParser> parsers = new Dictionary<Type, IValueParser>();
 
-        public IValueParser GetParser(Type parseType)
+        public virtual IValueParser GetParser(Type parseType)
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
 
@@ -18,7 +18,7 @@ namespace B9PartSwitch.Fishbones.Parsers
                 throw new ParseTypeNotRegisteredException(parseType);
         }
 
-        public void AddParser<T>(Func<string, T> parse, Func<T, string> format)
+        public virtual void AddParser<T>(Func<string, T> parse, Func<T, string> format)
         {
             parse.ThrowIfNullArgument(nameof(parse));
             format.ThrowIfNullArgument(nameof(format));
@@ -26,14 +26,14 @@ namespace B9PartSwitch.Fishbones.Parsers
             AddParser(new ValueParser<T>(parse, format));
         }
 
-        public void AddParser(IValueParser parser)
+        public virtual void AddParser(IValueParser parser)
         {
             parser.ThrowIfNullArgument(nameof(parser));
             if (CanParse(parser.ParseType)) throw new ParseTypeAlreadyRegisteredException(parser.ParseType);
             parsers[parser.ParseType] = parser;
         }
 
-        public bool CanParse(Type parseType)
+        public virtual bool CanParse(Type parseType)
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
             return parsers.ContainsKey(parseType);
