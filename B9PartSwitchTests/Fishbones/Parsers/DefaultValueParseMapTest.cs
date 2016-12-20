@@ -57,6 +57,19 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             }
         }
 
+        #region Instance
+
+        [Fact]
+        public void TestInstance()
+        {
+            IValueParseMap instance = DefaultValueParseMap.Instance;
+
+            Assert.NotNull(instance);
+            Assert.IsNotType<IMutableValueParseMap>(instance);
+        }
+
+        #endregion
+
         #region GetParseType
 
         [Fact]
