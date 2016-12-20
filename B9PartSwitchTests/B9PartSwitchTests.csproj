@@ -56,6 +56,7 @@
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperTest.cs" />
+    <Compile Include="Fishbones\Parsers\DefaultValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\EnumValueParserTest.cs" />
     <Compile Include="Fishbones\Parsers\ExceptionsTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapTest.cs" />

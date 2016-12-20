@@ -36,5 +36,10 @@ namespace B9PartSwitch
 
             return false;
         }
+
+        public static bool IsNullableValueType(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
     }
 }
