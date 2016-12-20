@@ -29,7 +29,7 @@ namespace B9PartSwitch.Fishbones.Parsers
         public virtual void AddParser(IValueParser parser)
         {
             parser.ThrowIfNullArgument(nameof(parser));
-            if (CanParse(parser.ParseType)) throw new ParseTypeAlreadyRegisteredException(parser.ParseType);
+            if (!CanAdd(parser.ParseType)) throw new ParseTypeAlreadyRegisteredException(parser.ParseType);
             parsers[parser.ParseType] = parser;
         }
 
@@ -37,6 +37,12 @@ namespace B9PartSwitch.Fishbones.Parsers
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
             return parsers.ContainsKey(parseType);
+        }
+
+        public virtual bool CanAdd(Type parseType)
+        {
+            parseType.ThrowIfNullArgument(nameof(parseType));
+            return !parsers.ContainsKey(parseType);
         }
 
         public ValueParseMap Clone()

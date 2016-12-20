@@ -74,6 +74,27 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         }
 
         [Fact]
+        public void TestCanAdd()
+        {
+            ValueParseMap map = new ValueParseMap();
+
+            Assert.True(map.CanAdd(typeof(string)));
+
+            map.AddParser(Exemplars.DummyValueParser<string>());
+
+            Assert.False(map.CanAdd(typeof(string)));
+        }
+
+        [Fact]
+        public void TestCanAdd__Null()
+        {
+            ValueParseMap map = new ValueParseMap();
+            map.AddParser(Exemplars.DummyValueParser<string>());
+
+            Assert.Throws<ArgumentNullException>(() => map.CanAdd(null));
+        }
+
+        [Fact]
         public void TestClone()
         {
             IValueParser parser1 = Exemplars.DummyValueParser<int>();
