@@ -56,8 +56,8 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         public void TestCanParse()
         {
             ValueParseMap map = new ValueParseMap();
-            map.AddParser<string>(s => "", s => "");
-            map.AddParser<int>(s => 0, i => "");
+            map.AddParser(Exemplars.DummyValueParser<string>());
+            map.AddParser(Exemplars.DummyValueParser<int>());
 
             Assert.True(map.CanParse(typeof(string)));
             Assert.True(map.CanParse(typeof(int)));
@@ -68,7 +68,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         public void TestCanParse__Null()
         {
             ValueParseMap map = new ValueParseMap();
-            map.AddParser<string>(s => "", s => "");
+            map.AddParser(Exemplars.DummyValueParser<string>());
 
             Assert.Throws<ArgumentNullException>(() => map.CanParse(null));
         }
@@ -76,9 +76,9 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         [Fact]
         public void TestClone()
         {
-            IValueParser parser1 = new ValueParser<int>(s => 0, i => "");
-            IValueParser parser2 = new ValueParser<bool>(s => false, b => "");
-            IValueParser parser3 = new ValueParser<string>(s => s, s => s);
+            IValueParser parser1 = Exemplars.DummyValueParser<int>();
+            IValueParser parser2 = Exemplars.DummyValueParser<bool>();
+            IValueParser parser3 = Exemplars.DummyValueParser<string>();
 
             ValueParseMap map = new ValueParseMap();
             map.AddParser(parser1);
