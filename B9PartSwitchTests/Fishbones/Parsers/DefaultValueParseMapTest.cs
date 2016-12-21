@@ -52,7 +52,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             foreach(Type parseType in defaultParseTypes)
             {
-                Assert.True(map.CanParse(parseType));
+                Assert.True(map.CanParse(parseType), $"Expected to be able to parse type '{parseType}' but could not");
                 Assert.NotNull(map.GetParser(parseType));
             }
         }
