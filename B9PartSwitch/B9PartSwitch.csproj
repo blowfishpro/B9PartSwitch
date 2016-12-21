@@ -60,6 +60,7 @@
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapper.cs" />
+    <Compile Include="Fishbones\Parsers\AttachNodeValueParser.cs" />
     <Compile Include="Fishbones\Parsers\DefaultValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\EnumValueParser.cs" />
     <Compile Include="Fishbones\Parsers\IValueParseMap.cs" />
