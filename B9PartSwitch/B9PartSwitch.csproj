@@ -66,6 +66,7 @@
     <Compile Include="Fishbones\Parsers\IValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\IValueParser.cs" />
     <Compile Include="Fishbones\Parsers\Exceptions.cs" />
+    <Compile Include="Fishbones\Parsers\PartResourceDefinitionValueParser.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />

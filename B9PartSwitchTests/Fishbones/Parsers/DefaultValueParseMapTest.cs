@@ -47,6 +47,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 typeof(Color),
                 typeof(Color32),
                 typeof(AttachNode),
+                typeof(PartResourceDefinition),
             };
 
             DefaultValueParseMap map = new DefaultValueParseMap();
