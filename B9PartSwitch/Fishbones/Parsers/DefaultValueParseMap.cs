@@ -31,6 +31,8 @@ namespace B9PartSwitch.Fishbones.Parsers
         public static readonly IValueParser ColorParser = new ValueParser<Color>(ConfigNode.ParseColor, ConfigNode.WriteColor);
         public static readonly IValueParser Color32Parser = new ValueParser<Color32>(ConfigNode.ParseColor32, ConfigNode.WriteColor);
 
+        public static readonly IValueParser AttachNodeParser = new AttachNodeValueParser();
+
         public static readonly IValueParseMap Instance = new ValueParseMapWrapper(new DefaultValueParseMap());
 
         public DefaultValueParseMap()
@@ -59,6 +61,8 @@ namespace B9PartSwitch.Fishbones.Parsers
             AddParser(Matrix4x4Parser);
             AddParser(ColorParser);
             AddParser(Color32Parser);
+
+            AddParser(AttachNodeParser);
         }
 
         public override IValueParser GetParser(Type parseType)
