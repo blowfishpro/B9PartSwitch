@@ -62,6 +62,7 @@
     <Compile Include="Fishbones\Parsers\DefaultValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\EnumValueParserTest.cs" />
     <Compile Include="Fishbones\Parsers\ExceptionsTest.cs" />
+    <Compile Include="Fishbones\Parsers\NodeObjectWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParserTest.cs" />
