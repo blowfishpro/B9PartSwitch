@@ -1,5 +1,6 @@
 ﻿using System;
 using B9PartSwitch.Fishbones.Parsers;
+using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones.NodeDataMappers
 {
@@ -17,7 +18,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             this.parser = parser;
         }
 
-        public bool Load(ConfigNode node, ref object fieldValue)
+        public bool Load(ConfigNode node, ref object fieldValue, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
 
@@ -28,7 +29,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, object fieldValue)
+        public bool Save(ConfigNode node, object fieldValue, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             if (fieldValue.IsNull()) return false;

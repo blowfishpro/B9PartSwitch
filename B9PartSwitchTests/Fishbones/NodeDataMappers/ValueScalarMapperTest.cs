@@ -21,7 +21,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = null;
-            Assert.True(mapper.Load(node, ref value));
+            Assert.True(mapper.Load(node, ref value, Exemplars.LoadContext));
             Assert.Equal("!!bar!!", value);
         }
 
@@ -35,7 +35,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = "abc";
-            Assert.False(mapper.Load(node, ref value));
+            Assert.False(mapper.Load(node, ref value, Exemplars.LoadContext));
             Assert.Equal("abc", value);
         }
 
@@ -43,7 +43,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NodeNull()
         {
             object value = null;
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref value));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref value, Exemplars.LoadContext));
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = "bar";
 
-            Assert.True(mapper.Save(node, value));
+            Assert.True(mapper.Save(node, value, Exemplars.SaveContext));
             Assert.Equal("$$bar$$", node.GetValue("foo"));
             Assert.Equal("bar", value);
         }
@@ -67,7 +67,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = null;
 
-            Assert.False(mapper.Save(node, value));
+            Assert.False(mapper.Save(node, value, Exemplars.SaveContext));
             Assert.Null(node.GetValue("foo"));
         }
 
@@ -75,7 +75,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NodeNull()
         {
             object value = "bar";
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, value));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, value, Exemplars.SaveContext));
         }
 
         #endregion
