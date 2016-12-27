@@ -4,44 +4,12 @@ using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitchTests.TestUtils;
+using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.Parsers
 {
     public class NodeObjectWrapperTest
     {
-        private class DummyIConfigNode : IConfigNode
-        {
-            public string value;
-
-            public void Load(ConfigNode node)
-            {
-                value = node.GetValue("value");
-            }
-
-            public void Save(ConfigNode node)
-            {
-                node.SetValue("value", value, true);
-            }
-        }
-
-        private class DummyIContextualNode : IContextualNode
-        {
-            public string value;
-            public OperationContext lastContext;
-
-            public void Load(ConfigNode node, OperationContext context)
-            {
-                value = node.GetValue("value");
-                lastContext = context;
-            }
-
-            public void Save(ConfigNode node, OperationContext context)
-            {
-                node.SetValue("value", value, true);
-                lastContext = context;
-            }
-        }
-
         #region Load
 
         [Fact]

@@ -2,32 +2,18 @@
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 using B9PartSwitchTests.TestUtils;
+using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 {
     public class NodeScalarMapperTest
     {
-        private class NodeDummy : IConfigNode
-        {
-            public string value;
-
-            public void Load(ConfigNode node)
-            {
-                value = node.GetValue("value");
-            }
-
-            public void Save(ConfigNode node)
-            {
-                node.SetValue("value", value, true);
-            }
-        }
-
-        private NodeScalarMapper mapper = new NodeScalarMapper("SOME_NODE", typeof(NodeDummy));
+        private NodeScalarMapper mapper = new NodeScalarMapper("SOME_NODE", typeof(DummyIConfigNode));
 
         [Fact]
         public void TestNew__ThrowsIfNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper(null, typeof(NodeDummy)));
+            Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper(null, typeof(DummyIConfigNode)));
             Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper("SOME_NODE", null));
         }
 
@@ -36,7 +22,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestLoad()
         {
-            object dummy = new NodeDummy();
+            object dummy = new DummyIConfigNode();
             object dummyRef = dummy;
 
             ConfigNode node = new TestConfigNode
@@ -53,7 +39,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.True(mapper.Load(node, ref dummy, Exemplars.LoadContext));
             Assert.Same(dummyRef, dummy);
-            Assert.Equal("something", ((NodeDummy)dummy).value);
+            Assert.Equal("something", ((DummyIConfigNode)dummy).value);
         }
 
         [Fact]
@@ -75,13 +61,13 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.True(mapper.Load(node, ref dummy, Exemplars.LoadContext));
             Assert.NotNull(dummy);
-            Assert.Equal("something", ((NodeDummy)dummy).value);
+            Assert.Equal("something", ((DummyIConfigNode)dummy).value);
         }
 
         [Fact]
         public void TestLoad__NoNode()
         {
-            object dummy = new NodeDummy { value = "abc" };
+            object dummy = new DummyIConfigNode { value = "abc" };
             object dummyRef = dummy;
 
             ConfigNode node = new TestConfigNode
@@ -98,13 +84,13 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.False(mapper.Load(node, ref dummy, Exemplars.LoadContext));
             Assert.Same(dummyRef, dummy);
-            Assert.Equal("abc", ((NodeDummy)dummy).value);
+            Assert.Equal("abc", ((DummyIConfigNode)dummy).value);
         }
 
         [Fact]
         public void TestLoad__NullNode()
         {
-            object dummy = new NodeDummy() { value = "abc" };
+            object dummy = new DummyIConfigNode() { value = "abc" };
             Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref dummy, Exemplars.LoadContext));
         }
 
@@ -133,7 +119,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave()
         {
             ConfigNode node = new ConfigNode();
-            NodeDummy dummy = new NodeDummy { value = "foo" };
+            DummyIConfigNode dummy = new DummyIConfigNode { value = "foo" };
 
             Assert.True(mapper.Save(node, dummy, Exemplars.SaveContext));
 
@@ -158,7 +144,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestSave__NullNode()
         {
-            NodeDummy dummy = new NodeDummy { value = "abc" };
+            DummyIConfigNode dummy = new DummyIConfigNode { value = "abc" };
             Assert.Throws<ArgumentNullException>(() => mapper.Save(null, dummy, Exemplars.SaveContext));
         }
 

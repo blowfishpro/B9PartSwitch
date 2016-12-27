@@ -69,6 +69,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtils\AssertUtil.cs" />
     <Compile Include="TestUtils\AssertUtilTest.cs" />
+    <Compile Include="TestUtils\DummyTypes\DummyIConfigNode.cs" />
+    <Compile Include="TestUtils\DummyTypes\DummyIConfigNodeTest.cs" />
+    <Compile Include="TestUtils\DummyTypes\DummyIContextualNode.cs" />
+    <Compile Include="TestUtils\DummyTypes\DummyIContextualNodeTest.cs" />
     <Compile Include="TestUtils\TestConfigNode.cs" />
     <Compile Include="TestUtils\TestConfigNodeTest.cs" />
   </ItemGroup>
