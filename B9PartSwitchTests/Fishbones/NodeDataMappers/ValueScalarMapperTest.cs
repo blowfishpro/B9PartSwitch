@@ -21,7 +21,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = null;
-            Assert.True(mapper.Load(node, ref value, Exemplars.LoadContext));
+            Assert.True(mapper.Load(ref value, node, Exemplars.LoadContext));
             Assert.Equal("!!bar!!", value);
         }
 
@@ -35,7 +35,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = "abc";
-            Assert.False(mapper.Load(node, ref value, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref value, node, Exemplars.LoadContext));
             Assert.Equal("abc", value);
         }
 
@@ -43,7 +43,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NodeNull()
         {
             object value = null;
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref value, Exemplars.LoadContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref value, null, Exemplars.LoadContext));
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = "bar";
 
-            Assert.True(mapper.Save(node, value, Exemplars.SaveContext));
+            Assert.True(mapper.Save(value, node, Exemplars.SaveContext));
             Assert.Equal("$$bar$$", node.GetValue("foo"));
             Assert.Equal("bar", value);
         }
@@ -67,7 +67,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object value = null;
 
-            Assert.False(mapper.Save(node, value, Exemplars.SaveContext));
+            Assert.False(mapper.Save(value, node, Exemplars.SaveContext));
             Assert.Null(node.GetValue("foo"));
         }
 
@@ -75,7 +75,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NodeNull()
         {
             object value = "bar";
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, value, Exemplars.SaveContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(value, null, Exemplars.SaveContext));
         }
 
         #endregion

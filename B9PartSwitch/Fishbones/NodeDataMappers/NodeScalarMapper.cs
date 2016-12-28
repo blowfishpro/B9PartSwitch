@@ -18,7 +18,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             this.fieldType = fieldType;
         }
 
-        public bool Load(ConfigNode node, ref object fieldValue, OperationContext context)
+        public bool Load(ref object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));
@@ -33,7 +33,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, object fieldValue, OperationContext context)
+        public bool Save(object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));

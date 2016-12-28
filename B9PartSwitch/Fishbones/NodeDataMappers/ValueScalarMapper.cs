@@ -18,7 +18,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             this.parser = parser;
         }
 
-        public bool Load(ConfigNode node, ref object fieldValue, OperationContext context)
+        public bool Load(ref object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
 
@@ -29,7 +29,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, object fieldValue, OperationContext context)
+        public bool Save(object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             if (fieldValue.IsNull()) return false;

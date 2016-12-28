@@ -26,7 +26,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             listType = typeof(List<>).MakeGenericType(elementType);
         }
 
-        public bool Load(ConfigNode node, ref object fieldValue, OperationContext context)
+        public bool Load(ref object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));
@@ -46,7 +46,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             return true;
         }
 
-        public bool Save(ConfigNode node, object fieldValue, OperationContext context)
+        public bool Save(object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));

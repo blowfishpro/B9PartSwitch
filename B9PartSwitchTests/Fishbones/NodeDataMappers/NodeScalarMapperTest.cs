@@ -38,7 +38,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.True(mapper.Load(node, ref dummyRef, Exemplars.LoadContext));
+            Assert.True(mapper.Load(ref dummyRef, node, Exemplars.LoadContext));
             Assert.Same(dummyRef, dummy);
             Assert.Equal("something", ((DummyIConfigNode)dummy).value);
         }
@@ -60,7 +60,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.True(mapper.Load(node, ref dummy, Exemplars.LoadContext));
+            Assert.True(mapper.Load(ref dummy, node, Exemplars.LoadContext));
             Assert.IsType<DummyIConfigNode>(dummy);
             Assert.Equal("something", ((DummyIConfigNode)dummy).value);
         }
@@ -86,7 +86,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             OperationContext context = Exemplars.LoadContext;
 
-            Assert.True(mapper2.Load(node, ref dummyRef, context));
+            Assert.True(mapper2.Load(ref dummyRef, node, context));
             Assert.Same(dummyRef, dummy);
             Assert.Equal("something", dummy.value);
             Assert.Same(context, dummy.lastContext);
@@ -112,7 +112,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             OperationContext context = Exemplars.LoadContext;
 
-            Assert.True(mapper2.Load(node, ref dummy, context));
+            Assert.True(mapper2.Load(ref dummy, node, context));
             Assert.IsType<DummyIContextualNode>(dummy);
 
             DummyIContextualNode dummy2 = (DummyIContextualNode)dummy;
@@ -139,7 +139,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.False(mapper.Load(node, ref dummy, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref dummy, node, Exemplars.LoadContext));
             Assert.Same(dummyRef, dummy);
             Assert.Equal("abc", ((DummyIConfigNode)dummy).value);
         }
@@ -148,7 +148,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NullNode()
         {
             object dummy = new DummyIConfigNode() { value = "abc" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(null, ref dummy, Exemplars.LoadContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadContext));
         }
 
         [Fact]
@@ -164,8 +164,8 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.Throws<ArgumentException>(() => mapper.Load(new ConfigNode(), ref dummy, Exemplars.LoadContext));
-            Assert.Throws<ArgumentException>(() => mapper.Load(node, ref dummy, Exemplars.LoadContext));
+            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, new ConfigNode(), Exemplars.LoadContext));
+            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, node, Exemplars.LoadContext));
         }
 
         #endregion
@@ -178,7 +178,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             DummyIConfigNode dummy = new DummyIConfigNode { value = "foo" };
 
-            Assert.True(mapper.Save(node, dummy, Exemplars.SaveContext));
+            Assert.True(mapper.Save(dummy, node, Exemplars.SaveContext));
 
             ConfigNode innerNode = node.GetNode("SOME_NODE");
             Assert.NotNull(innerNode);
@@ -193,7 +193,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             object dummy = null;
 
-            Assert.False(mapper.Save(node, dummy, Exemplars.SaveContext));
+            Assert.False(mapper.Save(dummy, node, Exemplars.SaveContext));
 
             Assert.Null(node.GetNode("SOME_NODE"));
         }
@@ -205,8 +205,8 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             ConfigNode node = new ConfigNode();
             DummyIContextualNode dummy = new DummyIContextualNode { value = "foo" };
             OperationContext context = Exemplars.SaveContext;
-            
-            Assert.True(mapper2.Save(node, dummy, context));
+
+            Assert.True(mapper2.Save(dummy, node, context));
 
             ConfigNode innerNode = node.GetNode("SOME_NODE");
             Assert.NotNull(innerNode);
@@ -220,7 +220,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestSave__NullNode()
         {
             DummyIConfigNode dummy = new DummyIConfigNode { value = "abc" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(null, dummy, Exemplars.SaveContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(dummy, null, Exemplars.SaveContext));
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         {
             string dummy = "why are you passing a string?";
 
-            Assert.Throws<ArgumentException>(() => mapper.Save(new ConfigNode(), dummy, Exemplars.SaveContext));
+            Assert.Throws<ArgumentException>(() => mapper.Save(dummy, new ConfigNode(), Exemplars.SaveContext));
         }
 
         #endregion
