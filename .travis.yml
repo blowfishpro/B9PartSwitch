@@ -36,3 +36,5 @@ env:
     - KSP_DLL_PATH="${TRAVIS_BUILD_DIR}/KSP_DLLs/${KSP_VERSION}"
 notifications:
   email: false
+git:
+  depth: 100
