@@ -1,4 +1,5 @@
 ﻿using System;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones.NodeDataMappers
@@ -20,14 +21,14 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         public bool Load(ConfigNode node, ref object fieldValue, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
-            fieldValue.EnsureArgumentType<IConfigNode>(nameof(fieldValue));
+            fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));
 
             ConfigNode innerNode = node.GetNode(name);
             if (innerNode.IsNull()) return false;
 
             if (fieldValue.IsNull()) fieldValue = Activator.CreateInstance(fieldType);
 
-            ((IConfigNode)fieldValue).Load(innerNode);
+            NodeObjectWrapper.Load(fieldValue, innerNode, context);
 
             return true;
         }
@@ -35,12 +36,12 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         public bool Save(ConfigNode node, object fieldValue, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
-            fieldValue.EnsureArgumentType<IConfigNode>(nameof(fieldValue));
+            fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));
 
             if (fieldValue.IsNull()) return false;
 
             ConfigNode innerNode = new ConfigNode();
-            ((IConfigNode)fieldValue).Save(innerNode);
+            NodeObjectWrapper.Save(fieldValue, innerNode, context);
 
             node.AddNode(name, innerNode);
 

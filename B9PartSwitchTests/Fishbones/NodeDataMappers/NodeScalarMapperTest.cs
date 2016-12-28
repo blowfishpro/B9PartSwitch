@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Context;
 using B9PartSwitchTests.TestUtils;
 using B9PartSwitchTests.TestUtils.DummyTypes;
 
@@ -22,7 +23,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestLoad()
         {
-            object dummy = new DummyIConfigNode();
+            DummyIConfigNode dummy = new DummyIConfigNode();
             object dummyRef = dummy;
 
             ConfigNode node = new TestConfigNode
@@ -37,7 +38,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.True(mapper.Load(node, ref dummy, Exemplars.LoadContext));
+            Assert.True(mapper.Load(node, ref dummyRef, Exemplars.LoadContext));
             Assert.Same(dummyRef, dummy);
             Assert.Equal("something", ((DummyIConfigNode)dummy).value);
         }
@@ -60,8 +61,64 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             Assert.True(mapper.Load(node, ref dummy, Exemplars.LoadContext));
-            Assert.NotNull(dummy);
+            Assert.IsType<DummyIConfigNode>(dummy);
             Assert.Equal("something", ((DummyIConfigNode)dummy).value);
+        }
+
+        [Fact]
+        public void TestLoad__IContextualNode()
+        {
+            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
+            DummyIContextualNode dummy = new DummyIContextualNode();
+            object dummyRef = dummy;
+
+            ConfigNode node = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "something" },
+                },
+                new TestConfigNode("SOME_OTHER_NODE")
+                {
+                    { "value", "something else" },
+                },
+            };
+
+            OperationContext context = Exemplars.LoadContext;
+
+            Assert.True(mapper2.Load(node, ref dummyRef, context));
+            Assert.Same(dummyRef, dummy);
+            Assert.Equal("something", dummy.value);
+            Assert.Same(context, dummy.lastContext);
+        }
+
+        [Fact]
+        public void TestLoad__IContextualNode__Null()
+        {
+            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
+            object dummy = null;
+
+            ConfigNode node = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "something" },
+                },
+                new TestConfigNode("SOME_OTHER_NODE")
+                {
+                    { "value", "something else" },
+                },
+            };
+
+            OperationContext context = Exemplars.LoadContext;
+
+            Assert.True(mapper2.Load(node, ref dummy, context));
+            Assert.IsType<DummyIContextualNode>(dummy);
+
+            DummyIContextualNode dummy2 = (DummyIContextualNode)dummy;
+
+            Assert.Equal("something", dummy2.value);
+            Assert.Same(context, dummy2.lastContext);
         }
 
         [Fact]
@@ -139,6 +196,24 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.False(mapper.Save(node, dummy, Exemplars.SaveContext));
 
             Assert.Null(node.GetNode("SOME_NODE"));
+        }
+
+        [Fact]
+        public void TestSave__IContextualNode()
+        {
+            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
+            ConfigNode node = new ConfigNode();
+            DummyIContextualNode dummy = new DummyIContextualNode { value = "foo" };
+            OperationContext context = Exemplars.SaveContext;
+            
+            Assert.True(mapper2.Save(node, dummy, context));
+
+            ConfigNode innerNode = node.GetNode("SOME_NODE");
+            Assert.NotNull(innerNode);
+            Assert.Equal("foo", innerNode.GetValue("value"));
+
+            Assert.Equal("foo", dummy.value);
+            Assert.Same(context, dummy.lastContext);
         }
 
         [Fact]

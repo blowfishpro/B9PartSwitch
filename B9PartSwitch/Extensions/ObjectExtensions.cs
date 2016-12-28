@@ -25,5 +25,15 @@ namespace B9PartSwitch
         }
 
         public static void EnsureArgumentType<T>(this object o, string paramName) => o.EnsureArgumentType(typeof(T), paramName);
+
+        public static void EnsureArgumentType<T1, T2>(this object o, string paramName)
+        {
+            if (o.IsNull()) return;
+            Type t = o.GetType();
+
+            bool validType = t.Implements<T1>() || t.Implements<T2>();
+
+            if (!validType) throw new ArgumentException($"Expected parameter of type {typeof(T1)} or {typeof(T2)} but got {t}", paramName);
+        }
     }
 }

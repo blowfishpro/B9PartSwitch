@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones.NodeDataMappers
@@ -8,7 +9,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
     public class NodeListMapper : INodeDataMapper
     {
         private readonly string name;
-        
+
         private readonly Type elementType;
         private readonly Type listType;
 
@@ -17,7 +18,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             name.ThrowIfNullArgument(nameof(name));
             elementType.ThrowIfNullArgument(nameof(elementType));
 
-            if (!elementType.Implements<IConfigNode>()) throw new ArgumentException($"Must implement {typeof(IConfigNode)}", nameof(elementType));
+            bool validType = elementType.Implements<IConfigNode>() || elementType.Implements<IContextualNode>();
+            if (!validType) throw new ArgumentException($"Must implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(elementType));
 
             this.name = name;
             this.elementType = elementType;
@@ -38,8 +40,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             foreach (ConfigNode innerNode in nodes)
             {
                 if (innerNode.IsNull()) continue;
-                IConfigNode obj = (IConfigNode)Activator.CreateInstance(elementType);
-                obj.Load(innerNode);
+                object obj = Activator.CreateInstance(elementType);
+                NodeObjectWrapper.Load(obj, innerNode, context);
                 list.Add(obj);
             }
 
@@ -54,11 +56,11 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             IList list = (IList)fieldValue;
             if (list.IsNullOrEmpty()) return false;
 
-            foreach (IConfigNode value in list)
+            foreach (object value in list)
             {
                 if (value.IsNull()) continue;
                 ConfigNode innerNode = new ConfigNode();
-                value.Save(innerNode);
+                NodeObjectWrapper.Save(value, innerNode, context);
                 node.AddNode(name, innerNode);
             }
 

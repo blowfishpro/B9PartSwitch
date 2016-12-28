@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
+using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Context;
 using B9PartSwitchTests.TestUtils;
 using B9PartSwitchTests.TestUtils.DummyTypes;
 
@@ -41,6 +43,41 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             AssertDummyIConfigNode(list[0], "thing1");
             AssertDummyIConfigNode(list[1], "thing2");
+        }
+
+        [Fact]
+        public void TestLoad__IContextualNode()
+        {
+            NodeListMapper mapper2 = new NodeListMapper("SOME_NODE", typeof(DummyIContextualNode));
+            List<DummyIContextualNode> list = new List<DummyIContextualNode>();
+            object value = list;
+
+            ConfigNode node = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing1" },
+                },
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing2" },
+                },
+                new TestConfigNode("SOME_OTHER_NODE")
+                {
+                    { "value", "thing2" },
+                },
+            };
+
+            OperationContext context = Exemplars.LoadContext;
+            Assert.True(mapper2.Load(node, ref value, context));
+            Assert.Same(list, value);
+            Assert.Equal(2, list.Count);
+
+            Assert.Equal("thing1", list[0].value);
+            Assert.Equal("thing2", list[1].value);
+
+            Assert.Same(context, list[0].lastContext);
+            Assert.Same(context, list[1].lastContext);
         }
 
         [Fact]
@@ -188,6 +225,38 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             AssertUtil.ConfigNodesEqual(expected, node);
+        }
+
+        [Fact]
+        public void TestSave__IContextualNode()
+        {
+            NodeListMapper mapper2 = new NodeListMapper("SOME_NODE", typeof(DummyIContextualNode));
+            List<DummyIContextualNode> list = new List<DummyIContextualNode>
+            {
+                new DummyIContextualNode { value = "blah1" },
+                new DummyIContextualNode { value = "blah2" },
+            };
+
+            ConfigNode node = new ConfigNode();
+            OperationContext context = Exemplars.SaveContext;
+            Assert.True(mapper2.Save(node, list, Exemplars.SaveContext));
+
+            ConfigNode expected = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "blah1" },
+                },
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "blah2" },
+                }
+            };
+
+            AssertUtil.ConfigNodesEqual(expected, node);
+
+            Assert.Same(context, list[0].lastContext);
+            Assert.Same(context, list[1].lastContext);
         }
 
         [Fact]
