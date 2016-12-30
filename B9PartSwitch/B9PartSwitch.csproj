@@ -57,6 +57,9 @@
     <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="Fishbones\Context\Operation.cs" />
     <Compile Include="Fishbones\Context\OperationContext.cs" />
+    <Compile Include="Fishbones\FieldWrappers\FieldWrapper.cs" />
+    <Compile Include="Fishbones\FieldWrappers\IFieldWrapper.cs" />
+    <Compile Include="Fishbones\FieldWrappers\PropertyWrapper.cs" />
     <Compile Include="Fishbones\IContextualNode.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapper.cs" />
