@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 using NSubstitute;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;

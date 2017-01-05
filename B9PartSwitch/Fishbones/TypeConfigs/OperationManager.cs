@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using B9PartSwitch.Fishbones.Context;
+﻿using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 
 namespace B9PartSwitch.Fishbones.TypeConfigs
