@@ -5,7 +5,7 @@ install:
   - nuget restore ${TRAVIS_SOLUTION}
 script:
   - xbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
-  - mono ./packages/xunit.runner.console.*/tools/xunit.console.exe ./B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
+  - bin/test
   - build_script/script/avc_version.rb
   - build_script/script/make_zip.sh
 before_deploy:
