@@ -34,5 +34,7 @@ namespace B9PartSwitch.Fishbones.FieldWrappers
 
             setMethod.Invoke(subject, new[] { value } );
         }
+
+        public Type FieldType => property.PropertyType;
     }
 }

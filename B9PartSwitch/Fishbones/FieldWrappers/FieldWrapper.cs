@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 
 namespace B9PartSwitch.Fishbones.FieldWrappers
@@ -26,5 +27,7 @@ namespace B9PartSwitch.Fishbones.FieldWrappers
 
             field.SetValue(subject, value);
         }
+
+        public Type FieldType => field.FieldType;
     }
 }
