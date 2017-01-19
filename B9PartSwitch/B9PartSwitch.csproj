@@ -88,6 +88,7 @@
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperBuilder.cs" />
     <Compile Include="Fishbones\UseParser.cs" />
+    <Compile Include="ModuleB9DisableTransform.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartSubtypeContext.cs" />
     <Compile Include="PartSwitch\SubtypePartField.cs" />
