@@ -1,12 +1,12 @@
 ﻿using System;
 using Xunit;
 using NSubstitute;
+using B9PartSwitch.Fishbones;
+using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.FieldWrappers;
 using B9PartSwitch.Fishbones.NodeDataMappers;
-using B9PartSwitch.Fishbones.TypeConfigs;
-using B9PartSwitch.Fishbones.Context;
 
-namespace B9PartSwitchTests.Fishbones.TypeConfigs
+namespace B9PartSwitchTests.Fishbones
 {
     public class NodeDataFieldTest
     {
@@ -21,6 +21,13 @@ namespace B9PartSwitchTests.Fishbones.TypeConfigs
         public NodeDataFieldTest()
         {
             field = new NodeDataField(fieldWrapper, operationManager);
+        }
+
+        [Fact]
+        public void TestNew()
+        {
+            Assert.Same(fieldWrapper, field.field);
+            Assert.Same(operationManager, field.operationManager);
         }
 
         [Fact]

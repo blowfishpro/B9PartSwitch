@@ -2,12 +2,12 @@
 using B9PartSwitch.Fishbones.NodeDataMappers;
 using B9PartSwitch.Fishbones.Context;
 
-namespace B9PartSwitch.Fishbones.TypeConfigs
+namespace B9PartSwitch.Fishbones
 {
     public class NodeDataField
     {
-        private readonly IFieldWrapper field;
-        private readonly IOperaitonManager operationManager;
+        public readonly IFieldWrapper field;
+        public readonly IOperaitonManager operationManager;
 
         public NodeDataField(IFieldWrapper field, IOperaitonManager operationManager)
         {

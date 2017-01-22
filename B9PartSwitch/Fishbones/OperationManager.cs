@@ -1,13 +1,13 @@
 ﻿using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 
-namespace B9PartSwitch.Fishbones.TypeConfigs
+namespace B9PartSwitch.Fishbones
 {
     public class OperationManager : IOperaitonManager
     {
-        private readonly INodeDataMapper parseMapper;
-        private readonly INodeDataMapper loadSaveMapper;
-        private readonly INodeDataMapper serializeMapper;
+        public readonly INodeDataMapper parseMapper;
+        public readonly INodeDataMapper loadSaveMapper;
+        public readonly INodeDataMapper serializeMapper;
 
         public OperationManager(INodeDataMapper parseMapper, INodeDataMapper loadSaveMapper, INodeDataMapper serializeMapper)
         {

@@ -1,7 +1,7 @@
 ﻿using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 
-namespace B9PartSwitch.Fishbones.TypeConfigs
+namespace B9PartSwitch.Fishbones
 {
     public interface IOperaitonManager
     {

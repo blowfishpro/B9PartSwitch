@@ -1,10 +1,10 @@
 ﻿using Xunit;
 using NSubstitute;
+using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;
-using B9PartSwitch.Fishbones.TypeConfigs;
 
-namespace B9PartSwitchTests.Fishbones.TypeConfigs
+namespace B9PartSwitchTests.Fishbones
 {
     public class OperationManagerTest
     {
