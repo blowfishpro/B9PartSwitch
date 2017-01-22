@@ -51,5 +51,15 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
 
             Assert.Throws<ArgumentNullException>(() => wrapper.SetValue(null, true));
         }
+
+        [Fact]
+        public void TestFieldType()
+        {
+            FieldWrapper wrapper1 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.b)));
+            FieldWrapper wrapper2 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.i)));
+
+            Assert.Same(typeof(bool), wrapper1.FieldType);
+            Assert.Same(typeof(int), wrapper2.FieldType);
+        }
     }
 }
