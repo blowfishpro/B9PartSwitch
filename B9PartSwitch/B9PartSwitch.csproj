@@ -82,6 +82,7 @@
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapperBuilder.cs" />
+    <Compile Include="Fishbones\NodeDataBuilder.cs" />
     <Compile Include="Fishbones\NodeDataField.cs" />
     <Compile Include="Fishbones\OperationManager.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilder.cs" />

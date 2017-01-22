@@ -75,6 +75,7 @@
     <Compile Include="Fishbones\Parsers\ValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParserTest.cs" />
+    <Compile Include="Fishbones\NodeDataBuilderTest.cs" />
     <Compile Include="Fishbones\NodeDataFieldTest.cs" />
     <Compile Include="Fishbones\OperationManagerTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilderTest.cs" />
