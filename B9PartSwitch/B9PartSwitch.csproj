@@ -81,6 +81,7 @@
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
     <Compile Include="Fishbones\NodeDataField.cs" />
     <Compile Include="Fishbones\OperationManager.cs" />
+    <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartSubtypeContext.cs" />
     <Compile Include="PartSwitch\SubtypePartField.cs" />
