@@ -78,7 +78,6 @@
     <Compile Include="Fishbones\Parsers\ValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
-    <Compile Include="Fishbones\IOperaitonManager.cs" />
     <Compile Include="Fishbones\NodeDataField.cs" />
     <Compile Include="Fishbones\OperationManager.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
