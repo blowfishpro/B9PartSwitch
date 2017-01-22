@@ -11,7 +11,6 @@ namespace B9PartSwitch.Fishbones
         public readonly NodeData nodeData;
         public readonly IValueParseMap valueParseMap;
         public readonly IFieldWrapper fieldWrapper;
-        public readonly Attribute[] fieldAttributes;
 
         public NodeDataBuilder(NodeData nodeData, IFieldWrapper fieldWrapper, IValueParseMap defaultValueParseMap)
         {
