@@ -10,7 +10,10 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         private class DummyClass
         {
             public bool b;
+            public int i = 0;
         }
+
+        private class DummyDerivedClass : DummyClass { }
 
         private static readonly FieldWrapper wrapper = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.b)));
 
@@ -60,6 +63,29 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
 
             Assert.Same(typeof(bool), wrapper1.FieldType);
             Assert.Same(typeof(int), wrapper2.FieldType);
+        }
+
+        [Fact]
+        public void TestFieldName()
+        {
+            FieldWrapper wrapper1 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.b)));
+            FieldWrapper wrapper2 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.i)));
+
+            Assert.Equal("b", wrapper1.FieldName);
+            Assert.Equal("i", wrapper2.FieldName);
+        }
+
+        [Fact]
+        public void TestParentType()
+        {
+            Assert.Same(typeof(DummyClass), wrapper.ParentType);
+        }
+
+        [Fact]
+        public void TestParentType__Derived()
+        {
+            FieldWrapper wrapper1 = new FieldWrapper(typeof(DummyDerivedClass).GetField(nameof(DummyClass.b)));
+            Assert.Same(typeof(DummyDerivedClass), wrapper1.ParentType);
         }
     }
 }

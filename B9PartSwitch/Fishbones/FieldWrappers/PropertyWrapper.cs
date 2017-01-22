@@ -36,5 +36,7 @@ namespace B9PartSwitch.Fishbones.FieldWrappers
         }
 
         public Type FieldType => property.PropertyType;
+        public string FieldName => property.Name;
+        public Type ParentType => property.ReflectedType;
     }
 }
