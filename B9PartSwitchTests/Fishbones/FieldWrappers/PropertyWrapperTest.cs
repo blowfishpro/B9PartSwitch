@@ -18,8 +18,6 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
             public int i { get; set; }
         }
 
-        private class DummyDerivedClass : DummyClass { }
-
         private static readonly PropertyWrapper wrapper = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.b1)));
 
         [Fact]
@@ -102,26 +100,11 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         }
 
         [Fact]
-        public void TestFieldName()
+        public void TestMemberInfo()
         {
-            PropertyWrapper wrapper1 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.b1)));
-            PropertyWrapper wrapper2 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.i)));
+            MemberInfo info = typeof(DummyClass).GetProperty(nameof(DummyClass.b1));
 
-            Assert.Equal("b1", wrapper1.FieldName);
-            Assert.Equal("i", wrapper2.FieldName);
-        }
-
-        [Fact]
-        public void TestParentType()
-        {
-            Assert.Same(typeof(DummyClass), wrapper.ParentType);
-        }
-
-        [Fact]
-        public void TestParentType__Derived()
-        {
-            PropertyWrapper wrapper1 = new PropertyWrapper(typeof(DummyDerivedClass).GetProperty(nameof(DummyClass.b1)));
-            Assert.Same(typeof(DummyDerivedClass), wrapper1.ParentType);
+            Assert.Same(info, wrapper.MemberInfo);
         }
     }
 }

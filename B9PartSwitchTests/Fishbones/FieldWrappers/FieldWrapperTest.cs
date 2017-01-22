@@ -66,26 +66,11 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         }
 
         [Fact]
-        public void TestFieldName()
+        public void TestMemberInfo()
         {
-            FieldWrapper wrapper1 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.b)));
-            FieldWrapper wrapper2 = new FieldWrapper(typeof(DummyClass).GetField(nameof(DummyClass.i)));
+            MemberInfo info = typeof(DummyClass).GetField(nameof(DummyClass.b));
 
-            Assert.Equal("b", wrapper1.FieldName);
-            Assert.Equal("i", wrapper2.FieldName);
-        }
-
-        [Fact]
-        public void TestParentType()
-        {
-            Assert.Same(typeof(DummyClass), wrapper.ParentType);
-        }
-
-        [Fact]
-        public void TestParentType__Derived()
-        {
-            FieldWrapper wrapper1 = new FieldWrapper(typeof(DummyDerivedClass).GetField(nameof(DummyClass.b)));
-            Assert.Same(typeof(DummyDerivedClass), wrapper1.ParentType);
+            Assert.Same(info, wrapper.MemberInfo);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace B9PartSwitch.Fishbones.FieldWrappers
 {
@@ -7,7 +8,6 @@ namespace B9PartSwitch.Fishbones.FieldWrappers
         object GetValue(object subject);
         void SetValue(object subject, object value);
         Type FieldType { get; }
-        string FieldName { get; }
-        Type ParentType { get; }
+        MemberInfo MemberInfo { get; }
     }
 }
