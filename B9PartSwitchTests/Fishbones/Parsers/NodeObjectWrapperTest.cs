@@ -10,6 +10,17 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 {
     public class NodeObjectWrapperTest
     {
+        #region IsNodeType
+
+        public void TestIsNodeType()
+        {
+            Assert.True(NodeObjectWrapper.IsNodeType(typeof(DummyIConfigNode)));
+            Assert.True(NodeObjectWrapper.IsNodeType(typeof(DummyIContextualNode)));
+            Assert.False(NodeObjectWrapper.IsNodeType(typeof(DummyClass)));
+        }
+
+        #endregion
+
         #region Load
 
         [Fact]

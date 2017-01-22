@@ -5,6 +5,11 @@ namespace B9PartSwitch.Fishbones.Parsers
 {
     public static class NodeObjectWrapper
     {
+        public static bool IsNodeType(Type type)
+        {
+            return type.Implements<IConfigNode>() || type.Implements<IContextualNode>();
+        }
+
         public static void Load(object obj, ConfigNode node, OperationContext context)
         {
             obj.ThrowIfNullArgument(nameof(obj));
