@@ -60,7 +60,9 @@
     <Compile Include="Fishbones\Context\OperationTest.cs" />
     <Compile Include="Fishbones\FieldWrappers\FieldWrapperTest.cs" />
     <Compile Include="Fishbones\FieldWrappers\PropertyWrapperTest.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeListMapperBuilderTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapperTest.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperBuilderTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperTest.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="Fishbones\Parsers\ValueParserTest.cs" />
     <Compile Include="Fishbones\NodeDataFieldTest.cs" />
     <Compile Include="Fishbones\OperationManagerTest.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilderTest.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperBuilderTest.cs" />
     <Compile Include="Fishbones\UseParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtils\AssertUtil.cs" />

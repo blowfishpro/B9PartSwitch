@@ -64,7 +64,9 @@
     <Compile Include="Fishbones\NodeData.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapper.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeListMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapper.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapper.cs" />
     <Compile Include="Fishbones\Parsers\AttachNodeValueParser.cs" />
@@ -79,8 +81,11 @@
     <Compile Include="Fishbones\Parsers\ValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\INodeDataMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataField.cs" />
     <Compile Include="Fishbones\OperationManager.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilder.cs" />
+    <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperBuilder.cs" />
     <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartSubtypeContext.cs" />
