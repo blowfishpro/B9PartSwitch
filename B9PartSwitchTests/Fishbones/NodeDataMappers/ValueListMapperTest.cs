@@ -1,14 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
+using NSubstitute;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitchTests.TestUtils;
+using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 {
     public class ValueListMapperTest
     {
         private ValueListMapper mapper = new ValueListMapper("someValue", Exemplars.ValueParser);
+
+        #region Constructor
+
+        [Fact]
+        public void TestNew()
+        {
+            IValueParser parser = Substitute.For<IValueParser>();
+            parser.ParseType.Returns(typeof(DummyClass));
+
+            ValueListMapper mapper = new ValueListMapper("bar", parser);
+
+            Assert.Equal("bar", mapper.name);
+            Assert.Same(parser, mapper.parser);
+
+            Assert.Same(typeof(DummyClass), mapper.elementType);
+            Assert.Same(typeof(List<DummyClass>), mapper.listType);
+        }
+
+        #endregion
 
         #region Load
 

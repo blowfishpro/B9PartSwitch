@@ -1,5 +1,7 @@
 ﻿using System;
 using Xunit;
+using NSubstitute;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 using B9PartSwitchTests.TestUtils;
 
@@ -8,6 +10,21 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
     public class ValueScalarMapperTest
     {
         private ValueScalarMapper mapper = new ValueScalarMapper("foo", Exemplars.ValueParser);
+
+        #region Constructor
+
+        [Fact]
+        public void TestNew()
+        {
+            IValueParser parser = Substitute.For<IValueParser>();
+
+            ValueScalarMapper mapper = new ValueScalarMapper("bar", parser);
+
+            Assert.Equal("bar", mapper.name);
+            Assert.Same(parser, mapper.parser);
+        }
+
+        #endregion
 
         #region Load
 

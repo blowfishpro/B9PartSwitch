@@ -6,8 +6,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 {
     public class ValueScalarMapper : INodeDataMapper
     {
-        private readonly string name;
-        private readonly IValueParser parser;
+        public readonly string name;
+        public readonly IValueParser parser;
 
         public ValueScalarMapper(string name, IValueParser parser)
         {

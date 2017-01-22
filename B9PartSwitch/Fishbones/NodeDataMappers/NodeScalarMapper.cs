@@ -6,8 +6,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 {
     public class NodeScalarMapper : INodeDataMapper
     {
-        private readonly string name;
-        private readonly Type fieldType;
+        public readonly string name;
+        public readonly Type fieldType;
 
         public NodeScalarMapper(string name, Type fieldType)
         {

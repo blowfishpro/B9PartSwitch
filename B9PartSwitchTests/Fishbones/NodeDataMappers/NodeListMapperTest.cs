@@ -13,6 +13,44 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
     {
         private NodeListMapper mapper = new NodeListMapper("SOME_NODE", typeof(DummyIConfigNode));
 
+        #region Constructor
+
+        [Fact]
+        public void TestNew__IConfigNode()
+        {
+            NodeListMapper mapper2 = new NodeListMapper("blah", typeof(DummyIConfigNode));
+
+            Assert.Equal("blah", mapper2.name);
+            Assert.Same(typeof(DummyIConfigNode), mapper2.elementType);
+            Assert.Same(typeof(List<DummyIConfigNode>), mapper2.listType);
+        }
+
+        [Fact]
+        public void TestNew__IContextualNode()
+        {
+            NodeListMapper mapper2 = new NodeListMapper("blah", typeof(DummyIContextualNode));
+
+            Assert.Equal("blah", mapper2.name);
+            Assert.Same(typeof(DummyIContextualNode), mapper2.elementType);
+            Assert.Same(typeof(List<DummyIContextualNode>), mapper2.listType);
+        }
+
+        [Fact]
+        public void TestNew__BadType()
+        {
+            Assert.Throws<ArgumentException>(() => new NodeListMapper("blah", typeof(DummyClass)));
+        }
+
+        [Fact]
+        public void TestNew__NullArgument()
+        {
+            Assert.Throws<ArgumentNullException>(() => new NodeListMapper("blah", null));
+            Assert.Throws<ArgumentNullException>(() => new NodeListMapper(null, typeof(DummyIConfigNode)));
+            Assert.Throws<ArgumentNullException>(() => new NodeListMapper(null, null));
+        }
+
+        #endregion
+
         #region Load
 
         [Fact]

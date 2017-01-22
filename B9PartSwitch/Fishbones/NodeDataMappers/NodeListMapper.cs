@@ -8,10 +8,10 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 {
     public class NodeListMapper : INodeDataMapper
     {
-        private readonly string name;
+        public readonly string name;
 
-        private readonly Type elementType;
-        private readonly Type listType;
+        public readonly Type elementType;
+        public readonly Type listType;
 
         public NodeListMapper(string name, Type elementType)
         {
