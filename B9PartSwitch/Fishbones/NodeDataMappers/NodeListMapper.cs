@@ -18,8 +18,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             name.ThrowIfNullArgument(nameof(name));
             elementType.ThrowIfNullArgument(nameof(elementType));
 
-            bool validType = elementType.Implements<IConfigNode>() || elementType.Implements<IContextualNode>();
-            if (!validType) throw new ArgumentException($"Must implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(elementType));
+            if (!NodeObjectWrapper.IsNodeType(elementType))
+                throw new ArgumentException($"Type {elementType} does not implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(elementType));
 
             this.name = name;
             this.elementType = elementType;

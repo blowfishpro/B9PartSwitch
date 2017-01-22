@@ -14,6 +14,9 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             name.ThrowIfNullArgument(nameof(name));
             fieldType.ThrowIfNullArgument(nameof(fieldType));
 
+            if (!NodeObjectWrapper.IsNodeType(fieldType))
+                throw new ArgumentException($"Type {fieldType} does not implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(fieldType));
+
             this.name = name;
             this.fieldType = fieldType;
         }
