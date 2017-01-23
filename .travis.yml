@@ -37,4 +37,4 @@ env:
 notifications:
   email: false
 git:
-  depth: 100
+  depth: 200
