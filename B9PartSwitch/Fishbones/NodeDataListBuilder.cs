@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using B9PartSwitch.Fishbones.FieldWrappers;
 using B9PartSwitch.Fishbones.Parsers;
