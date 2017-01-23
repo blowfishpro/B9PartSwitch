@@ -6,7 +6,12 @@ using B9PartSwitch.Fishbones.FieldWrappers;
 
 namespace B9PartSwitch.Fishbones
 {
-    public class NodeDataBuilder
+    public interface INodeDataBuilder
+    {
+        INodeDataField CreateNodeDataField();
+    }
+
+    public class NodeDataBuilder : INodeDataBuilder
     {
         public readonly NodeData nodeData;
         public readonly IValueParseMap valueParseMap;
