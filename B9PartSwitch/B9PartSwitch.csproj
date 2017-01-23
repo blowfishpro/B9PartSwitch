@@ -62,6 +62,8 @@
     <Compile Include="Fishbones\FieldWrappers\PropertyWrapper.cs" />
     <Compile Include="Fishbones\IContextualNode.cs" />
     <Compile Include="Fishbones\NodeData.cs" />
+    <Compile Include="Fishbones\NodeDataList.cs" />
+    <Compile Include="Fishbones\NodeDataListBuilder.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapper.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapperBuilder.cs" />

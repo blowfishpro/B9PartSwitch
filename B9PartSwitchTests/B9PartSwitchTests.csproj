@@ -60,6 +60,8 @@
     <Compile Include="Fishbones\Context\OperationTest.cs" />
     <Compile Include="Fishbones\FieldWrappers\FieldWrapperTest.cs" />
     <Compile Include="Fishbones\FieldWrappers\PropertyWrapperTest.cs" />
+    <Compile Include="Fishbones\NodeDataListBuilderTest.cs" />
+    <Compile Include="Fishbones\NodeDataListTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapperBuilderTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeListMapperTest.cs" />
     <Compile Include="Fishbones\NodeDataMappers\NodeScalarMapperBuilderTest.cs" />
