@@ -45,12 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configs\CFGUtil.cs" />
-    <Compile Include="Configs\CFGUtilObject.cs" />
     <Compile Include="Configs\CFGUtilPartModule.cs" />
-    <Compile Include="Configs\ConfigField.cs" />
-    <Compile Include="Configs\ConfigFieldList.cs" />
-    <Compile Include="Configs\ParseType.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />

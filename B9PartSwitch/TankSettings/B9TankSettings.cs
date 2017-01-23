@@ -26,12 +26,6 @@ namespace B9PartSwitch
             }
         }
 
-        static B9TankSettings()
-        {
-            CFGUtil.RegisterParseType<PartResourceDefinition>(FindResourceDefinition, x => x.name);
-            CFGUtil.RegisterParseType<TankType>(B9TankSettings.GetTankType, x => x.tankName);
-        }
-
         public static void ModuleManagerPostLoad() => ReloadTankDefs();
 
         public static void ReloadTankDefs()
