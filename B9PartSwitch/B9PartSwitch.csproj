@@ -45,7 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configs\CFGUtilPartModule.cs" />
+    <Compile Include="CustomPartModule.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />
