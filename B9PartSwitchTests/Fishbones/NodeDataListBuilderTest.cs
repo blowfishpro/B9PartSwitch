@@ -13,6 +13,8 @@ namespace B9PartSwitchTests.Fishbones
     {
         private class NodeDataClass
         {
+#pragma warning disable CS0649 // These fields are just used in tests involving reflection, it is ok that they are never actually used
+
             [NodeData]
             public DummyClass i;
 
@@ -20,6 +22,8 @@ namespace B9PartSwitchTests.Fishbones
             protected DummyClass j;
 
             public DummyClass k;
+
+#pragma warning restore CS0649
 
             [NodeData]
             public DummyClass x { get; protected set; }
