@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using NSubstitute;
+using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitchTests.TestUtils;
@@ -99,6 +100,28 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Equal("blah0", list[0]);
             Assert.Equal("!!blah1!!", list[1]);
             Assert.Equal("!!blah2!!", list[2]);
+        }
+
+        [Fact]
+        public void TestLoad__ExistingValue__Deserialize()
+        {
+            List<string> list = new List<string> { "blah0" };
+            object value = list;
+
+            ConfigNode node = new TestConfigNode
+            {
+                { "someValue", "blah1" },
+                { "someValue", "blah2" },
+                { "someOtherValue", "blah3" },
+            };
+
+            OperationContext context = new OperationContext(Operation.Deserialize, new object());
+            Assert.True(mapper.Load(ref value, node, context));
+            Assert.Same(list, value);
+            Assert.Equal(2, list.Count);
+            
+            Assert.Equal("!!blah1!!", list[0]);
+            Assert.Equal("!!blah2!!", list[1]);
         }
 
         [Fact]

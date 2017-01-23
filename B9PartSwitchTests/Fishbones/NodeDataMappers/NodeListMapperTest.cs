@@ -185,6 +185,41 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         }
 
         [Fact]
+        public void TestLoad__ExistingValue__Deserialize()
+        {
+            List<DummyIConfigNode> list = new List<DummyIConfigNode>
+            {
+                new DummyIConfigNode { value = "thing0" },
+            };
+
+            object value = list;
+
+            ConfigNode node = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing1" },
+                },
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing2" },
+                },
+                new TestConfigNode("SOME_OTHER_NODE")
+                {
+                    { "value", "thing2" },
+                },
+            };
+
+            OperationContext context = new OperationContext(Operation.Deserialize, new object());
+            Assert.True(mapper.Load(ref value, node, context));
+            Assert.Same(list, value);
+            Assert.Equal(2, list.Count);
+            
+            AssertDummyIConfigNode(list[0], "thing1");
+            AssertDummyIConfigNode(list[1], "thing2");
+        }
+
+        [Fact]
         public void TestLoad__NoNodes()
         {
             List<DummyIConfigNode> list = new List<DummyIConfigNode>
