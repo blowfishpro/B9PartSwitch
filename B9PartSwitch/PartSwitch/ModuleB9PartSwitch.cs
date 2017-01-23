@@ -6,7 +6,7 @@ using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
-    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
+    public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
         #region Public Fields
         

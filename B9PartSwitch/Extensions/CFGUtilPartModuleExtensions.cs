@@ -6,7 +6,7 @@ namespace B9PartSwitch
 {
     public static class CFGUtilPartModuleExtensions
     {
-        public static IEnumerable<T> FindSymmetryCounterparts<T>(this T module) where T : CFGUtilPartModule
+        public static IEnumerable<T> FindSymmetryCounterparts<T>(this T module) where T : CustomPartModule
         {
             if (module.part == null)
                 yield break;

@@ -4,7 +4,7 @@ using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
-    public abstract class CFGUtilPartModule : PartModule, ISerializationCallbackReceiver
+    public abstract class CustomPartModule : PartModule, ISerializationCallbackReceiver
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace B9PartSwitch
         private void Start()
         {
             // Cast to array so that there aren't issues with modifying the enumerable in a loop
-            var otherModules = part.Modules.OfType<CFGUtilPartModule>().Where(m => m != this && m.GetType() == this.GetType()).ToArray();
+            var otherModules = part.Modules.OfType<CustomPartModule>().Where(m => m != this && m.GetType() == this.GetType()).ToArray();
             if (otherModules.Length > 0 && string.IsNullOrEmpty(moduleID))
             {
                 LogError("Must have a moduleID defined if more than one " + this.GetType().Name + " is present on a part.  This module will be removed");
@@ -50,7 +50,7 @@ namespace B9PartSwitch
                 string newID = node.GetValue(nameof(moduleID));
                 if (!string.Equals(moduleID, newID))
                 {
-                    var correctModule = part.Modules.OfType<CFGUtilPartModule>().FirstOrDefault(m => m != this && m.GetType() == this.GetType() && m.moduleID == newID);
+                    var correctModule = part.Modules.OfType<CustomPartModule>().FirstOrDefault(m => m != this && m.GetType() == this.GetType() && m.moduleID == newID);
                     if (correctModule.IsNotNull())
                     {
                         LogWarning("OnLoad was called with the wrong ModuleID ('" + newID + "'), but found the correct module to load");
