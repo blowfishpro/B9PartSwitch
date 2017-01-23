@@ -110,6 +110,7 @@
     <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TankSettings\Tanks.cs" />
+    <Compile Include="TankSettings\TankTypeValueParser.cs" />
     <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
     <Compile Include="Test\PartModuleTest.cs" />
   </ItemGroup>
