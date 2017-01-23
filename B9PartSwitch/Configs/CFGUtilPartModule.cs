@@ -1,5 +1,6 @@
 ﻿using UniLinq;
 using UnityEngine;
+using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
@@ -7,10 +8,8 @@ namespace B9PartSwitch
     {
         #region Fields
 
-        [ConfigField(persistant = true)]
+        [NodeData(persistent = true)]
         public string moduleID;
-
-        protected ConfigFieldList configFieldList;
 
         [SerializeField]
         private SerializedDataContainer serializedData;
@@ -18,19 +17,6 @@ namespace B9PartSwitch
         #endregion
 
         #region Setup
-
-        public override void OnAwake()
-        {
-            base.OnAwake();
-
-            CreateConfigFieldList();
-        }
-
-        public void CreateConfigFieldList()
-        {
-            if (configFieldList.IsNull())
-                configFieldList = new ConfigFieldList(this);
-        }
 
         private void Start()
         {
@@ -78,18 +64,13 @@ namespace B9PartSwitch
                 }
             }
 
-            configFieldList.Load(node);
+            this.LoadFields(node);
         }
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            configFieldList.Save(node);
-        }
-
-        public void OnDestroy()
-        {
-            configFieldList.OnDestroy();
+            this.SaveFields(node);
         }
 
         #endregion
@@ -98,32 +79,12 @@ namespace B9PartSwitch
 
         public void OnBeforeSerialize()
         {
-            ConfigNode node = new ConfigNode("SERIALIZED_NODE");
-
-            configFieldList.Save(node, true);
-
-            serializedData = ScriptableObject.CreateInstance<SerializedDataContainer>();
-            serializedData.data = node.ToString();
+            serializedData = this.SerializeToContainer();
         }
 
         public void OnAfterDeserialize()
         {
-            if (serializedData.IsNull())
-            {
-                LogError("The serialized data container is null");
-                return;
-            }
-            if (serializedData.data.IsNull())
-            {
-                LogError("The serialized data is null");
-                return;
-            }
-
-            ConfigNode node = ConfigNode.Parse(serializedData.data);
-
-            CreateConfigFieldList();
-
-            configFieldList.Load(node.GetNode("SERIALIZED_NODE"));
+            this.DeserializeFromContainer(serializedData);
 
             Destroy(serializedData);
             serializedData = null;
