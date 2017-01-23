@@ -1,18 +1,24 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniLinq;
+using B9PartSwitch.Fishbones;
+using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch
 {
-    public class TankResource : CFGUtilObject
+    public class TankResource : IContextualNode
     {
-        [ConfigField(configName = "name")]
+        [NodeData(name = "name")]
         public PartResourceDefinition resourceDefinition;
 
-        [ConfigField]
+        [NodeData]
         public float unitsPerVolume = 1f;
 
         public string ResourceName => resourceDefinition.name;
+
+        public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
+        public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
         public override string ToString()
         {
@@ -26,20 +32,20 @@ namespace B9PartSwitch
         }
     }
     
-    public class TankType : CFGUtilObject, IEnumerable<TankResource>
+    public class TankType : IContextualNode, IEnumerable<TankResource>
     {
         #region Loadable Fields
 
-        [ConfigField(configName = "name")]
+        [NodeData(name = "name")]
         public string tankName;
          
-        [ConfigField]
+        [NodeData]
         public float tankMass = 0f;
 
-        [ConfigField]
+        [NodeData]
         public float tankCost = 0f;
 
-        [ConfigField(configName = "RESOURCE")]
+        [NodeData(name = "RESOURCE")]
         public List<TankResource> resources = new List<TankResource>();
 
         #endregion
@@ -65,6 +71,9 @@ namespace B9PartSwitch
         public bool ChangesCost => (tankCost != 0f) || (resources.Any(r => r.resourceDefinition.unitCost != 0f));
 
         #endregion
+
+        public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
+        public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
         public List<TankResource>.Enumerator GetEnumerator() => resources.GetEnumerator();
         IEnumerator<TankResource> IEnumerable<TankResource>.GetEnumerator() => GetEnumerator();

@@ -15,7 +15,7 @@
         {
             string info = module.GetType().Name;
 
-            CFGUtilPartModule utilModule = module as CFGUtilPartModule;
+            CustomPartModule utilModule = module as CustomPartModule;
             if (utilModule.IsNotNull() && !string.IsNullOrEmpty(utilModule.moduleID))
                 info += $" '{utilModule.moduleID}'";
 

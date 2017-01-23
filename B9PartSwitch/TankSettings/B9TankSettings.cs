@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using B9PartSwitch.Fishbones;
+using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch
 {
@@ -24,12 +26,6 @@ namespace B9PartSwitch
             }
         }
 
-        static B9TankSettings()
-        {
-            CFGUtil.RegisterParseType<PartResourceDefinition>(FindResourceDefinition, x => x.name);
-            CFGUtil.RegisterParseType<TankType>(B9TankSettings.GetTankType, x => x.tankName);
-        }
-
         public static void ModuleManagerPostLoad() => ReloadTankDefs();
 
         public static void ReloadTankDefs()
@@ -42,7 +38,8 @@ namespace B9PartSwitch
             foreach (var node in GameDatabase.Instance.GetConfigNodes("B9_TANK_TYPE"))
             {
                 TankType t = new TankType();
-                t.Load(node);
+                OperationContext context = new OperationContext(Operation.LoadPrefab, t);
+                t.Load(node, context);
                 if (tankTypes.ContainsKey(t.tankName))
                 {
                     Debug.LogError($"B9TankSettings: The tank type {t.tankName} already exists");
@@ -60,7 +57,7 @@ namespace B9PartSwitch
             CheckTankDefs();
             if (string.IsNullOrEmpty(name))
                 return StructuralTankType;
-            return (TankType)tankTypes[name].Clone();
+            return tankTypes[name].CloneUsingFields();
         }
 
         public static bool TankTypeExists(string name)

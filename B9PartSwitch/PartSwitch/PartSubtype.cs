@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
+using B9PartSwitch.Fishbones;
+using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch
 {
@@ -35,62 +37,63 @@ namespace B9PartSwitch
         }
     }
     
-    public class PartSubtype : CFGUtilObject
+    public class PartSubtype : IContextualNode
     {
         #region Config Fields
 
-        [ConfigField(configName = "name")]
+        [NodeData(name = "name")]
         public string subtypeName;
 
-        [ConfigField]
+        [NodeData]
         public string title;
 
-        [ConfigField(configName = "transform")]
+        [NodeData(name = "transform")]
         public List<string> transformNames = new List<string>();
 
-        [ConfigField(configName = "node")]
+        [NodeData(name = "node")]
         public List<string> nodeNames = new List<string>();
 
-        [ConfigField]
+        [NodeData]
         public float addedMass = 0f;
 
-        [ConfigField]
+        [NodeData]
         public float addedCost = 0f;
 
-        [ConfigField]
+        [UseParser(typeof(TankTypeValueParser))]
+        [NodeData]
         public TankType tankType;
 
-        [ConfigField]
+        [NodeData]
         public float volumeMultiplier = 1f;
 
-        [ConfigField]
+        [NodeData]
         public float volumeAdded = 0f;
 
-        [ConfigField]
+        [NodeData]
         public float maxTemp;
 
-        [ConfigField]
+        [NodeData]
         public float skinMaxTemp;
 
-        [ConfigField]
+        [NodeData]
         public AttachNode attachNode = null;
 
-        [ConfigField]
+        [NodeData]
         public float crashTolerance = 0f;
 
-        [ConfigField]
+        [NodeData]
         public Vector3 CoMOffset = Vector3Extensions.NaN();
 
-        [ConfigField]
+        [NodeData]
         public Vector3 CoPOffset = Vector3Extensions.NaN();
 
-        [ConfigField]
+        [NodeData]
         public Vector3 CoLOffset = Vector3Extensions.NaN();
 
-        [ConfigField]
+        [NodeData]
         public Vector3 CenterOfBuoyancy = Vector3Extensions.NaN();
 
-        [ConfigField]
+        [NodeData]
         public Vector3 CenterOfDisplacement = Vector3Extensions.NaN();
 
         #endregion
@@ -128,12 +131,22 @@ namespace B9PartSwitch
 
         #endregion
 
+        #region Interface Methods
+
+        public void Load(ConfigNode node, OperationContext context)
+        {
+            this.LoadFields(node, context);
+            OnLoad(node);
+        }
+
+        public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
+
+        #endregion
+
         #region Setup
 
-        public override void OnLoad(ConfigNode node)
+        public void OnLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
 

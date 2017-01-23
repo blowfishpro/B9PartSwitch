@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+set -e
+
+runtest="mono ./packages/xunit.runner.console.*/tools/xunit.console.exe"
+
+echo "Running tests..."
+
+$runtest ./B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
+
+echo "Finished running tests"

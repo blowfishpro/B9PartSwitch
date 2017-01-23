@@ -21,6 +21,8 @@ namespace B9PartSwitch
             return t.GetInterfaces().Contains(typeof(IList)) && t.IsGenericType && t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
 
+        public static bool IsNullOrEmpty(this IList list) => list.IsNull() || list.Count == 0;
+
         public static bool ValidIndex(this IList list, int index) => (index >= 0) && (index < list.Count);
 
         public static bool SameElementsAs<T>(this IEnumerable<T> set1, IEnumerable<T> set2) =>

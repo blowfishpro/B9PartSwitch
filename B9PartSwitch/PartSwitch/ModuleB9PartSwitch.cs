@@ -2,33 +2,33 @@
 using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
+using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
-    public class ModuleB9PartSwitch : CFGUtilPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
+    public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
         #region Public Fields
-
-        [ConfigNodeSerialized]
-        [ConfigField(configName = "SUBTYPE")]
+        
+        [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
         public List<PartSubtype> subtypes = new List<PartSubtype>();
 
-        [ConfigField]
+        [NodeData]
         public float baseVolume = 0f;
 
-        [ConfigField]
+        [NodeData]
         public string switcherDescription = "Subtype";
 
-        [ConfigField]
+        [NodeData]
         public string switcherDescriptionPlural = "Subtypes";
 
-        [ConfigField]
+        [NodeData]
         public bool affectDragCubes = true;
 
-        [ConfigField]
+        [NodeData]
         public bool affectFARVoxels = true;
 
-        [ConfigField(persistant = true)]
+        [NodeData(persistent = true)]
         public string currentSubtypeName = null;
 
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
