@@ -6,8 +6,8 @@ namespace B9PartSwitch.Fishbones
 {
     public interface INodeDataField
     {
-        void Load(object subject, ConfigNode node, OperationContext context);
-        void Save(object subject, ConfigNode node, OperationContext context);
+        void Load(ConfigNode node, OperationContext context);
+        void Save(ConfigNode node, OperationContext context);
     }
 
     public class NodeDataField : INodeDataField
@@ -24,31 +24,29 @@ namespace B9PartSwitch.Fishbones
             this.operationManager = operationManager;
         }
 
-        public void Load(object subject, ConfigNode node, OperationContext context)
+        public void Load(ConfigNode node, OperationContext context)
         {
-            subject.ThrowIfNullArgument(nameof(subject));
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
             INodeDataMapper mapper = operationManager.MapperFor(context.Operation);
             if (mapper.IsNull()) return;
 
-            object value = field.GetValue(subject);
+            object value = field.GetValue(context.Subject);
 
             if (mapper.Load(ref value, node, context))
-                field.SetValue(subject, value);
+                field.SetValue(context.Subject, value);
         }
 
-        public void Save(object subject, ConfigNode node, OperationContext context)
+        public void Save(ConfigNode node, OperationContext context)
         {
-            subject.ThrowIfNullArgument(nameof(subject));
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
             INodeDataMapper mapper = operationManager.MapperFor(context.Operation);
             if (mapper.IsNull()) return;
 
-            object value = field.GetValue(subject);
+            object value = field.GetValue(context.Subject);
             mapper.Save(value, node, context);
         }
     }

@@ -23,31 +23,25 @@ namespace B9PartSwitch.Fishbones
             }
         }
 
-        public void Load(object subject, ConfigNode node, OperationContext context)
+        public void Load(ConfigNode node, OperationContext context)
         {
-            subject.ThrowIfNullArgument(nameof(subject));
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
-            OperationContext newContext = new OperationContext(context, subject);
-
             foreach (INodeDataField field in fields)
             {
-                field.Load(subject, node, newContext);
+                field.Load(node, context);
             }
         }
 
-        public void Save(object subject, ConfigNode node, OperationContext context)
+        public void Save(ConfigNode node, OperationContext context)
         {
-            subject.ThrowIfNullArgument(nameof(subject));
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
-            OperationContext newContext = new OperationContext(context, subject);
-
             foreach (INodeDataField field in fields)
             {
-                field.Save(subject, node, newContext);
+                field.Save(node, context);
             }
         }
     }

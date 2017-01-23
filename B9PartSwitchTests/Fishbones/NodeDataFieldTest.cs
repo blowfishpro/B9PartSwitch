@@ -52,7 +52,7 @@ namespace B9PartSwitchTests.Fishbones
             operationManager.MapperFor(Operation.LoadPrefab).Returns(mapper);
             mapper.Load(ref value, node, context).Returns(true);
 
-            field.Load(subject, node, context);
+            field.Load(node, context);
 
             fieldWrapper.Received().GetValue(subject);
             mapper.Received().Load(ref value, node, context);
@@ -77,7 +77,7 @@ namespace B9PartSwitchTests.Fishbones
                 return true;
             });
 
-            field.Load(subject, node, context);
+            field.Load(node, context);
 
             fieldWrapper.Received().GetValue(subject);
             mapper.Received().Load(ref value, node, context);
@@ -98,7 +98,7 @@ namespace B9PartSwitchTests.Fishbones
             operationManager.MapperFor(Operation.LoadPrefab).Returns(mapper);
             mapper.Load(ref dummy, node, context).Returns(false);
 
-            field.Load(subject, node, context);
+            field.Load(node, context);
 
             fieldWrapper.Received().GetValue(subject);
             mapper.Received().Load(ref value, node, context);
@@ -118,7 +118,7 @@ namespace B9PartSwitchTests.Fishbones
             fieldWrapper.GetValue(subject).Returns(value);
             operationManager.MapperFor(Operation.LoadPrefab).Returns((INodeDataMapper)null);
 
-            field.Load(subject, node, context);
+            field.Load(node, context);
             
             fieldWrapper.DidNotReceiveWithAnyArgs().GetValue(null);
             fieldWrapper.DidNotReceiveWithAnyArgs().SetValue(null, null);
@@ -130,11 +130,9 @@ namespace B9PartSwitchTests.Fishbones
             object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.LoadPrefab, subject);
-
-            Assert.Throws<ArgumentNullException>(() => field.Load(null, node, context));
-            Assert.Throws<ArgumentNullException>(() => field.Load(subject, null, context));
-            Assert.Throws<ArgumentNullException>(() => field.Load(subject, node, null));
-            Assert.Throws<ArgumentNullException>(() => field.Load(null, null, null));
+            
+            Assert.Throws<ArgumentNullException>(() => field.Load(null, context));
+            Assert.Throws<ArgumentNullException>(() => field.Load(node, null));
         }
 
         #endregion
@@ -152,7 +150,7 @@ namespace B9PartSwitchTests.Fishbones
             fieldWrapper.GetValue(subject).Returns(value);
             operationManager.MapperFor(Operation.Save).Returns(mapper);
 
-            field.Save(subject, node, context);
+            field.Save(node, context);
 
             fieldWrapper.Received().GetValue(subject);
             mapper.Received().Save(value, node, context);
@@ -171,7 +169,7 @@ namespace B9PartSwitchTests.Fishbones
             fieldWrapper.GetValue(subject).Returns(null);
             operationManager.MapperFor(Operation.Save).Returns(mapper);
 
-            field.Save(subject, node, context);
+            field.Save(node, context);
 
             fieldWrapper.Received().GetValue(subject);
             mapper.Received().Save(null, node, context);
@@ -191,7 +189,7 @@ namespace B9PartSwitchTests.Fishbones
             fieldWrapper.GetValue(subject).Returns(value);
             operationManager.MapperFor(Operation.Save).Returns((INodeDataMapper)null);
 
-            field.Save(subject, node, context);
+            field.Save(node, context);
 
             fieldWrapper.DidNotReceiveWithAnyArgs().GetValue(null);
             mapper.DidNotReceiveWithAnyArgs().Save(null, null, null);
@@ -206,11 +204,9 @@ namespace B9PartSwitchTests.Fishbones
             object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.LoadPrefab, subject);
-
-            Assert.Throws<ArgumentNullException>(() => field.Save(null, node, context));
-            Assert.Throws<ArgumentNullException>(() => field.Save(subject, null, context));
-            Assert.Throws<ArgumentNullException>(() => field.Save(subject, node, null));
-            Assert.Throws<ArgumentNullException>(() => field.Save(null, null, null));
+            
+            Assert.Throws<ArgumentNullException>(() => field.Save(null, context));
+            Assert.Throws<ArgumentNullException>(() => field.Save(node, null));
         }
 
         #endregion

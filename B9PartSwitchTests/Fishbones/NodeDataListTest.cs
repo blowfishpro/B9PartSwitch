@@ -40,17 +40,16 @@ namespace B9PartSwitchTests.Fishbones
         {
             ConfigNode node = new ConfigNode();
 
-            object parentSubject = new object();
-            object childSubject = new object();
-            OperationContext context = new OperationContext(Operation.LoadInstance, parentSubject);
+            object subject = new object();
+            OperationContext context = new OperationContext(Operation.LoadInstance, subject);
 
-            list.Load(childSubject, node, context);
+            list.Load(node, context);
 
-            field1.Received().Load(childSubject, node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == childSubject));
-            field2.Received().Load(childSubject, node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == childSubject));
+            field1.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
+            field2.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
 
-            field1.DidNotReceiveWithAnyArgs().Save(null, null, null);
-            field2.DidNotReceiveWithAnyArgs().Save(null, null, null);
+            field1.DidNotReceiveWithAnyArgs().Save(null, null);
+            field2.DidNotReceiveWithAnyArgs().Save(null, null);
         }
 
         [Fact]
@@ -59,10 +58,9 @@ namespace B9PartSwitchTests.Fishbones
             object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.LoadInstance, Substitute.For<object>());
-
-            Assert.Throws<ArgumentNullException>(() => list.Load(null, node, context));
-            Assert.Throws<ArgumentNullException>(() => list.Load(subject, null, context));
-            Assert.Throws<ArgumentNullException>(() => list.Load(subject, node, null));
+            
+            Assert.Throws<ArgumentNullException>(() => list.Load(null, context));
+            Assert.Throws<ArgumentNullException>(() => list.Load(node, null));
         }
 
         #endregion
@@ -74,17 +72,16 @@ namespace B9PartSwitchTests.Fishbones
         {
             ConfigNode node = new ConfigNode();
 
-            object parentSubject = new object();
-            object childSubject = new object();
-            OperationContext context = new OperationContext(Operation.Save, parentSubject);
+            object subject = new object();
+            OperationContext context = new OperationContext(Operation.Save, subject);
 
-            list.Save(childSubject, node, context);
+            list.Save(node, context);
 
-            field1.Received().Save(childSubject, node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == childSubject));
-            field2.Received().Save(childSubject, node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == childSubject));
+            field1.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
+            field2.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
 
-            field1.DidNotReceiveWithAnyArgs().Load(null, null, null);
-            field2.DidNotReceiveWithAnyArgs().Load(null, null, null);
+            field1.DidNotReceiveWithAnyArgs().Load(null, null);
+            field2.DidNotReceiveWithAnyArgs().Load(null, null);
         }
 
         [Fact]
@@ -93,10 +90,9 @@ namespace B9PartSwitchTests.Fishbones
             object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.Save, Substitute.For<object>());
-
-            Assert.Throws<ArgumentNullException>(() => list.Save(null, node, context));
-            Assert.Throws<ArgumentNullException>(() => list.Save(subject, null, context));
-            Assert.Throws<ArgumentNullException>(() => list.Save(subject, node, null));
+            
+            Assert.Throws<ArgumentNullException>(() => list.Save(null, context));
+            Assert.Throws<ArgumentNullException>(() => list.Save(node, null));
         }
 
         #endregion
