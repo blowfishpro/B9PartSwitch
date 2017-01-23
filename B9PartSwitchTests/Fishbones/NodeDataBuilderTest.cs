@@ -12,6 +12,11 @@ namespace B9PartSwitchTests.Fishbones
 {
     public class NodeDataBuilderTest
     {
+        private class DummyClass1 { }
+        private class DummyClass2 { }
+        private class DummyClass3 { }
+        private class DummyClass4 { }
+
         private NodeData nodeData = new NodeData();
         private IValueParseMap parseMap = Substitute.For<IValueParseMap>();
         private IFieldWrapper fieldWrapper = Substitute.For<IFieldWrapper>();
@@ -38,10 +43,10 @@ namespace B9PartSwitchTests.Fishbones
         [Fact]
         public void TestNew__UseParser()
         {
-            Type type1 = Substitute.For<Type>();
-            Type type2 = Substitute.For<Type>();
-            Type type3 = Substitute.For<Type>();
-            Type type4 = Substitute.For<Type>();
+            Type type1 = typeof(DummyClass1);
+            Type type2 = typeof(DummyClass2);
+            Type type3 = typeof(DummyClass3);
+            Type type4 = typeof(DummyClass4);
 
             IValueParser parser1 = Substitute.For<IValueParser>();
             IValueParser parser2 = Substitute.For<IValueParser>();
@@ -431,7 +436,7 @@ namespace B9PartSwitchTests.Fishbones
         }
 
         #endregion
-        
+
 
         #endregion
     }
