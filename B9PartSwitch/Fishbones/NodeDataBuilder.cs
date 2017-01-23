@@ -46,7 +46,7 @@ namespace B9PartSwitch.Fishbones
 
         public virtual IOperaitonManager CreateOperationManager()
         {
-            return new OperationManager(CreateParseMapper(), CreateLoadSaveMapper(), CreateMapperWithSerializePriority());
+            return new OperationManager(CreateParseMapper(), CreateLoadSaveMapper(), CreateSerializeMapper());
         }
 
         public virtual INodeDataMapper CreateParseMapper()

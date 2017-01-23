@@ -117,11 +117,11 @@ namespace B9PartSwitchTests.Fishbones
 
             builder.When(x => x.CreateMapperWithParsePriority()).DoNotCallBase();
             builder.When(x => x.CreateLoadSaveMapper()).DoNotCallBase();
-            builder.When(x => x.CreateMapperWithSerializePriority()).DoNotCallBase();
+            builder.When(x => x.CreateSerializeMapper()).DoNotCallBase();
 
             builder.CreateMapperWithParsePriority().Returns(mapper1);
             builder.CreateLoadSaveMapper().Returns(mapper2);
-            builder.CreateMapperWithSerializePriority().Returns(mapper3);
+            builder.CreateSerializeMapper().Returns(mapper3);
 
             OperationManager operationManager = (OperationManager)builder.CreateOperationManager();
             Assert.NotNull(operationManager);
