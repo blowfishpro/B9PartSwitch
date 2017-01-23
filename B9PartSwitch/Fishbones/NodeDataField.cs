@@ -4,7 +4,13 @@ using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones
 {
-    public class NodeDataField
+    public interface INodeDataField
+    {
+        void Load(object subject, ConfigNode node, OperationContext context);
+        void Save(object subject, ConfigNode node, OperationContext context);
+    }
+
+    public class NodeDataField : INodeDataField
     {
         public readonly IFieldWrapper field;
         public readonly IOperaitonManager operationManager;

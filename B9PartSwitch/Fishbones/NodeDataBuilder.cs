@@ -34,7 +34,7 @@ namespace B9PartSwitch.Fishbones
             }
         }
 
-        public NodeDataField CreateNodeDataField()
+        public INodeDataField CreateNodeDataField()
         {
             return new NodeDataField(fieldWrapper, CreateOperationManager());
         }

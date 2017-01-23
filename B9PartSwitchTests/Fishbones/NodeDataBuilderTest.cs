@@ -96,7 +96,7 @@ namespace B9PartSwitchTests.Fishbones
             builder.When(x => x.CreateOperationManager()).DoNotCallBase();
             builder.CreateOperationManager().Returns(operationManager);
 
-            NodeDataField nodeDataField = builder.CreateNodeDataField();
+            NodeDataField nodeDataField = Assert.IsType<NodeDataField>(builder.CreateNodeDataField());
             Assert.NotNull(nodeDataField);
 
             Assert.Same(fieldWrapper, nodeDataField.field);
