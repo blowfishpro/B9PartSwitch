@@ -14,7 +14,7 @@
     {
       "includePattern"  : "release/GameData/B9PartSwitch/B9PartSwitch.version",
       "uploadPattern"   : "avc_version/B9PartSwitch.version",
-      "matrixParams"    : { "override" : "1", "publish" : 1 },
+      "matrixParams"    : { "override" : "1", "publish" : "1" }
     }
-  ],
+  ]
 }
