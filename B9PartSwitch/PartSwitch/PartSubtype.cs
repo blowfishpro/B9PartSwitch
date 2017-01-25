@@ -36,7 +36,7 @@ namespace B9PartSwitch
                 collider.enabled = false;
         }
     }
-    
+
     public class PartSubtype : IContextualNode
     {
         #region Config Fields
@@ -68,6 +68,12 @@ namespace B9PartSwitch
 
         [NodeData]
         public float volumeAdded = 0f;
+
+        [NodeData]
+        public float? percentFilled;
+
+        [NodeData]
+        public bool? resourcesTweakable;
 
         [NodeData]
         public float maxTemp;
@@ -136,7 +142,8 @@ namespace B9PartSwitch
         public void Load(ConfigNode node, OperationContext context)
         {
             this.LoadFields(node, context);
-            OnLoad(node);
+
+            OnLoad(node, context);
         }
 
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
@@ -145,13 +152,43 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public void OnLoad(ConfigNode node)
+        public void OnLoad(ConfigNode node, OperationContext context)
         {
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
 
             if (string.IsNullOrEmpty(title))
                 title = subtypeName;
+
+            if (context.Operation == Operation.LoadPrefab)
+            {
+                ConfigNode[] resourceNodes = node.GetNodes("RESOURCE");
+
+                if (resourceNodes.Length > 0)
+                {
+                    OperationContext newContext = new OperationContext(context, this);
+                    foreach (ConfigNode resourceNode in resourceNodes)
+                    {
+                        string name = resourceNode.GetValue("name");
+
+                        if (name.IsNullOrEmpty())
+                        {
+                            LogError("Cannot load a RESOURCE node without a name");
+                            continue;
+                        }
+
+                        TankResource resource = tankType[name];
+
+                        if (resource.IsNull())
+                        {
+                            resource = new TankResource();
+                            tankType.resources.Add(resource);
+                        }
+
+                        resource.LoadFields(resourceNode, newContext);
+                    }
+                }
+            }
         }
 
         public void Setup(ModuleB9PartSwitch parent)
@@ -222,7 +259,13 @@ namespace B9PartSwitch
             foreach (TankResource resource in tankType.resources)
             {
                 float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                Part.AddOrCreateResource(resource.resourceDefinition, amount, fillTanks ? amount : -1f);
+                float filledProportion = (percentFilled ?? resource.percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
+
+                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
+
+                if (tweakable.HasValue)
+                    partResource.isTweakable = tweakable.Value;
             }
         }
 
