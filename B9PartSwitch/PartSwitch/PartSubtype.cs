@@ -7,36 +7,6 @@ using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch
 {
-    public struct TransformInfo
-    {
-        public readonly Transform transform;
-        public readonly GameObject gameObject;
-        public readonly Collider collider;
-
-        public TransformInfo(Transform t)
-        {
-            transform = t;
-            gameObject = transform?.gameObject;
-            collider = t?.GetComponent<Collider>();
-        }
-
-        public void Enable()
-        {
-            gameObject?.SetActive(true);
-
-            if (collider != null)
-                collider.enabled = true;
-        }
-
-        public void Disable()
-        {
-            gameObject?.SetActive(false);
-
-            if (collider != null)
-                collider.enabled = false;
-        }
-    }
-
     public class PartSubtype : IContextualNode
     {
         #region Config Fields
@@ -107,7 +77,7 @@ namespace B9PartSwitch
         #region Private Fields
 
         private ModuleB9PartSwitch parent;
-        private List<TransformInfo> transforms = new List<TransformInfo>();
+        private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
 
         #endregion
@@ -311,14 +281,14 @@ namespace B9PartSwitch
             if (parent == null)
                 throw new InvalidOperationException("Parent has not been set");
 
-            transforms = new List<TransformInfo>();
+            transforms.Clear();
             foreach (var transformName in transformNames)
             {
                 Transform[] tempTransforms = Part.FindModelTransforms(transformName);
                 if (tempTransforms == null || tempTransforms.Length == 0)
                     LogError($"No transforms named {transformName} found");
                 else
-                    transforms.AddRange(tempTransforms.Select(t => new TransformInfo(t)));
+                    transforms.AddRange(tempTransforms);
             }
         }
 
