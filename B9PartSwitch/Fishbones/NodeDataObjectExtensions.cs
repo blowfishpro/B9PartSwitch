@@ -92,7 +92,7 @@ namespace B9PartSwitch.Fishbones
             obj.ThrowIfNullArgument(nameof(obj));
             container.ThrowIfNullArgument(nameof(container));
 
-            if (string.IsNullOrEmpty(container.data))
+            if (container.data.IsNullOrEmpty())
                 throw new ArgumentException("Container must have data", nameof(container));
 
             obj.DeserializeFromString(container.data);

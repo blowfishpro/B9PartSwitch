@@ -97,7 +97,7 @@ namespace B9PartSwitch.Fishbones
 
         #region Utility Methods
 
-        public virtual string NodeDataName => string.IsNullOrEmpty(nodeData.name) ? fieldWrapper.MemberInfo.Name : nodeData.name;
+        public virtual string NodeDataName => nodeData.name.IsNullOrEmpty() ? fieldWrapper.MemberInfo.Name : nodeData.name;
 
         #endregion
     }

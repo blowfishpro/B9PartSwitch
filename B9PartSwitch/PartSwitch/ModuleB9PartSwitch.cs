@@ -280,7 +280,7 @@ namespace B9PartSwitch
         private void FindBestSubtype()
         {
             // First try to identify subtype by name
-            if (!string.IsNullOrEmpty(currentSubtypeName))
+            if (!currentSubtypeName.IsNullOrEmpty())
             {
                 int index = subtypes.FindIndex(subtype => subtype.Name == currentSubtypeName);
 

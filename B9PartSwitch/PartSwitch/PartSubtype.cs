@@ -157,7 +157,7 @@ namespace B9PartSwitch
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
 
-            if (string.IsNullOrEmpty(title))
+            if (title.IsNullOrEmpty())
                 title = subtypeName;
 
             if (context.Operation == Operation.LoadPrefab)
@@ -295,7 +295,7 @@ namespace B9PartSwitch
         public override string ToString()
         {
             string log = "PartSubtype";
-            if (!string.IsNullOrEmpty(Name))
+            if (!Name.IsNullOrEmpty())
                 log += $" {Name}";
             if (parent != null)
                 log += $" on module {parent}";

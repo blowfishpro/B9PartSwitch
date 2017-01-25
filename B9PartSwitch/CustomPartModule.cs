@@ -22,7 +22,7 @@ namespace B9PartSwitch
         {
             // Cast to array so that there aren't issues with modifying the enumerable in a loop
             var otherModules = part.Modules.OfType<CustomPartModule>().Where(m => m != this && m.GetType() == this.GetType()).ToArray();
-            if (otherModules.Length > 0 && string.IsNullOrEmpty(moduleID))
+            if (otherModules.Length > 0 && moduleID.IsNullOrEmpty())
             {
                 LogError("Must have a moduleID defined if more than one " + this.GetType().Name + " is present on a part.  This module will be removed");
                 part.Modules.Remove(this);
@@ -32,7 +32,7 @@ namespace B9PartSwitch
 
             foreach (var m in otherModules)
             {
-                if (string.IsNullOrEmpty(m.moduleID) || m.moduleID == moduleID)
+                if (m.moduleID.IsNullOrEmpty() || m.moduleID == moduleID)
                 {
                     LogError("Two " + GetType().Name + " modules on the same part must have different (and non-empty) moduleID identifiers.  The second " + GetType().Name + " will be removed");
                     part.Modules.Remove(m);
@@ -45,7 +45,7 @@ namespace B9PartSwitch
         {
             base.OnLoad(node);
 
-            if (!string.IsNullOrEmpty(moduleID) && node.HasValue(nameof(moduleID)))
+            if (!moduleID.IsNullOrEmpty() && node.HasValue(nameof(moduleID)))
             {
                 string newID = node.GetValue(nameof(moduleID));
                 if (!string.Equals(moduleID, newID))
@@ -103,7 +103,7 @@ namespace B9PartSwitch
         public override string ToString()
         {
             string log = this.GetType().Name;
-            if (!string.IsNullOrEmpty(moduleID))
+            if (!moduleID.IsNullOrEmpty())
                 log += " (moduleID='" + moduleID + "')";
             if (part != null)
                 log += " on part " + part.name;

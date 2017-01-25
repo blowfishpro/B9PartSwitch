@@ -55,7 +55,7 @@ namespace B9PartSwitch
         public static TankType GetTankType(string name)
         {
             CheckTankDefs();
-            if (string.IsNullOrEmpty(name))
+            if (name.IsNullOrEmpty())
                 return StructuralTankType;
             return tankTypes[name].CloneUsingFields();
         }
