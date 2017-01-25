@@ -142,7 +142,8 @@ namespace B9PartSwitch
         public void Load(ConfigNode node, OperationContext context)
         {
             this.LoadFields(node, context);
-            OnLoad(node);
+
+            OnLoad(node, context);
         }
 
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
@@ -151,13 +152,43 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public void OnLoad(ConfigNode node)
+        public void OnLoad(ConfigNode node, OperationContext context)
         {
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
 
             if (string.IsNullOrEmpty(title))
                 title = subtypeName;
+
+            if (context.Operation == Operation.LoadPrefab)
+            {
+                ConfigNode[] resourceNodes = node.GetNodes("RESOURCE");
+
+                if (resourceNodes.Length > 0)
+                {
+                    OperationContext newContext = new OperationContext(context, this);
+                    foreach (ConfigNode resourceNode in resourceNodes)
+                    {
+                        string name = resourceNode.GetValue("name");
+
+                        if (name.IsNullOrEmpty())
+                        {
+                            LogError("Cannot load a RESOURCE node without a name");
+                            continue;
+                        }
+
+                        TankResource resource = tankType[name];
+
+                        if (resource.IsNull())
+                        {
+                            resource = new TankResource();
+                            tankType.resources.Add(resource);
+                        }
+
+                        resource.LoadFields(resourceNode, newContext);
+                    }
+                }
+            }
         }
 
         public void Setup(ModuleB9PartSwitch parent)
