@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
-using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.NodeDataMappers;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitchTests.TestUtils;
