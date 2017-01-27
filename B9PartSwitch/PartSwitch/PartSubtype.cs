@@ -229,7 +229,7 @@ namespace B9PartSwitch
             foreach (TankResource resource in tankType.resources)
             {
                 float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                float filledProportion = (percentFilled ?? resource.percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
                 PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
 
                 bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
