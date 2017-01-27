@@ -35,6 +35,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.6.1
+
+* Switch percentFilled priority to resource -> subtype -> tank type -> 100% since resources can be overridden on individual subtypes now
+
 ### v1.6.0
 
 * Allow tanks to be partially filled - percentFilled can be defined on the subtype, resource, or tank type (in decreasing order of priority), defaulting to completely full
