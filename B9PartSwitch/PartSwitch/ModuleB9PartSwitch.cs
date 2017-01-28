@@ -101,89 +101,15 @@ namespace B9PartSwitch
             FindBestSubtype();
 
             SetupGUI();
-
-            UpdateOnStart();
         }
 
         // This runs after OnStart() so everything should be initalized
         public void Start()
         {
-            // Check for incompatible modules
-            bool modifiedSetup = false;
+            CheckOtherSwitchers();
+            CheckOtherModules();
             
-            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
-            {
-                if (otherModule == this) continue;
-                bool destroy = false;
-                foreach (string resourceName in ManagedResourceNames)
-                {
-                    if (otherModule.IsManagedResource(resourceName))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
-                        destroy = true;
-                    }
-                }
-                foreach (Transform transform in ManagedTransforms)
-                {
-                    if (otherModule.IsManagedTransform(transform))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transform.name}");
-                        destroy = true;
-                    }
-                }
-                foreach (AttachNode node in ManagedNodes)
-                {
-                    if (otherModule.IsManagedNode(node))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {node.id}");
-                        destroy = true;
-                    }
-                }
-
-                foreach (ISubtypePartField field in SubtypePartFields.All)
-                {
-                    if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's {field.Name}");
-                        destroy = true;
-                    }
-                }
-
-                if (destroy)
-                {
-                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
-                    part.RemoveModule(otherModule);
-                    modifiedSetup = true;
-                }
-            }
-
-            if (ManagesResources)
-            {
-                bool incompatible = false;
-                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
-                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
-                {
-                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
-                    incompatible = true;
-                }
-
-                if (incompatible)
-                {
-                    foreach (var subtype in subtypes)
-                    {
-                        if (!subtype.tankType.IsStructuralTankType)
-                            subtype.AssignStructuralTankType();
-                    }
-                    modifiedSetup = true;
-                }
-
-            }
-
-            // If there were incompatible modules, they might have messed with things
-            if (modifiedSetup)
-            {
-                UpdateOnStart();
-            }
+            UpdateOnStart();
         }
 
         #endregion
@@ -362,6 +288,78 @@ namespace B9PartSwitch
                 {
                     part.Resources.Remove(resource);
                 }
+            }
+        }
+
+        private void CheckOtherSwitchers()
+        {
+            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
+            {
+                if (otherModule == this) continue;
+                bool destroy = false;
+                foreach (string resourceName in ManagedResourceNames)
+                {
+                    if (otherModule.IsManagedResource(resourceName))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
+                        destroy = true;
+                    }
+                }
+                foreach (Transform transform in ManagedTransforms)
+                {
+                    if (otherModule.IsManagedTransform(transform))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transform.name}");
+                        destroy = true;
+                    }
+                }
+                foreach (AttachNode node in ManagedNodes)
+                {
+                    if (otherModule.IsManagedNode(node))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {node.id}");
+                        destroy = true;
+                    }
+                }
+
+                foreach (ISubtypePartField field in SubtypePartFields.All)
+                {
+                    if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's {field.Name}");
+                        destroy = true;
+                    }
+                }
+
+                if (destroy)
+                {
+                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
+                    part.RemoveModule(otherModule);
+                }
+            }
+        }
+
+        private void CheckOtherModules()
+        {
+            if (ManagesResources)
+            {
+                bool incompatible = false;
+                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
+                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
+                {
+                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
+                    incompatible = true;
+                }
+
+                if (incompatible)
+                {
+                    foreach (var subtype in subtypes)
+                    {
+                        if (!subtype.tankType.IsStructuralTankType)
+                            subtype.AssignStructuralTankType();
+                    }
+                }
+
             }
         }
 
