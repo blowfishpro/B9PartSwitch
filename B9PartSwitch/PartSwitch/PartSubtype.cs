@@ -250,7 +250,7 @@ namespace B9PartSwitch
             }
         }
 
-        public bool TransformIsManaged(Transform transform) => transforms.Any(info => object.ReferenceEquals(info.transform, transform));
+        public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
         public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
 
