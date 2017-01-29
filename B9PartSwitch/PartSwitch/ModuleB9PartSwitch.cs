@@ -371,11 +371,7 @@ namespace B9PartSwitch
 
             subtypes[oldIndex].DeactivateOnSwitch();
 
-            currentSubtypeName = CurrentSubtype.Name;
-
-            CurrentSubtype.ActivateOnSwitch();
-            UpdateGeometry();
-            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+            UpdateSubtype();
 
             foreach (var counterpart in this.FindSymmetryCounterparts())
                 counterpart.UpdateFromSymmetry(currentSubtypeIndex);
@@ -389,6 +385,12 @@ namespace B9PartSwitch
             CurrentSubtype.DeactivateOnSwitch();
 
             currentSubtypeIndex = newIndex;
+
+            UpdateSubtype();
+        }
+
+        private void UpdateSubtype()
+        {
             currentSubtypeName = CurrentSubtype.Name;
 
             CurrentSubtype.ActivateOnSwitch();
