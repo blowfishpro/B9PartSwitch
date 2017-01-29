@@ -162,8 +162,30 @@ namespace B9PartSwitch
         #region Public Methods
 
         public bool IsManagedResource(string resourceName) => ManagedResourceNames.Contains(resourceName);
-        public bool IsManagedTransform(Transform transform) => ManagedTransforms.Contains(transform);
-        public bool IsManagedNode(AttachNode node) => ManagedNodes.Contains(node);
+
+        public bool TransformShouldBeEnabled(Transform transform)
+        {
+            if (CurrentSubtype.TransformIsManaged(transform)) return true;
+            foreach (PartSubtype subtype in subtypes)
+            {
+                if (subtype == CurrentSubtype) continue;
+                if (subtype.TransformIsManaged(transform)) return false;
+            }
+
+            return true;
+        }
+
+        public bool NodeShouldBeEnabled(AttachNode node)
+        {
+            if (CurrentSubtype.NodeManaged(node)) return true;
+            foreach (PartSubtype subtype in subtypes)
+            {
+                if (subtype == CurrentSubtype) continue;
+                if (subtype.NodeManaged(node)) return false;
+            }
+
+            return true;
+        }
 
         public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
 

@@ -219,9 +219,9 @@ namespace B9PartSwitch
             UpdatePartParams();
         }
 
-        public void ActivateObjects() => transforms.ForEach(t => t.Enable());
+        public void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
 
-        public void ActivateNodes() => nodes.ForEach(n => n.Unhide());
+        public void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
 
         public void DeactivateObjects() => transforms.ForEach(t => t.Disable());
 

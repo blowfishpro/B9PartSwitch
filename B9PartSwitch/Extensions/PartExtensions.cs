@@ -60,6 +60,41 @@ namespace B9PartSwitch
         public static float GetResourceCostMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
 
+        public static void UpdateTransformEnabled(this Part part, Transform t)
+        {
+            bool shouldBeEnabled = true;
+
+            foreach (ModuleB9PartSwitch module in part.Modules.OfType<ModuleB9PartSwitch>())
+            {
+                if (!module.TransformShouldBeEnabled(t))
+                {
+                    shouldBeEnabled = false;
+                    break;
+                }
+            }
+
+            t.gameObject.SetActive(shouldBeEnabled);
+        }
+
+        public static void UpdateNodeEnabled(this Part part, AttachNode node)
+        {
+            bool shouldBeEnabled = true;
+
+            foreach (ModuleB9PartSwitch module in part.Modules.OfType<ModuleB9PartSwitch>())
+            {
+                if (!module.NodeShouldBeEnabled(node))
+                {
+                    shouldBeEnabled = false;
+                    break;
+                }
+            }
+
+            if (shouldBeEnabled)
+                node.Unhide();
+            else
+                node.Hide();
+        }
+
         public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");
         public static void LogWarning(this Part part, object message) => Debug.LogWarning($"[WARNING] [Part {part.name}] {message}");
         public static void LogError(this Part part, object message) => Debug.LogError($"[ERROR] [Part {part.name}] {message}");
