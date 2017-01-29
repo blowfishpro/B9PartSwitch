@@ -28,6 +28,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool affectFARVoxels = true;
 
+        [NodeData]
+        public string parentID = null;
+
         [NodeData(persistent = true)]
         public string currentSubtypeName = null;
 
@@ -42,6 +45,9 @@ namespace B9PartSwitch
 
         // Tweakscale integration
         private float scale = 1f;
+
+        private ModuleB9PartSwitch parent;
+        private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
         #endregion
 
@@ -94,6 +100,8 @@ namespace B9PartSwitch
         public override void OnStart(PartModule.StartState state)
         {
             base.OnStart(state);
+
+            FindParent();
 
             InitializeSubtypes();
             SetupSubtypes();
@@ -158,11 +166,40 @@ namespace B9PartSwitch
 
         public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
 
+        public void AddChild(ModuleB9PartSwitch child)
+        {
+            child.ThrowIfNullArgument(nameof(child));
+
+            if (children.Contains(child))
+            {
+                LogError($"Child module with id '{child.moduleID}' has already been added!");
+                return;
+            }
+
+            children.Add(child);
+        }
+
         #endregion
 
         #region Private Methods
 
         #region Setup
+
+        private void FindParent()
+        {
+            parent = null;
+            if (parentID.IsNullOrEmpty()) return;
+
+            parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
+
+            if (parent.IsNull())
+            {
+                LogError($"Cannot find parent module with id '{parentID}'");
+                return;
+            }
+
+            parent.AddChild(this);
+        }
 
         private void InitializeSubtypes()
         {
