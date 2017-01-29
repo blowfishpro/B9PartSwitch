@@ -62,7 +62,7 @@ namespace B9PartSwitch
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
         public float VolumeFromChildren { get; private set; } = 0f;
-        public float ParentVolume => CurrentSubtype.volumeAddedToParent;
+        public float VolumeAddedToParent => CurrentSubtype.volumeAddedToParent;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -498,7 +498,7 @@ namespace B9PartSwitch
 
         private void UpdateVolumeFromChildren()
         {
-            VolumeFromChildren = children.Sum(child => child.ParentVolume);
+            VolumeFromChildren = children.Sum(child => child.VolumeAddedToParent);
         }
 
         #endregion
