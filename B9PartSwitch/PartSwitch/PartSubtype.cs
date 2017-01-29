@@ -40,6 +40,9 @@ namespace B9PartSwitch
         public float volumeAdded = 0f;
 
         [NodeData]
+        public float volumeAddedToParent = 0f;
+
+        [NodeData]
         public float? percentFilled;
 
         [NodeData]
@@ -97,7 +100,7 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => HasTank ? ((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) : 0f;
+        public float TotalVolume => HasTank ? (((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) + parent.VolumeFromChildren) : 0f;
 
         public float TotalMass => TotalVolume * tankType.tankMass + addedMass;
         public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost;

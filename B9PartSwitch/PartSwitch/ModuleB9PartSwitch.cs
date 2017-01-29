@@ -62,6 +62,8 @@ namespace B9PartSwitch
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
         public float CurrentVolume => CurrentSubtype.TotalVolume * VolumeScale;
+        public float VolumeFromChildren { get; private set; } = 0f;
+        public float ParentVolume => CurrentSubtype.volumeAddedToParent;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -177,6 +179,12 @@ namespace B9PartSwitch
             }
 
             children.Add(child);
+        }
+
+        public void UpdateVolume()
+        {
+            UpdateVolumeFromChildren();
+            CurrentSubtype.AddResources(true);
         }
 
         #endregion
@@ -310,6 +318,7 @@ namespace B9PartSwitch
         {
             subtypes.ForEach(subtype => subtype.DeactivateOnStart());
             RemoveUnusedResources();
+            UpdateVolumeFromChildren();
             CurrentSubtype.ActivateOnStart();
             UpdateGeometry();
 
@@ -432,6 +441,7 @@ namespace B9PartSwitch
 
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry();
+            parent?.UpdateVolume();
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
@@ -485,6 +495,11 @@ namespace B9PartSwitch
             part.DragCubes.ClearCubes();
             part.DragCubes.Cubes.Add(newCube);
             part.DragCubes.ResetCubeWeights();
+        }
+
+        private void UpdateVolumeFromChildren()
+        {
+            VolumeFromChildren = children.Sum(child => child.ParentVolume);
         }
 
         #endregion
