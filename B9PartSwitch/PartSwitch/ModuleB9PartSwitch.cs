@@ -61,7 +61,6 @@ namespace B9PartSwitch
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
-        public float CurrentVolume => CurrentSubtype.TotalVolume * VolumeScale;
         public float VolumeFromChildren { get; private set; } = 0f;
         public float ParentVolume => CurrentSubtype.volumeAddedToParent;
 
