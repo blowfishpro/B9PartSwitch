@@ -350,22 +350,6 @@ namespace B9PartSwitch
                         destroy = true;
                     }
                 }
-                foreach (Transform transform in ManagedTransforms)
-                {
-                    if (otherModule.IsManagedTransform(transform))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transform.name}");
-                        destroy = true;
-                    }
-                }
-                foreach (AttachNode node in ManagedNodes)
-                {
-                    if (otherModule.IsManagedNode(node))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {node.id}");
-                        destroy = true;
-                    }
-                }
 
                 foreach (ISubtypePartField field in SubtypePartFields.All)
                 {
