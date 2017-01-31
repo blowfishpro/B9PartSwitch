@@ -28,6 +28,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool affectFARVoxels = true;
 
+        [NodeData]
+        public string parentID = null;
+
         [NodeData(persistent = true)]
         public string currentSubtypeName = null;
 
@@ -43,6 +46,9 @@ namespace B9PartSwitch
         // Tweakscale integration
         private float scale = 1f;
 
+        private ModuleB9PartSwitch parent;
+        private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+
         #endregion
 
         #region Properties
@@ -55,7 +61,8 @@ namespace B9PartSwitch
 
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
-        public float CurrentVolume => CurrentSubtype.TotalVolume * VolumeScale;
+        public float VolumeFromChildren { get; private set; } = 0f;
+        public float VolumeAddedToParent => CurrentSubtype.volumeAddedToParent;
 
         public PartSubtype this[int index] => subtypes[index];
 
@@ -95,95 +102,23 @@ namespace B9PartSwitch
         {
             base.OnStart(state);
 
+            FindParent();
+
             InitializeSubtypes();
             SetupSubtypes();
 
             FindBestSubtype();
 
             SetupGUI();
-
-            UpdateOnStart();
         }
 
         // This runs after OnStart() so everything should be initalized
         public void Start()
         {
-            // Check for incompatible modules
-            bool modifiedSetup = false;
+            CheckOtherSwitchers();
+            CheckOtherModules();
             
-            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
-            {
-                if (otherModule == this) continue;
-                bool destroy = false;
-                foreach (string resourceName in ManagedResourceNames)
-                {
-                    if (otherModule.IsManagedResource(resourceName))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
-                        destroy = true;
-                    }
-                }
-                foreach (Transform transform in ManagedTransforms)
-                {
-                    if (otherModule.IsManagedTransform(transform))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same transform: {transform.name}");
-                        destroy = true;
-                    }
-                }
-                foreach (AttachNode node in ManagedNodes)
-                {
-                    if (otherModule.IsManagedNode(node))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same attach node: {node.id}");
-                        destroy = true;
-                    }
-                }
-
-                foreach (ISubtypePartField field in SubtypePartFields.All)
-                {
-                    if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
-                    {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's {field.Name}");
-                        destroy = true;
-                    }
-                }
-
-                if (destroy)
-                {
-                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
-                    part.RemoveModule(otherModule);
-                    modifiedSetup = true;
-                }
-            }
-
-            if (ManagesResources)
-            {
-                bool incompatible = false;
-                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
-                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
-                {
-                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
-                    incompatible = true;
-                }
-
-                if (incompatible)
-                {
-                    foreach (var subtype in subtypes)
-                    {
-                        if (!subtype.tankType.IsStructuralTankType)
-                            subtype.AssignStructuralTankType();
-                    }
-                    modifiedSetup = true;
-                }
-
-            }
-
-            // If there were incompatible modules, they might have messed with things
-            if (modifiedSetup)
-            {
-                UpdateOnStart();
-            }
+            UpdateOnStart();
         }
 
         #endregion
@@ -227,16 +162,73 @@ namespace B9PartSwitch
         #region Public Methods
 
         public bool IsManagedResource(string resourceName) => ManagedResourceNames.Contains(resourceName);
-        public bool IsManagedTransform(Transform transform) => ManagedTransforms.Contains(transform);
-        public bool IsManagedNode(AttachNode node) => ManagedNodes.Contains(node);
+
+        public bool TransformShouldBeEnabled(Transform transform)
+        {
+            if (CurrentSubtype.TransformIsManaged(transform)) return true;
+            foreach (PartSubtype subtype in subtypes)
+            {
+                if (subtype == CurrentSubtype) continue;
+                if (subtype.TransformIsManaged(transform)) return false;
+            }
+
+            return true;
+        }
+
+        public bool NodeShouldBeEnabled(AttachNode node)
+        {
+            if (CurrentSubtype.NodeManaged(node)) return true;
+            foreach (PartSubtype subtype in subtypes)
+            {
+                if (subtype == CurrentSubtype) continue;
+                if (subtype.NodeManaged(node)) return false;
+            }
+
+            return true;
+        }
 
         public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
+
+        public void AddChild(ModuleB9PartSwitch child)
+        {
+            child.ThrowIfNullArgument(nameof(child));
+
+            if (children.Contains(child))
+            {
+                LogError($"Child module with id '{child.moduleID}' has already been added!");
+                return;
+            }
+
+            children.Add(child);
+        }
+
+        public void UpdateVolume()
+        {
+            UpdateVolumeFromChildren();
+            CurrentSubtype.AddResources(true);
+        }
 
         #endregion
 
         #region Private Methods
 
         #region Setup
+
+        private void FindParent()
+        {
+            parent = null;
+            if (parentID.IsNullOrEmpty()) return;
+
+            parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
+
+            if (parent.IsNull())
+            {
+                LogError($"Cannot find parent module with id '{parentID}'");
+                return;
+            }
+
+            parent.AddChild(this);
+        }
 
         private void InitializeSubtypes()
         {
@@ -347,6 +339,7 @@ namespace B9PartSwitch
         {
             subtypes.ForEach(subtype => subtype.DeactivateOnStart());
             RemoveUnusedResources();
+            UpdateVolumeFromChildren();
             CurrentSubtype.ActivateOnStart();
             UpdateGeometry();
 
@@ -365,6 +358,62 @@ namespace B9PartSwitch
             }
         }
 
+        private void CheckOtherSwitchers()
+        {
+            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
+            {
+                if (otherModule == this) continue;
+                bool destroy = false;
+                foreach (string resourceName in ManagedResourceNames)
+                {
+                    if (otherModule.IsManagedResource(resourceName))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
+                        destroy = true;
+                    }
+                }
+
+                foreach (ISubtypePartField field in SubtypePartFields.All)
+                {
+                    if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's {field.Name}");
+                        destroy = true;
+                    }
+                }
+
+                if (destroy)
+                {
+                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
+                    part.RemoveModule(otherModule);
+                }
+            }
+        }
+
+        private void CheckOtherModules()
+        {
+            if (ManagesResources)
+            {
+                bool incompatible = false;
+                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
+                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
+                {
+                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
+                    incompatible = true;
+                }
+
+                if (incompatible)
+                {
+                    foreach (var subtype in subtypes)
+                    {
+                        if (!subtype.tankType.IsStructuralTankType)
+                            subtype.AssignStructuralTankType();
+                    }
+                }
+
+            }
+        }
+
         #endregion
 
         private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
@@ -373,11 +422,7 @@ namespace B9PartSwitch
 
             subtypes[oldIndex].DeactivateOnSwitch();
 
-            currentSubtypeName = CurrentSubtype.Name;
-
-            CurrentSubtype.ActivateOnSwitch();
-            UpdateGeometry();
-            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+            UpdateSubtype();
 
             foreach (var counterpart in this.FindSymmetryCounterparts())
                 counterpart.UpdateFromSymmetry(currentSubtypeIndex);
@@ -391,10 +436,17 @@ namespace B9PartSwitch
             CurrentSubtype.DeactivateOnSwitch();
 
             currentSubtypeIndex = newIndex;
+
+            UpdateSubtype();
+        }
+
+        private void UpdateSubtype()
+        {
             currentSubtypeName = CurrentSubtype.Name;
 
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry();
+            parent?.UpdateVolume();
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
@@ -448,6 +500,11 @@ namespace B9PartSwitch
             part.DragCubes.ClearCubes();
             part.DragCubes.Cubes.Add(newCube);
             part.DragCubes.ResetCubeWeights();
+        }
+
+        private void UpdateVolumeFromChildren()
+        {
+            VolumeFromChildren = children.Sum(child => child.VolumeAddedToParent);
         }
 
         #endregion

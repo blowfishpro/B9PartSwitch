@@ -40,6 +40,9 @@ namespace B9PartSwitch
         public float volumeAdded = 0f;
 
         [NodeData]
+        public float volumeAddedToParent = 0f;
+
+        [NodeData]
         public float? percentFilled;
 
         [NodeData]
@@ -97,7 +100,7 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => HasTank ? ((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) : 0f;
+        public float TotalVolume => HasTank ? (((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) + parent.VolumeFromChildren) : 0f;
 
         public float TotalMass => TotalVolume * tankType.tankMass + addedMass;
         public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost;
@@ -216,9 +219,9 @@ namespace B9PartSwitch
             UpdatePartParams();
         }
 
-        public void ActivateObjects() => transforms.ForEach(t => t.Enable());
+        public void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
 
-        public void ActivateNodes() => nodes.ForEach(n => n.Unhide());
+        public void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
 
         public void DeactivateObjects() => transforms.ForEach(t => t.Disable());
 
@@ -247,7 +250,7 @@ namespace B9PartSwitch
             }
         }
 
-        public bool TransformIsManaged(Transform transform) => transforms.Any(info => object.ReferenceEquals(info.transform, transform));
+        public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
         public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
 
