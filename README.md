@@ -35,6 +35,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.7.0
+
+* Allow "child" part switch modules to modify volume of "parent" module
+* Allow multiple modules to manage the same transform or node, only enable it if they all agree
+
 ### v1.6.1
 
 * Switch percentFilled priority to resource -> subtype -> tank type -> 100% since resources can be overridden on individual subtypes now
