@@ -50,8 +50,6 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         [Fact]
         public void TestSetValue__Null()
         {
-            DummyClass dummy = new DummyClass();
-
             Assert.Throws<ArgumentNullException>(() => wrapper.SetValue(null, true));
         }
 

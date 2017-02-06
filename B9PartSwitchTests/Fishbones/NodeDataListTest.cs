@@ -55,7 +55,6 @@ namespace B9PartSwitchTests.Fishbones
         [Fact]
         public void TestLoad__NullArgument()
         {
-            object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.LoadInstance, Substitute.For<object>());
             
@@ -87,7 +86,6 @@ namespace B9PartSwitchTests.Fishbones
         [Fact]
         public void TestSave__NullArgument()
         {
-            object subject = new object();
             ConfigNode node = new ConfigNode();
             OperationContext context = new OperationContext(Operation.Save, Substitute.For<object>());
             

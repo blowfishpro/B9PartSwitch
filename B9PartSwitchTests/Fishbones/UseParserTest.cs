@@ -31,7 +31,7 @@ namespace B9PartSwitchTests.Fishbones
         [Fact]
         public void TestNew()
         {
-            UseParser useParser = new UseParser(typeof(DummyValueParser));
+            new UseParser(typeof(DummyValueParser));
         }
 
         [Fact]
