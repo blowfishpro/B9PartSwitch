@@ -139,27 +139,7 @@ namespace B9PartSwitch
 
                 if (resourceNodes.Length > 0)
                 {
-                    OperationContext newContext = new OperationContext(context, this);
-                    foreach (ConfigNode resourceNode in resourceNodes)
-                    {
-                        string name = resourceNode.GetValue("name");
-
-                        if (name.IsNullOrEmpty())
-                        {
-                            LogError("Cannot load a RESOURCE node without a name");
-                            continue;
-                        }
-
-                        TankResource resource = tankType[name];
-
-                        if (resource.IsNull())
-                        {
-                            resource = new TankResource();
-                            tankType.resources.Add(resource);
-                        }
-
-                        resource.LoadFields(resourceNode, newContext);
-                    }
+                    LoadAdditionalResources(resourceNodes, context);
                 }
             }
         }
@@ -278,6 +258,31 @@ namespace B9PartSwitch
         #endregion
 
         #region Private Methods
+
+        private void LoadAdditionalResources(ConfigNode[] resourceNodes, OperationContext context)
+        {
+            OperationContext newContext = new OperationContext(context, this);
+            foreach (ConfigNode resourceNode in resourceNodes)
+            {
+                string name = resourceNode.GetValue("name");
+
+                if (name.IsNullOrEmpty())
+                {
+                    LogError("Cannot load a RESOURCE node without a name");
+                    continue;
+                }
+
+                TankResource resource = tankType[name];
+
+                if (resource.IsNull())
+                {
+                    resource = new TankResource();
+                    tankType.resources.Add(resource);
+                }
+
+                resource.Load(resourceNode, newContext);
+            }
+        }
 
         private void FindObjects()
         {
