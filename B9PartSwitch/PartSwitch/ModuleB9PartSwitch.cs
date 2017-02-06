@@ -83,6 +83,13 @@ namespace B9PartSwitch
 
         #region Setup
 
+        public override void OnAwake()
+        {
+            base.OnAwake();
+
+            InitializeSubtypes();
+        }
+
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
