@@ -125,7 +125,7 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public void OnLoad(ConfigNode node, OperationContext context)
+        private void OnLoad(ConfigNode node, OperationContext context)
         {
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
