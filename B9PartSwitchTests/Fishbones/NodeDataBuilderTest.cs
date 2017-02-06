@@ -26,10 +26,6 @@ namespace B9PartSwitchTests.Fishbones
         public NodeDataBuilderTest()
         {
             builder = Substitute.ForPartsOf<NodeDataBuilder>(nodeData, fieldWrapper, parseMap);
-
-            Assert.Same(nodeData, builder.nodeData);
-            Assert.Same(fieldWrapper, builder.fieldWrapper);
-            Assert.Same(parseMap, builder.valueParseMap);
         }
 
         #region Constructor
@@ -37,7 +33,9 @@ namespace B9PartSwitchTests.Fishbones
         [Fact]
         public void TestNew()
         {
-            NodeDataBuilder builder2 = new NodeDataBuilder(nodeData, fieldWrapper, parseMap);
+            Assert.Same(nodeData, builder.nodeData);
+            Assert.Same(fieldWrapper, builder.fieldWrapper);
+            Assert.Same(parseMap, builder.valueParseMap);
         }
 
         [Fact]
