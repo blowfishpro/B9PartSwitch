@@ -130,11 +130,11 @@ namespace B9PartSwitch
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
 
-            if (title.IsNullOrEmpty())
-                title = subtypeName;
-
             if (context.Operation == Operation.LoadPrefab)
             {
+                if (title.IsNullOrEmpty())
+                    title = subtypeName;
+
                 ConfigNode[] resourceNodes = node.GetNodes("RESOURCE");
 
                 if (resourceNodes.Length > 0)
