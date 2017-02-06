@@ -52,9 +52,9 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         {
             PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.b2));
             PropertyWrapper wrapper2 = new PropertyWrapper(property);
-            DummyClass c = new DummyClass { b1 = true };
+            DummyClass c = new DummyClass { b2 = true };
 
-            Assert.Equal(true, wrapper.GetValue(c));
+            Assert.Equal(true, wrapper2.GetValue(c));
         }
 
         [Fact]
@@ -79,8 +79,8 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
             PropertyWrapper wrapper2 = new PropertyWrapper(property);
             DummyClass c = new DummyClass();
 
-            wrapper.SetValue(c, true);
-            Assert.Equal(true, c.b1);
+            wrapper2.SetValue(c, true);
+            Assert.Equal(true, c.b3);
         }
 
         [Fact]
