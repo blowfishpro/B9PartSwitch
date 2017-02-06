@@ -100,7 +100,16 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => HasTank ? (((parent?.baseVolume ?? 0f) * volumeMultiplier + volumeAdded) + parent.VolumeFromChildren) : 0f;
+        public float TotalVolume
+        {
+            get
+            {
+                if (parent.IsNull()) throw new InvalidOperationException("Cannot get volume before parent has been linked!");
+
+                if (!HasTank) return 0f;
+                return parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren;
+            }
+        }
 
         public float TotalMass => TotalVolume * tankType.tankMass + addedMass;
         public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost;
