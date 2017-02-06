@@ -114,9 +114,9 @@ namespace B9PartSwitch
 
         public void Load(ConfigNode node, OperationContext context)
         {
-            this.LoadFields(node, context);
+            OperationContext newContext = this.LoadFields(node, context);
 
-            OnLoad(node, context);
+            OnLoad(node, newContext);
         }
 
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);

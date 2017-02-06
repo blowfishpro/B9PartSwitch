@@ -9,7 +9,7 @@ namespace B9PartSwitch.Fishbones
         public const string SERIALIZED_NODE = "SERIALIZED_NODE";
         public const string CURRENT_UPGRADE = "CURRENTUPGRADE";
 
-        public static void LoadFields(this object obj, ConfigNode node, OperationContext context)
+        public static OperationContext LoadFields(this object obj, ConfigNode node, OperationContext context)
         {
             obj.ThrowIfNullArgument(nameof(obj));
             node.ThrowIfNullArgument(nameof(node));
@@ -19,9 +19,10 @@ namespace B9PartSwitch.Fishbones
 
             OperationContext newContext = new OperationContext(context, obj);
             list.Load(node, newContext);
+            return newContext;
         }
 
-        public static void SaveFields(this object obj, ConfigNode node, OperationContext context)
+        public static OperationContext SaveFields(this object obj, ConfigNode node, OperationContext context)
         {
             obj.ThrowIfNullArgument(nameof(obj));
             node.ThrowIfNullArgument(nameof(node));
@@ -31,6 +32,7 @@ namespace B9PartSwitch.Fishbones
 
             OperationContext newContext = new OperationContext(context, obj);
             list.Save(node, newContext);
+            return newContext;
         }
 
         public static void LoadFields(this PartModule module, ConfigNode node)
