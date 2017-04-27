@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
@@ -348,7 +349,7 @@ namespace B9PartSwitch
             RemoveUnusedResources();
             UpdateVolumeFromChildren();
             CurrentSubtype.ActivateOnStart();
-            UpdateGeometry();
+            UpdateGeometry(true);
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
@@ -452,7 +453,7 @@ namespace B9PartSwitch
             currentSubtypeName = CurrentSubtype.Name;
 
             CurrentSubtype.ActivateOnSwitch();
-            UpdateGeometry();
+            UpdateGeometry(false);
             parent?.UpdateVolume();
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
@@ -460,6 +461,12 @@ namespace B9PartSwitch
         private void UpdateDragCubesOnAttach()
         {
             part.OnEditorAttach -= UpdateDragCubesOnAttach;
+            StartCoroutine(RenderDragCubesInAFrame());
+        }
+
+        private IEnumerator RenderDragCubesInAFrame()
+        {
+            yield return null;
             RenderProceduralDragCubes();
         }
         
@@ -476,7 +483,7 @@ namespace B9PartSwitch
             }
         }
 
-        private void UpdateGeometry()
+        private void UpdateGeometry(bool start)
         {
             if (!ManagesTransforms) return;
 
@@ -485,7 +492,7 @@ namespace B9PartSwitch
                 part.SendMessage("GeometryPartModuleRebuildMeshData");
             }
 
-            if (affectDragCubes)
+            if (affectDragCubes && (!start || IsLastModuleAffectingDragCubes()))
             {
                 if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
                     part.OnEditorAttach += UpdateDragCubesOnAttach;
@@ -501,12 +508,16 @@ namespace B9PartSwitch
                 window.displayDirty = true;
         }
 
+        private bool IsLastModuleAffectingDragCubes()
+        {
+            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ManagesTransforms && m.affectDragCubes).LastOrDefault();
+            return ReferenceEquals(this, lastModule);
+        }
+
         private void RenderProceduralDragCubes()
         {
-            DragCube newCube = DragCubeSystem.Instance.RenderProceduralDragCube(part);
             part.DragCubes.ClearCubes();
-            part.DragCubes.Cubes.Add(newCube);
-            part.DragCubes.ResetCubeWeights();
+            StartCoroutine(DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null));
         }
 
         private void UpdateVolumeFromChildren()
