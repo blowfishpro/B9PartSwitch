@@ -4,7 +4,7 @@ install:
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
 script:
-  - xbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
+  - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
   - build_script/script/avc_version.rb
   - build_script/script/make_zip.sh
