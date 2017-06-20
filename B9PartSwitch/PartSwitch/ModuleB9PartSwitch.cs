@@ -460,30 +460,35 @@ namespace B9PartSwitch
 
         private void UpdateDragCubesOnAttach()
         {
+            IEnumerator UpdateDragCubesOnAttachCoroutine()
+            {
+                yield return null;
+                RenderProceduralDragCubes();
+            }
+
             part.OnEditorAttach -= UpdateDragCubesOnAttach;
-            StartCoroutine(RenderDragCubesInAFrame());
+            StartCoroutine(UpdateDragCubesOnAttachCoroutine());
         }
 
-        private IEnumerator RenderDragCubesInAFrame()
+        private void UpdateDragCubesForRootPartInFlight()
         {
-            yield return null;
-            RenderProceduralDragCubes();
-        }
+            IEnumerator UpdateDragCubesForRootPartInFlightCoroutine()
+            {
+                yield return null;
+                yield return null;
+                yield return null;
 
-        private IEnumerator RenderDragCubesThreeFrames()
-        {
-            yield return null;
-            yield return null;
-            yield return null;
+                // FIXME - This is a hack to get around the fact that KSP will remove the mapObject when rendering drag cubes
+                // This will hopefully be fixed in KSP 1.3.1
+                MapObject mapObject = vessel.mapObject;
+                vessel.mapObject = null;
 
-            // FIXME - This is a hack to get around the fact that KSP will remove the mapObject when rendering drag cubes
-            // This will hopefully be fixed in KSP 1.3.1
-            MapObject mapObject = vessel.mapObject;
-            vessel.mapObject = null;
+                yield return RenderProceduralDragCubes();
 
-            yield return RenderProceduralDragCubes();
+                vessel.mapObject = mapObject;
+            }
 
-            vessel.mapObject = mapObject;
+            StartCoroutine(UpdateDragCubesForRootPartInFlightCoroutine());
         }
 
         private void FireEvents()
@@ -513,7 +518,7 @@ namespace B9PartSwitch
                 if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
                     part.OnEditorAttach += UpdateDragCubesOnAttach;
                 else if (HighLogic.LoadedSceneIsFlight && part.parent == null)
-                    StartCoroutine(RenderDragCubesThreeFrames());
+                    UpdateDragCubesForRootPartInFlight();
                 else
                     RenderProceduralDragCubes();
             }
