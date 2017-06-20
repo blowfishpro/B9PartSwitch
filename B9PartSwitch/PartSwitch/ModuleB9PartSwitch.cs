@@ -475,7 +475,15 @@ namespace B9PartSwitch
             yield return null;
             yield return null;
             yield return null;
-            RenderProceduralDragCubes();
+
+            // FIXME - This is a hack to get around the fact that KSP will remove the mapObject when rendering drag cubes
+            // This will hopefully be fixed in KSP 1.3.1
+            MapObject mapObject = vessel.mapObject;
+            vessel.mapObject = null;
+
+            yield return RenderProceduralDragCubes();
+
+            vessel.mapObject = mapObject;
         }
 
         private void FireEvents()
@@ -524,10 +532,10 @@ namespace B9PartSwitch
             return ReferenceEquals(this, lastModule);
         }
 
-        private void RenderProceduralDragCubes()
+        private Coroutine RenderProceduralDragCubes()
         {
             part.DragCubes.ClearCubes();
-            StartCoroutine(DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null));
+            return StartCoroutine(DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null));
         }
 
         private void UpdateVolumeFromChildren()
