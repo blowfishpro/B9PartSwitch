@@ -469,7 +469,15 @@ namespace B9PartSwitch
             yield return null;
             RenderProceduralDragCubes();
         }
-        
+
+        private IEnumerator RenderDragCubesThreeFrames()
+        {
+            yield return null;
+            yield return null;
+            yield return null;
+            RenderProceduralDragCubes();
+        }
+
         private void FireEvents()
         {
             if (HighLogic.LoadedSceneIsEditor)
@@ -496,6 +504,8 @@ namespace B9PartSwitch
             {
                 if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
                     part.OnEditorAttach += UpdateDragCubesOnAttach;
+                else if (HighLogic.LoadedSceneIsFlight && part.parent == null)
+                    StartCoroutine(RenderDragCubesThreeFrames());
                 else
                     RenderProceduralDragCubes();
             }
