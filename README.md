@@ -35,6 +35,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 ## Changelog
 
 
+### v1.9.0
+
+* Add stackSymmetry part field to subtypes
+
 ### v1.8.1
 
 * Fix drag cubes being overwritten with defaults on root part in flight scene
