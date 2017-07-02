@@ -12,9 +12,12 @@ script:
   - build_script/script/make_zip.sh
 before_deploy:
   - build_script/before_deploy/copy_zip.sh
+  - mkdir bintray
+  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_build.json.erb bintray/publish_build.json
+  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_avc_version.json.erb bintray/publish_avc_version.json
 deploy:
   - provider: bintray
-    file: build_script/deploy/bintray_deploy.json
+    file: bintray/publish_build.json
     user: blowfishpro
     key: ${BINTRAY_API_KEY}
   - provider: releases
@@ -25,7 +28,7 @@ deploy:
     on:
       tags: true
   - provider: bintray
-    file: build_script/deploy/bintray_release_version.json
+    file: bintray/publish_avc_version.json
     user: blowfishpro
     key: ${BINTRAY_API_KEY}
     on:
