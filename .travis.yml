@@ -10,7 +10,6 @@ script:
   - build_script/script/make_release.sh
   - build_script/script/avc_version.rb files/B9PartSwitch.version.erb release/GameData/B9PartSwitch/B9PartSwitch.version
   - build_script/script/make_zip.sh
-before_deploy:
   - build_script/before_deploy/copy_zip.sh
   - mkdir bintray
   - build_script/before_deploy/populate_bintray.rb files/bintray/publish_build.json.erb bintray/publish_build.json
