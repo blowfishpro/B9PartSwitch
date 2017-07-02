@@ -1,6 +1,7 @@
 language: csharp
 solution: B9PartSwitch.sln
 install:
+  - bundle install
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
 script:

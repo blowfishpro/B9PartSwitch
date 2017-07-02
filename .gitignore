@@ -239,3 +239,4 @@ $RECYCLE.BIN/
 *.zip
 B9PartSwitch/Properties/AssemblyInfo.cs
 GameData/B9PartSwitch/B9PartSwitch.version
+Gemfile.lock
