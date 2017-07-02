@@ -73,6 +73,13 @@ namespace B9PartSwitch
             part => part.CenterOfDisplacement,
             (context, vector) => context.Part.CenterOfDisplacement = vector);
 
+        public static readonly SubtypePartField<int> StackSymmetry = new SubtypePartField<int>(
+            "StackSymmetry",
+            context => context.Subtype.stackSymmetry,
+            stackSymmetry => stackSymmetry >= 0,
+            part => part.stackSymmetry,
+            (context, stackSymmetry) => context.Part.stackSymmetry = stackSymmetry);
+
         public static readonly ReadOnlyCollection<ISubtypePartField> All = new ReadOnlyCollection<ISubtypePartField>(new ISubtypePartField[] {
             MaxTemp,
             SkinMaxTemp,
@@ -82,7 +89,8 @@ namespace B9PartSwitch
             CoPOffset,
             CoLOffset,
             CenterOfBuoyancy,
-            CenterOfDisplacement
+            CenterOfDisplacement,
+            StackSymmetry,
         });
     }
 }

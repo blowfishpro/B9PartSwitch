@@ -75,6 +75,9 @@ namespace B9PartSwitch
         [NodeData]
         public Vector3 CenterOfDisplacement = Vector3Extensions.NaN();
 
+        [NodeData]
+        public int stackSymmetry = -1;
+
         #endregion
 
         #region Private Fields
