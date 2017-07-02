@@ -1,17 +1,23 @@
 #!/usr/bin/env ruby
 
-require 'json'
+require 'erubis'
 
 require_relative '../version/tag_version'
 require_relative '../version/ksp_version'
 
+if ARGV.size != 2
+  puts "usage: #{__FILE__} in_erb_file out_version_file"
+  exit 1
+end
+
+in_erb_file = ARGV[0]
+out_version_file = ARGV[1]
+
 version = get_tag_version
 ksp_version = get_ksp_version
 
-project_name = ENV['PROJECT_NAME']
+erb = Erubis::Eruby.new(File.read(in_erb_file))
 
-avc_info = eval File.read('files/AVC.version.in')
-
-File.open("GameData/#{project_name}/#{project_name}.version", 'w+') do |f|
-  f.write JSON.pretty_generate(avc_info)
+File.open(out_version_file, 'w+') do |f|
+  f.write erb.result(version: version, ksp_version: ksp_version)
 end

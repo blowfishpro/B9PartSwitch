@@ -7,7 +7,8 @@ install:
 script:
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
-  - build_script/script/avc_version.rb
+  - build_script/script/make_release.sh
+  - build_script/script/avc_version.rb files/B9PartSwitch.version.erb release/GameData/B9PartSwitch/B9PartSwitch.version
   - build_script/script/make_zip.sh
 before_deploy:
   - build_script/before_deploy/copy_zip.sh
