@@ -32,6 +32,9 @@ namespace B9PartSwitch
         [NodeData]
         public string parentID = null;
 
+        [NodeData]
+        public bool switchInFlight = false;
+
         [NodeData(persistent = true)]
         public string currentSubtypeName = null;
 
@@ -193,7 +196,6 @@ namespace B9PartSwitch
         {
             CurrentSubtype.DeactivateOnSwitch();
             currentSubtypeIndex = newIndex;
-            currentSubtypeName = CurrentSubtype.Name;
 
             UpdateOnSwitch();
         }
@@ -372,6 +374,7 @@ namespace B9PartSwitch
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
+            switchSubtypeEvent.guiActive = switchInFlight;
         }
 
         private void UpdateOnStart()
@@ -459,11 +462,20 @@ namespace B9PartSwitch
         {
             UpdateSubtype();
 
-            foreach (var counterpart in this.FindSymmetryCounterparts())
-                counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                foreach (var counterpart in this.FindSymmetryCounterparts())
+                    counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+                
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
+                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+            }
+            else if (HighLogic.LoadedSceneIsFlight)
+            {
+                GameEvents.onVesselWasModified.Fire(this.vessel);
+            }
 
             UpdatePartActionWindow();
-            FireEvents();
         }
 
         private void UpdateFromSymmetry(int newIndex)
@@ -516,19 +528,6 @@ namespace B9PartSwitch
             }
 
             StartCoroutine(UpdateDragCubesForRootPartInFlightCoroutine());
-        }
-
-        private void FireEvents()
-        {
-            if (HighLogic.LoadedSceneIsEditor)
-            {
-                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
-                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
-            }
-            else if (HighLogic.LoadedSceneIsFlight)
-            {
-                GameEvents.onVesselWasModified.Fire(this.vessel);
-            }
         }
 
         private void UpdateGeometry(bool start)

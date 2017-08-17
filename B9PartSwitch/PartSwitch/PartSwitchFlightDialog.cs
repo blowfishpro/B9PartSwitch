@@ -1,10 +1,41 @@
 ﻿using System;
+using System.Linq;
 
 namespace B9PartSwitch
 {
     public static class PartSwitchFlightDialog
     {
         public static void Spawn(ModuleB9PartSwitch module)
+        {
+            bool showWarning = HighLogic.LoadedSceneIsFlight && module.CurrentTankType.ResourceNames.Any(name => module.part.Resources[name].amount > 0);
+
+            if (showWarning)
+            {
+                CreateWarning(module);
+            }
+            else
+            {
+                CreateDialogue(module);
+            }
+        }
+
+        private static void CreateWarning(ModuleB9PartSwitch module)
+        {
+            PopupDialog.SpawnPopupDialog(
+                new MultiOptionDialog(
+                    "B9PartSwitch_SwitchInFlightWarning",
+                    $"{module.part.partInfo.title} has resources that will be dumped by switching the {module.switcherDescription}",
+                    "Confirm Resource Removal",
+                    HighLogic.UISkin,
+                    new DialogGUIButton("Confirm", () => CreateDialogue(module)),
+                    new DialogGUIButton("Cancel", delegate { } )
+                ),
+                false,
+                HighLogic.UISkin
+            );
+        }
+
+        private static void CreateDialogue(ModuleB9PartSwitch module)
         {
             PopupDialog.SpawnPopupDialog(
                 new MultiOptionDialog(
