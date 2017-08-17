@@ -42,6 +42,13 @@ namespace B9PartSwitch
 
         #endregion
 
+        #region Events
+
+        [KSPEvent(guiActiveEditor = true)]
+        public void ShowSubtypesWindow() => PartSwitchFlightDialog.Spawn(this);
+
+        #endregion
+
         #region Private Fields
 
         // Tweakscale integration
@@ -167,7 +174,29 @@ namespace B9PartSwitch
 
         #endregion
 
+        #region Callbacks
+
+        private void OnSliderUpdate(BaseField field, object oldFieldValueObj)
+        {
+            int oldIndex = (int)oldFieldValueObj;
+
+            subtypes[oldIndex].DeactivateOnSwitch();
+
+            UpdateOnSwitch();
+        }
+
+        #endregion
+
         #region Public Methods
+
+        public void SetSubtype(int newIndex)
+        {
+            CurrentSubtype.DeactivateOnSwitch();
+            currentSubtypeIndex = newIndex;
+            currentSubtypeName = CurrentSubtype.Name;
+
+            UpdateOnSwitch();
+        }
 
         public bool IsManagedResource(string resourceName) => ManagedResourceNames.Contains(resourceName);
 
@@ -334,13 +363,15 @@ namespace B9PartSwitch
 
         private void SetupGUI()
         {
-            var chooseField = Fields[nameof(currentSubtypeIndex)];
+            BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
 
-            var chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
+            UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
+            chooseOption.onFieldChanged = OnSliderUpdate;
 
-            chooseOption.onFieldChanged = UpdateFromGUI;
+            BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
+            switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
         }
 
         private void UpdateOnStart()
@@ -424,12 +455,8 @@ namespace B9PartSwitch
 
         #endregion
 
-        private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
+        private void UpdateOnSwitch()
         {
-            int oldIndex = (int)oldFieldValueObj;
-
-            subtypes[oldIndex].DeactivateOnSwitch();
-
             UpdateSubtype();
 
             foreach (var counterpart in this.FindSymmetryCounterparts())
