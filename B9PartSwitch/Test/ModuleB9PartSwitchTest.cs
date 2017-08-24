@@ -13,6 +13,8 @@ namespace B9PartSwitch.Test
         {
             base.TestStartUp();
 
+            part.partInfo = new AvailablePart(); // So that it thinks it's loading from a save
+
             module.baseVolume = 1;
 
             resourceDef1 = new PartResourceDefinition("resource1");
@@ -48,76 +50,99 @@ namespace B9PartSwitch.Test
             module.subtypes.Add(subtype3);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype by name")]
-        public void TestOnStart__FindBestSubtype__ByName()
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype by name")]
+        public void TestLoad__FindBestSubtype__ByName()
         {
-            module.currentSubtypeName = "subtype2";
+            Reset();
 
-            module.OnStart(PartModule.StartState.Editor);
+            ConfigNode node = new ConfigNode();
+            node.AddValue("currentSubtype", "subtype2");
+            
+            module.Load(node);
 
             assertEquals("Should identify the subtype by name", module.CurrentSubtype, subtype2);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype by index")]
-        public void TestOnStart__FindBestSubtype__ByIndex()
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype by name (old field)")]
+        public void TestLoad__FindBestSubtype__ByNameOldField()
         {
-            module.currentSubtypeName = null;
-            module.currentSubtypeIndex = 2;
+            Reset();
 
-            module.OnStart(PartModule.StartState.Editor);
+            ConfigNode node = new ConfigNode();
+            node.AddValue("currentSubtypeName", "subtype2");
+
+            module.Load(node);
+
+            assertEquals("Should identify the subtype by name", module.CurrentSubtype, subtype2);
+        }
+
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype by index")]
+        public void TestLoad__FindBestSubtype__ByIndex()
+        {
+            Reset();
+
+            ConfigNode node = new ConfigNode();
+            node.AddValue("currentSubtypeIndex", "2");
+
+            module.Load(node);
 
             assertEquals("Should identify the subtype by index", module.CurrentSubtype, subtype3);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - structural when no resources present")]
-        public void TestOnStart__FindBestSubtype__StructuralWhenNoResources()
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype - structural when no resources present")]
+        public void TestLoad__FindBestSubtype__StructuralWhenNoResources()
         {
-            module.currentSubtypeName = null;
-            module.currentSubtypeIndex = -1;
-            module.baseVolume = 1f;
-            module.OnStart(PartModule.StartState.Editor);
+            Reset();
+            
+            module.Load(new ConfigNode());
 
             assertEquals("It identifies a structural subtype when no resources present", module.CurrentSubtype, subtype3);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - structural when only unmanaged resources present")]
-        public void TestOnStart__FindBestSubtype__UnmanagedResources()
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype - structural when only unmanaged resources present")]
+        public void TestLoad__FindBestSubtype__UnmanagedResources()
         {
-            PartResource partResource1 = part.AddResource(resourceDef3, 1f, 1f);
+            Reset();
 
-            module.currentSubtypeName = null;
-            module.currentSubtypeIndex = -1;
-            module.OnStart(PartModule.StartState.Editor);
+            part.AddResource(resourceDef3, 1f, 1f);
+
+            module.Load(new ConfigNode());
 
             assertEquals("It identifies a structural subtype when only an unmanaged resource present", module.CurrentSubtype, subtype3);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - correct when resources present")]
-        public void TestOnStart__FindBestSubtype__ManagedResources()
+        [TestInfo("ModuleB9PartSwitch - Load - Find best subtype - correct when resources present")]
+        public void TestLoad__FindBestSubtype__ManagedResources()
         {
-            PartResource partResource2 = part.AddResource(resourceDef1, 1f, 1f);
-            PartResource partResource3 = part.AddResource(resourceDef2, 1f, 1f);
+            Reset();
 
-            module.currentSubtypeName = null;
-            module.currentSubtypeIndex = -1;
-            module.OnStart(PartModule.StartState.Editor);
+            part.AddResource(resourceDef1, 1f, 1f);
+            part.AddResource(resourceDef2, 1f, 1f);
+            part.AddResource(resourceDef3, 1f, 1f);
+
+            module.Load(new ConfigNode());
 
             assertEquals("It identifies the correct subtype by resources when present", module.CurrentSubtype, subtype2);
         }
 
-        [TestInfo("ModuleB9PartSwitch - OnStart - First subtype when subtype can't be determined from resources")]
-        public void TestOnStart__FindBestSubtype__UnknownResources()
+        [TestInfo("ModuleB9PartSwitch - Load - First subtype when subtype can't be determined from resources")]
+        public void TestLoad__FindBestSubtype__UnknownResources()
         {
-            part.Resources.Clear();
+            Reset();
 
-            PartResource partResource1 = part.AddResource(resourceDef3, 1f, 1f);
-            PartResource partResource3 = part.AddResource(resourceDef2, 1f, 1f);
+            part.AddResource(resourceDef2, 1f, 1f);
+            part.AddResource(resourceDef3, 1f, 1f);
 
-            module.currentSubtypeName = null;
-            module.currentSubtypeIndex = -1;
-            module.OnStart(PartModule.StartState.Editor);
+            module.Load(new ConfigNode());
 
             assertEquals("It identifies the first subtype when subtype can't be determined from resources", module.CurrentSubtype, subtype1);
+        }
+
+        private void Reset()
+        {
+            module.currentSubtypeIndex = -1;
+
+            part.Resources.Clear();
         }
     }
 }

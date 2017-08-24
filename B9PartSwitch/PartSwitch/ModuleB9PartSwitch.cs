@@ -9,7 +9,7 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
-        #region Public Fields
+        #region Node Data Fields
         
         [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
         public List<PartSubtype> subtypes = new List<PartSubtype>();
@@ -35,11 +35,20 @@ namespace B9PartSwitch
         [NodeData]
         public bool switchInFlight = false;
 
-        [NodeData(persistent = true)]
-        public string currentSubtypeName = null;
+        [NodeData(name = "currentSubtype", persistent = true)]
+        public string CurrentSubtypeName
+        {
+            get => CurrentSubtype?.Name;
+            private set
+            {
+                int index = subtypes.FindIndex(subtype => subtype.Name == value);
+                if (index == -1) LogError($"Cannot assign subtype because no subtype with name = '{value}' exists");
+                else currentSubtypeIndex = index;
+            }
+        }
 
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
-        [KSPField(guiActiveEditor = true, isPersistant = true, guiName = "Subtype")]
+        [KSPField(guiActiveEditor = true, guiName = "Subtype")]
         [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int currentSubtypeIndex = -1;
 
@@ -106,6 +115,13 @@ namespace B9PartSwitch
             base.OnLoadPrefab(node);
 
             InitializeSubtypes();
+        }
+
+        protected override void OnLoadInstance(ConfigNode node)
+        {
+            base.OnLoadInstance(node);
+
+            FindBestSubtype(node);
         }
 
         public override void OnIconCreate()
@@ -308,30 +324,14 @@ namespace B9PartSwitch
             }
         }
 
-        private void FindBestSubtype()
+        private void FindBestSubtype(ConfigNode node = null)
         {
-            // First try to identify subtype by name
-            if (!currentSubtypeName.IsNullOrEmpty())
+            if (node?.GetValue("currentSubtypeName") is string name)
             {
-                int index = subtypes.FindIndex(subtype => subtype.Name == currentSubtypeName);
-
-                if (index != -1)
-                {
-                    currentSubtypeIndex = index;
-                    return;
-                }
-                else
-                {
-                    LogError($"Cannot find subtype named '{currentSubtypeName}'");
-                }
+                CurrentSubtypeName = name;
             }
 
-            // Now try to use index
-            if (subtypes.ValidIndex(currentSubtypeIndex))
-            {
-                currentSubtypeName = CurrentSubtype.Name;
-                return;
-            }
+            if (subtypes.ValidIndex(currentSubtypeIndex)) return;
 
             if (ManagesResources)
             {
@@ -359,8 +359,6 @@ namespace B9PartSwitch
             // No useful way to determine correct subtype, just pick first
             if (!subtypes.ValidIndex(currentSubtypeIndex))
                 currentSubtypeIndex = 0;
-
-            currentSubtypeName = CurrentSubtype.Name;
         }
 
         private void SetupGUI()
@@ -489,8 +487,6 @@ namespace B9PartSwitch
 
         private void UpdateSubtype()
         {
-            currentSubtypeName = CurrentSubtype.Name;
-
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry(false);
             parent?.UpdateVolume();
