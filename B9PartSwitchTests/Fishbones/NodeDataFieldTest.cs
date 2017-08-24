@@ -80,7 +80,7 @@ namespace B9PartSwitchTests.Fishbones
             field.Load(node, context);
 
             fieldWrapper.Received().GetValue(subject);
-            mapper.Received().Load(ref value, node, context);
+            mapper.Received().Load(ref dummy, node, context);
             fieldWrapper.Received().SetValue(subject, value);
 
             mapper.DidNotReceiveWithAnyArgs().Save(null, null, null);
