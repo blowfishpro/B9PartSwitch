@@ -7,7 +7,6 @@ namespace B9PartSwitch.Fishbones
     public static class NodeDataObjectExtensions
     {
         public const string SERIALIZED_NODE = "SERIALIZED_NODE";
-        public const string CURRENT_UPGRADE = "CURRENTUPGRADE";
 
         public static OperationContext LoadFields(this object obj, ConfigNode node, OperationContext context)
         {
@@ -33,31 +32,6 @@ namespace B9PartSwitch.Fishbones
             OperationContext newContext = new OperationContext(context, obj);
             list.Save(node, newContext);
             return newContext;
-        }
-
-        public static void LoadFields(this PartModule module, ConfigNode node)
-        {
-            module.ThrowIfNullArgument(nameof(module));
-            node.ThrowIfNullArgument(nameof(node));
-
-            bool loadingPrefab = module.part.partInfo.IsNull() || node.name == CURRENT_UPGRADE;
-            Operation operation = loadingPrefab ? Operation.LoadPrefab : Operation.LoadInstance;
-
-            OperationContext context = new OperationContext(operation, module);
-
-            NodeDataList list = NodeDataListLibrary.Get(module.GetType());
-            list.Load(node, context);
-        }
-
-        public static void SaveFields(this PartModule module, ConfigNode node)
-        {
-            module.ThrowIfNullArgument(nameof(module));
-            node.ThrowIfNullArgument(nameof(node));
-
-            OperationContext context = new OperationContext(Operation.Save, module);
-
-            NodeDataList list = NodeDataListLibrary.Get(module.GetType());
-            list.Save(node, context);
         }
 
         public static SerializedDataContainer SerializeToContainer(this object obj)

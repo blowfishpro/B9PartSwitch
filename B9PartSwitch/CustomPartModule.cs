@@ -1,11 +1,14 @@
 ﻿using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
+using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch
 {
     public abstract class CustomPartModule : PartModule, ISerializationCallbackReceiver
     {
+        public const string CURRENT_UPGRADE = "CURRENTUPGRADE";
+
         #region Fields
 
         [NodeData(persistent = true)]
@@ -41,6 +44,10 @@ namespace B9PartSwitch
             }
         }
 
+        #endregion
+
+        #region Load
+
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
@@ -64,13 +71,22 @@ namespace B9PartSwitch
                 }
             }
 
-            this.LoadFields(node);
+            bool loadingPrefab = part.partInfo.IsNull() || node.name == CURRENT_UPGRADE;
+            Operation operation = loadingPrefab ? Operation.LoadPrefab : Operation.LoadInstance;
+            OperationContext context = new OperationContext(operation, this);
+            this.LoadFields(node, context);
         }
+
+        #endregion
+
+        #region Save
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            this.SaveFields(node);
+
+            OperationContext context = new OperationContext(Operation.Save, this);
+            this.SaveFields(node, context);
         }
 
         #endregion
