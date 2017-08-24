@@ -101,9 +101,9 @@ namespace B9PartSwitch
             InitializeSubtypes();
         }
 
-        public override void OnLoad(ConfigNode node)
+        protected override void OnLoadPrefab(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnLoadPrefab(node);
 
             InitializeSubtypes();
         }

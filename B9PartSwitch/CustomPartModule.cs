@@ -75,7 +75,15 @@ namespace B9PartSwitch
             Operation operation = loadingPrefab ? Operation.LoadPrefab : Operation.LoadInstance;
             OperationContext context = new OperationContext(operation, this);
             this.LoadFields(node, context);
+
+            if (loadingPrefab)
+                OnLoadPrefab(node);
+            else
+                OnLoadInstance(node);
         }
+
+        protected virtual void OnLoadPrefab(ConfigNode node) { }
+        protected virtual void OnLoadInstance(ConfigNode node) { }
 
         #endregion
 
