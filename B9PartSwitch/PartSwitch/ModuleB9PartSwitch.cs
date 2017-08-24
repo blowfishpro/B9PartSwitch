@@ -32,6 +32,9 @@ namespace B9PartSwitch
         [NodeData]
         public string parentID = null;
 
+        [NodeData]
+        public bool switchInFlight = false;
+
         [NodeData(persistent = true)]
         public string currentSubtypeName = null;
 
@@ -39,6 +42,13 @@ namespace B9PartSwitch
         [KSPField(guiActiveEditor = true, isPersistant = true, guiName = "Subtype")]
         [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int currentSubtypeIndex = -1;
+
+        #endregion
+
+        #region Events
+
+        [KSPEvent(guiActiveEditor = true)]
+        public void ShowSubtypesWindow() => PartSwitchFlightDialog.Spawn(this);
 
         #endregion
 
@@ -167,7 +177,28 @@ namespace B9PartSwitch
 
         #endregion
 
+        #region Callbacks
+
+        private void OnSliderUpdate(BaseField field, object oldFieldValueObj)
+        {
+            int oldIndex = (int)oldFieldValueObj;
+
+            subtypes[oldIndex].DeactivateOnSwitch();
+
+            UpdateOnSwitch();
+        }
+
+        #endregion
+
         #region Public Methods
+
+        public void SetSubtype(int newIndex)
+        {
+            CurrentSubtype.DeactivateOnSwitch();
+            currentSubtypeIndex = newIndex;
+
+            UpdateOnSwitch();
+        }
 
         public bool IsManagedResource(string resourceName) => ManagedResourceNames.Contains(resourceName);
 
@@ -334,13 +365,16 @@ namespace B9PartSwitch
 
         private void SetupGUI()
         {
-            var chooseField = Fields[nameof(currentSubtypeIndex)];
+            BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
 
-            var chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
+            UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
+            chooseOption.onFieldChanged = OnSliderUpdate;
 
-            chooseOption.onFieldChanged = UpdateFromGUI;
+            BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
+            switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
+            switchSubtypeEvent.guiActive = switchInFlight;
         }
 
         private void UpdateOnStart()
@@ -424,19 +458,24 @@ namespace B9PartSwitch
 
         #endregion
 
-        private void UpdateFromGUI(BaseField field, object oldFieldValueObj)
+        private void UpdateOnSwitch()
         {
-            int oldIndex = (int)oldFieldValueObj;
-
-            subtypes[oldIndex].DeactivateOnSwitch();
-
             UpdateSubtype();
 
-            foreach (var counterpart in this.FindSymmetryCounterparts())
-                counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                foreach (var counterpart in this.FindSymmetryCounterparts())
+                    counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+                
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
+                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+            }
+            else if (HighLogic.LoadedSceneIsFlight)
+            {
+                GameEvents.onVesselWasModified.Fire(this.vessel);
+            }
 
             UpdatePartActionWindow();
-            FireEvents();
         }
 
         private void UpdateFromSymmetry(int newIndex)
@@ -489,19 +528,6 @@ namespace B9PartSwitch
             }
 
             StartCoroutine(UpdateDragCubesForRootPartInFlightCoroutine());
-        }
-
-        private void FireEvents()
-        {
-            if (HighLogic.LoadedSceneIsEditor)
-            {
-                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
-                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
-            }
-            else if (HighLogic.LoadedSceneIsFlight)
-            {
-                GameEvents.onVesselWasModified.Fire(this.vessel);
-            }
         }
 
         private void UpdateGeometry(bool start)
