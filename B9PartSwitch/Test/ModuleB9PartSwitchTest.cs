@@ -48,29 +48,41 @@ namespace B9PartSwitch.Test
             module.subtypes.Add(subtype3);
         }
 
-        [TestInfo("TestFindBestSubtype")]
-        public void TestFindBestSubtype()
+        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype by name")]
+        public void TestOnStart__FindBestSubtype__ByName()
         {
             module.currentSubtypeName = "subtype2";
 
             module.OnStart(PartModule.StartState.Editor);
 
             assertEquals("Should identify the subtype by name", module.CurrentSubtype, subtype2);
+        }
 
+        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype by index")]
+        public void TestOnStart__FindBestSubtype__ByIndex()
+        {
             module.currentSubtypeName = null;
             module.currentSubtypeIndex = 2;
 
             module.OnStart(PartModule.StartState.Editor);
 
             assertEquals("Should identify the subtype by index", module.CurrentSubtype, subtype3);
+        }
 
+        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - structural when no resources present")]
+        public void TestOnStart__FindBestSubtype__StructuralWhenNoResources()
+        {
             module.currentSubtypeName = null;
             module.currentSubtypeIndex = -1;
             module.baseVolume = 1f;
             module.OnStart(PartModule.StartState.Editor);
 
             assertEquals("It identifies a structural subtype when no resources present", module.CurrentSubtype, subtype3);
+        }
 
+        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - structural when only unmanaged resources present")]
+        public void TestOnStart__FindBestSubtype__UnmanagedResources()
+        {
             PartResource partResource1 = part.AddResource(resourceDef3, 1f, 1f);
 
             module.currentSubtypeName = null;
@@ -78,7 +90,11 @@ namespace B9PartSwitch.Test
             module.OnStart(PartModule.StartState.Editor);
 
             assertEquals("It identifies a structural subtype when only an unmanaged resource present", module.CurrentSubtype, subtype3);
+        }
 
+        [TestInfo("ModuleB9PartSwitch - OnStart - Find best subtype - correct when resources present")]
+        public void TestOnStart__FindBestSubtype__ManagedResources()
+        {
             PartResource partResource2 = part.AddResource(resourceDef1, 1f, 1f);
             PartResource partResource3 = part.AddResource(resourceDef2, 1f, 1f);
 
@@ -87,8 +103,15 @@ namespace B9PartSwitch.Test
             module.OnStart(PartModule.StartState.Editor);
 
             assertEquals("It identifies the correct subtype by resources when present", module.CurrentSubtype, subtype2);
+        }
 
-            part.RemoveResource(partResource2);
+        [TestInfo("ModuleB9PartSwitch - OnStart - First subtype when subtype can't be determined from resources")]
+        public void TestOnStart__FindBestSubtype__UnknownResources()
+        {
+            part.Resources.Clear();
+
+            PartResource partResource1 = part.AddResource(resourceDef3, 1f, 1f);
+            PartResource partResource3 = part.AddResource(resourceDef2, 1f, 1f);
 
             module.currentSubtypeName = null;
             module.currentSubtypeIndex = -1;
