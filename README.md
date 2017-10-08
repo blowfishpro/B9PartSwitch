@@ -34,6 +34,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v1.10.0
+
+* Add new GUI that allows selecting subtype from a list
+* Allow switching in flight via switchInFlight parameter (uses new GUI)
 
 ### v1.9.0
 
