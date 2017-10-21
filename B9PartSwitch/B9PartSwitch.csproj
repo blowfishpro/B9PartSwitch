@@ -107,7 +107,6 @@
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="TankSettings\B9TankSettings.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
-    <Compile Include="Exceptions.cs" />
     <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TankSettings\Tanks.cs" />
