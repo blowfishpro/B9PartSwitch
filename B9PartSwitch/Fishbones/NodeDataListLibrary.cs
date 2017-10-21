@@ -13,10 +13,8 @@ namespace B9PartSwitch.Fishbones
         public static NodeDataList Get(Type type)
         {
             type.ThrowIfNullArgument(nameof(type));
-
-            NodeDataList list;
-
-            if (dict.TryGetValue(type, out list))
+            
+            if (dict.TryGetValue(type, out NodeDataList list))
                 return list;
 
             try
