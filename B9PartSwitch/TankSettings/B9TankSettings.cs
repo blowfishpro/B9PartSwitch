@@ -18,10 +18,12 @@ namespace B9PartSwitch
         {
             get
             {
-                var t = new TankType();
-                t.tankName = structuralTankName;
-                t.tankMass = 0f;
-                t.tankCost = 0f;
+                TankType t = new TankType
+                {
+                    tankName = structuralTankName,
+                    tankMass = 0f,
+                    tankCost = 0f
+                };
                 return t;
             }
         }
