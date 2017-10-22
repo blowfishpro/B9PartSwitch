@@ -13,8 +13,7 @@ end
 in_erb_file = ARGV[0]
 out_version_file = ARGV[1]
 
-version = get_tag_version
-ksp_version = get_ksp_version
+version = tag_version
 
 erb = Erubis::Eruby.new(File.read(in_erb_file))
 

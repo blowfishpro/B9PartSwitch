@@ -2,8 +2,8 @@
 
 require 'yaml'
 
-vars = YAML.load(File.read('.travis.yml'))['env']['global']
+vars = YAML.safe_load(File.read('.travis.yml'))['env']['global']
 
 vars.each do |var|
-  puts "export #{var.gsub('"', '')}"
+  puts "export #{var.remove('"')}"
 end
