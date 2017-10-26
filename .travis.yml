@@ -34,7 +34,7 @@ deploy:
     secret_access_key: ${S3_SECRET_ACCESS_KEY}
     bucket: blowfish-ksp-b9partswitch-avc
     local_dir: deploy/avc/
-    upload-dir: ${KSP_VERSION}
+    upload-dir: ksp-${KSP_VERSION}
     on:
       tags: true
   - provider: bintray
