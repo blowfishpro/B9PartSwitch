@@ -15,9 +15,6 @@ script:
 after_success:
   - mkdir deploy
   - build_script/before_deploy/copy_release.sh
-  - mkdir bintray
-  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_build.json.erb bintray/publish_build.json
-  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_avc_version.json.erb bintray/publish_avc_version.json
 deploy:
   - provider: s3
     skip_cleanup: true
@@ -37,22 +34,12 @@ deploy:
     upload-dir: ksp-${KSP_VERSION}
     on:
       tags: true
-  - provider: bintray
-    file: bintray/publish_build.json
-    user: blowfishpro
-    key: ${BINTRAY_API_KEY}
   - provider: releases
     skip_cleanup: true
     api_key: ${GITHUB_DEPLOY_TOKEN}
     file: deploy/github/*.zip
     file_glob: true
     name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
-    on:
-      tags: true
-  - provider: bintray
-    file: bintray/publish_avc_version.json
-    user: blowfishpro
-    key: ${BINTRAY_API_KEY}
     on:
       tags: true
 env:
