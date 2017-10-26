@@ -19,6 +19,7 @@ after_success:
   - build_script/before_deploy/populate_bintray.rb files/bintray/publish_avc_version.json.erb bintray/publish_avc_version.json
 deploy:
   - provider: s3
+    skip_cleanup: true
     access_key_id: ${S3_ACCESS_KEY_ID}
     secret_access_key: ${S3_SECRET_ACCESS_KEY}
     bucket: blowfish-ksp-b9partswitch-dev-builds
@@ -31,6 +32,7 @@ deploy:
     user: blowfishpro
     key: ${BINTRAY_API_KEY}
   - provider: releases
+    skip_cleanup: true
     api_key: ${GITHUB_DEPLOY_TOKEN}
     file: zip_release/github/*.zip
     file_glob: true
