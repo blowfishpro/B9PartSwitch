@@ -13,26 +13,33 @@ script:
   - build_script/script/avc_version.rb files/B9PartSwitch.version.erb release/GameData/B9PartSwitch/B9PartSwitch.version
   - build_script/script/make_zip.sh
 after_success:
-  - build_script/before_deploy/copy_zip.sh
-  - mkdir bintray
-  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_build.json.erb bintray/publish_build.json
-  - build_script/before_deploy/populate_bintray.rb files/bintray/publish_avc_version.json.erb bintray/publish_avc_version.json
+  - mkdir deploy
+  - build_script/before_deploy/copy_release.sh
 deploy:
-  - provider: bintray
-    file: bintray/publish_build.json
-    user: blowfishpro
-    key: ${BINTRAY_API_KEY}
-  - provider: releases
-    api_key: ${GITHUB_DEPLOY_TOKEN}
-    file: zip_release/github/*.zip
-    file_glob: true
-    name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: ${S3_ACCESS_KEY_ID}
+    secret_access_key: ${S3_SECRET_ACCESS_KEY}
+    bucket: blowfish-ksp-b9partswitch-dev-builds
+    local_dir: deploy/s3/
+    upload-dir: ${TRAVIS_BRANCH}
+    on:
+      all_branches: true
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: ${S3_ACCESS_KEY_ID}
+    secret_access_key: ${S3_SECRET_ACCESS_KEY}
+    bucket: blowfish-ksp-b9partswitch-avc
+    local_dir: deploy/avc/
+    upload-dir: ksp-${KSP_VERSION}
     on:
       tags: true
-  - provider: bintray
-    file: bintray/publish_avc_version.json
-    user: blowfishpro
-    key: ${BINTRAY_API_KEY}
+  - provider: releases
+    skip_cleanup: true
+    api_key: ${GITHUB_DEPLOY_TOKEN}
+    file: deploy/github/*.zip
+    file_glob: true
+    name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
     on:
       tags: true
 env:
