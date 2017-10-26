@@ -13,6 +13,7 @@ script:
   - build_script/script/avc_version.rb files/B9PartSwitch.version.erb release/GameData/B9PartSwitch/B9PartSwitch.version
   - build_script/script/make_zip.sh
 after_success:
+  - mkdir deploy
   - build_script/before_deploy/copy_release.sh
   - mkdir bintray
   - build_script/before_deploy/populate_bintray.rb files/bintray/publish_build.json.erb bintray/publish_build.json
@@ -23,7 +24,7 @@ deploy:
     access_key_id: ${S3_ACCESS_KEY_ID}
     secret_access_key: ${S3_SECRET_ACCESS_KEY}
     bucket: blowfish-ksp-b9partswitch-dev-builds
-    local_dir: zip_release/s3/
+    local_dir: deploy/s3/
     upload-dir: ${TRAVIS_BRANCH}
     on:
       all_branches: true
@@ -34,7 +35,7 @@ deploy:
   - provider: releases
     skip_cleanup: true
     api_key: ${GITHUB_DEPLOY_TOKEN}
-    file: zip_release/github/*.zip
+    file: deploy/github/*.zip
     file_glob: true
     name: "${PROJECT_NAME} ${TRAVIS_TAG} for KSP ${KSP_VERSION}"
     on:
