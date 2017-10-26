@@ -28,6 +28,15 @@ deploy:
     upload-dir: ${TRAVIS_BRANCH}
     on:
       all_branches: true
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: ${S3_ACCESS_KEY_ID}
+    secret_access_key: ${S3_SECRET_ACCESS_KEY}
+    bucket: blowfish-ksp-b9partswitch-avc
+    local_dir: deploy/avc/
+    upload-dir: ${KSP_VERSION}
+    on:
+      tags: true
   - provider: bintray
     file: bintray/publish_build.json
     user: blowfishpro
