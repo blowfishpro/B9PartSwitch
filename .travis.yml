@@ -44,8 +44,8 @@ deploy:
       tags: true
 env:
   global:
-    - PROJECT_NAME="B9PartSwitch"
-    - PROJECT_DIR="B9PartSwitch"
+    - PROJECT_NAME='B9PartSwitch'
+    - PROJECT_DIR='B9PartSwitch'
     - KSP_VERSION="$(cat KSP_VERSION)"
     - KSP_DLL_PATH="${TRAVIS_BUILD_DIR}/KSP_DLLs/${KSP_VERSION}"
 notifications:
