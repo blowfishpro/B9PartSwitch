@@ -12,3 +12,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
+
+[assembly: AssemblyVersion("<%= version.full_version %>")]
+[assembly: AssemblyFileVersion("<%= version.full_version %>")]
+
+[assembly: KSPAssembly("<%= project_name %>", <%= version.major %>, <%= version.minor %>)]
