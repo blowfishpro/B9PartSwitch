@@ -20,7 +20,7 @@ attributes_data = {
 
 attributes = attributes_data.map { |key, val| "[assembly: #{key}(#{val.join(', ')})]" }
 
-assembly_info_in = File.read('files/AssemblyInfo.cs.in')
+assembly_info_in = File.read('files/AssemblyInfo.cs.erb')
 
 assembly_info_elements = [assembly_info_in] + attributes + [nil]
 
