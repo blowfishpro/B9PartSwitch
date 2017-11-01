@@ -10,10 +10,14 @@ if ARGV.size != 2
   exit 1
 end
 
+version = tag_version
+
+puts "#{__FILE__}: filling version info into ERB template"
+puts "#{__FILE__}: ksp version: #{ksp_version}"
+puts "#{__FILE__}: version: #{version}"
+
 in_erb_file = ARGV[0]
 out_version_file = ARGV[1]
-
-version = tag_version
 
 erb = Erubis::Eruby.new(File.read(in_erb_file))
 
