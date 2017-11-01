@@ -119,7 +119,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>sh -c "cd ../../../ &amp;&amp; build_script/script/fill_version.rb 'files/AssemblyInfo.cs.erb' 'B9PartSwitch/Properties/AssemblyInfo.cs'"</PreBuildEvent>
+    <PreBuildEvent>sh -c "mkdir -p ../../Properties/ &amp;&amp; cd ../../../ &amp;&amp; build_script/script/fill_version.rb 'files/AssemblyInfo.cs.erb' 'B9PartSwitch/Properties/AssemblyInfo.cs'"</PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
