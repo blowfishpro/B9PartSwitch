@@ -224,7 +224,11 @@ namespace B9PartSwitch
             foreach (TankResource resource in tankType.resources)
             {
                 float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                float filledProportion;
+                if (HighLogic.LoadedSceneIsFlight && fillTanks)
+                    filledProportion = 0;
+                else
+                    filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
                 PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
 
                 bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
