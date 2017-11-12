@@ -78,6 +78,9 @@ namespace B9PartSwitch
         [NodeData]
         public int stackSymmetry = -1;
 
+        [NodeData]
+        public bool allowSwitchInFlight = true;
+
         #endregion
 
         #region Private Fields

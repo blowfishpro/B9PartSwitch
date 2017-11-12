@@ -372,7 +372,15 @@ namespace B9PartSwitch
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
-            switchSubtypeEvent.guiActive = switchInFlight;
+
+            if (HighLogic.LoadedSceneIsFlight)
+                UpdateSwitchEventFlightVisibility();
+        }
+
+        private void UpdateSwitchEventFlightVisibility()
+        {
+            BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
+            switchSubtypeEvent.guiActive = switchInFlight && subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
         }
 
         private void UpdateOnStart()
@@ -471,6 +479,8 @@ namespace B9PartSwitch
             else if (HighLogic.LoadedSceneIsFlight)
             {
                 GameEvents.onVesselWasModified.Fire(this.vessel);
+
+                UpdateSwitchEventFlightVisibility();
             }
 
             UpdatePartActionWindow();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace B9PartSwitch
@@ -52,27 +53,25 @@ namespace B9PartSwitch
 
         private static DialogGUIBase[] CreateOptions(ModuleB9PartSwitch module)
         {
-            DialogGUIBase[] options = new DialogGUIBase[module.subtypes.Count + 1];
+            List<DialogGUIBase> options = new List<DialogGUIBase>();
 
             for(int i = 0; i < module.subtypes.Count; i++)
             {
                 PartSubtype subtype = module.subtypes[i];
                 if (subtype == module.CurrentSubtype)
                 {
-                    options[i] = new DialogGUILabel(subtype.title + " (Current)", HighLogic.UISkin.button);
+                    options.Add(new DialogGUILabel(subtype.title + " (Current)", HighLogic.UISkin.button));
                 }
-                else
+                else if (subtype.allowSwitchInFlight)
                 {
                     int j = i; // Necessary due to capturing
-                    options[i] = new DialogGUIButton(
-                        subtype.title, () => module.SetSubtype(j)
-                    );
+                    options.Add(new DialogGUIButton(subtype.title, () => module.SetSubtype(j)));
                 }
             }
 
-            options[options.Length - 1] = new DialogGUIButton("Cancel", delegate { } );
+            options.Add(new DialogGUIButton("Cancel", delegate { } ));
 
-            return options;
+            return options.ToArray();
         }
     }
 }
