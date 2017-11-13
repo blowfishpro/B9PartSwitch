@@ -62,7 +62,7 @@ namespace B9PartSwitch
                 {
                     options.Add(new DialogGUILabel(subtype.title + " (Current)", HighLogic.UISkin.button));
                 }
-                else if (subtype.allowSwitchInFlight)
+                else if (HighLogic.LoadedSceneIsEditor || subtype.allowSwitchInFlight)
                 {
                     int j = i; // Necessary due to capturing
                     options.Add(new DialogGUIButton(subtype.title, () => module.SetSubtype(j)));
