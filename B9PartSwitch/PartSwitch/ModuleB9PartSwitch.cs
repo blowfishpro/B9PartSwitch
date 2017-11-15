@@ -35,6 +35,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool switchInFlight = false;
 
+        [NodeData]
+        public bool advancedTweakablesOnly = false;
+
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
@@ -365,6 +368,7 @@ namespace B9PartSwitch
         {
             BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
+            chooseField.advancedTweakable = advancedTweakablesOnly;
 
             UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
@@ -372,6 +376,7 @@ namespace B9PartSwitch
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
+            switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
