@@ -208,10 +208,10 @@ namespace B9PartSwitch
 
         #region Public Methods
 
-        public void SetSubtype(int newIndex)
+        public void SwitchSubtype(string name)
         {
             CurrentSubtype.DeactivateOnSwitch();
-            currentSubtypeIndex = newIndex;
+            CurrentSubtypeName = name;
 
             UpdateOnSwitch();
         }

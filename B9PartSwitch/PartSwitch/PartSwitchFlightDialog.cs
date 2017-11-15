@@ -55,17 +55,15 @@ namespace B9PartSwitch
         {
             List<DialogGUIBase> options = new List<DialogGUIBase>();
 
-            for(int i = 0; i < module.subtypes.Count; i++)
+            foreach (PartSubtype subtype in module.subtypes)
             {
-                PartSubtype subtype = module.subtypes[i];
                 if (subtype == module.CurrentSubtype)
                 {
                     options.Add(new DialogGUILabel(subtype.title + " (Current)", HighLogic.UISkin.button));
                 }
                 else if (HighLogic.LoadedSceneIsEditor || subtype.allowSwitchInFlight)
                 {
-                    int j = i; // Necessary due to capturing
-                    options.Add(new DialogGUIButton(subtype.title, () => module.SetSubtype(j)));
+                    options.Add(new DialogGUIButton(subtype.title, () => module.SwitchSubtype(subtype.Name)));
                 }
             }
 
