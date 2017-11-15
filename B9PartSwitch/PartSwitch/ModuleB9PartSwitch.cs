@@ -82,6 +82,8 @@ namespace B9PartSwitch
         public int SubtypeIndex => subtypes.ValidIndex(currentSubtypeIndex) ? currentSubtypeIndex : 0;
         public PartSubtype CurrentSubtype => subtypes[SubtypeIndex];
 
+        public IEnumerable<PartSubtype> InactiveSubtypes => subtypes.Where(subtype => subtype != CurrentSubtype);
+
         public TankType CurrentTankType => CurrentSubtype.tankType;
 
         public float VolumeFromChildren { get; private set; } = 0f;
@@ -92,6 +94,7 @@ namespace B9PartSwitch
         public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
         public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
+        public IEnumerable<Material> ManagedMaterials => subtypes.SelectMany(subtype => subtype.Materials);
 
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
@@ -156,6 +159,38 @@ namespace B9PartSwitch
             CheckOtherModules();
             
             UpdateOnStart();
+        }
+
+        public override void OnBeforeSerialize()
+        {
+            base.OnBeforeSerialize();
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnBeforeSerializeInactiveSubtype();
+            }
+
+            CurrentSubtype.OnBeforeSerializeActiveSubtype();
+        }
+
+        public override void OnCopy(PartModule fromModule)
+        {
+            base.OnCopy(fromModule);
+
+            if (!(fromModule is ModuleB9PartSwitch module))
+                throw new ArgumentException("must be ModuleB9PartSwitch", nameof(fromModule));
+
+            module.OnWasCopied();
+        }
+
+        public void OnWasCopied()
+        {
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnWasCopiedInactiveSubtype();
+            }
+
+            CurrentSubtype.OnWasCopiedActiveSubtype();
         }
 
         #endregion
@@ -244,6 +279,8 @@ namespace B9PartSwitch
 
             return true;
         }
+
+        public bool IsManagedMaterial(Material material) => ManagedMaterials.Contains(material);
 
         public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
 
@@ -424,6 +461,15 @@ namespace B9PartSwitch
                     if (otherModule.IsManagedResource(resourceName))
                     {
                         LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
+                        destroy = true;
+                    }
+                }
+
+                foreach (Material material in ManagedMaterials)
+                {
+                    if (otherModule.IsManagedMaterial(material))
+                    {
+                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same material: {material.name}");
                         destroy = true;
                     }
                 }

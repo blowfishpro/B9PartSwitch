@@ -23,6 +23,9 @@ namespace B9PartSwitch
         [NodeData(name = "node")]
         public List<string> nodeNames = new List<string>();
 
+        [NodeData(name = "TEXTURE")]
+        public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -88,6 +91,7 @@ namespace B9PartSwitch
         private ModuleB9PartSwitch parent;
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
+        private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
 
         #endregion
 
@@ -105,6 +109,7 @@ namespace B9PartSwitch
         public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
+        public IEnumerable<Material> Materials => textureReplacements.Select(repl => repl.material);
 
         public float TotalVolume
         {
@@ -170,6 +175,7 @@ namespace B9PartSwitch
 
             FindObjects();
             FindNodes();
+            FindTextureReplacements();
         }
 
         #endregion
@@ -190,6 +196,7 @@ namespace B9PartSwitch
         {
             ActivateObjects();
             ActivateNodes();
+            ActivateTextures();
             AddResources(false);
             UpdatePartParams();
         }
@@ -203,6 +210,7 @@ namespace B9PartSwitch
             else
                 ActivateNodes();
 
+            DeactivateTextures();
             RemoveResources();
         }
 
@@ -210,17 +218,52 @@ namespace B9PartSwitch
         {
             ActivateObjects();
             ActivateNodes();
+            ActivateTextures();
             AddResources(true);
             UpdatePartParams();
         }
 
-        public void DeactivateForIcon() => DeactivateObjects();
-        public void ActivateForIcon() => ActivateObjects();
-        public void UpdateVolume() => AddResources(true);
+        public void DeactivateForIcon()
+        {
+            DeactivateObjects();
+        }
+
+        public void ActivateForIcon()
+        {
+            ActivateObjects();
+            ActivateTextures();
+        }
+
+        public void UpdateVolume()
+        {
+            AddResources(true);
+        }
+
+        public void OnBeforeSerializeActiveSubtype()
+        {
+            DeactivateTextures();
+        }
+
+        public void OnBeforeSerializeInactiveSubtype()
+        {
+            ActivateNodes();
+        }
+
+        public void OnWasCopiedActiveSubtype()
+        {
+            ActivateTextures();
+            ActivateNodes();
+        }
+
+        public void OnWasCopiedInactiveSubtype()
+        {
+            DeactivateNodes();
+        }
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
         public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
+        public bool MaterialIsManaged(Material material) => textureReplacements.Any(repl => repl.material == material);
 
         public void AssignStructuralTankType()
         {
@@ -314,6 +357,27 @@ namespace B9PartSwitch
             }
         }
 
+        private void FindTextureReplacements()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
+            textureReplacements.Clear();
+
+            foreach (TextureSwitchInfo info in textureSwitches)
+            {
+                try
+                {
+                    textureReplacements.AddRange(info.CreateTextureReplacements(Part));
+                }
+                catch(Exception e)
+                {
+                    LogError("Exception while initializing a texture replacment:");
+                    Debug.LogException(e);
+                }
+            }
+        }
+
         private void UpdatePartParams()
         {
             foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
@@ -324,8 +388,10 @@ namespace B9PartSwitch
 
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
+        private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
         private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
+        private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
 
         private void AddResources(bool fillTanks)
         {

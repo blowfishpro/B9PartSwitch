@@ -1,4 +1,5 @@
-﻿using UniLinq;
+﻿using System.Collections.Generic;
+using UniLinq;
 using UnityEngine;
 
 namespace B9PartSwitch
@@ -93,6 +94,21 @@ namespace B9PartSwitch
                 node.Unhide();
             else
                 node.Hide();
+        }
+
+        public static Transform GetModelRoot(this Part part)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            return part.partTransform.FindChild("model");
+        }
+
+        public static IEnumerable<Transform> GetModelTransforms(this Part part, string name)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+            name.ThrowIfNullOrEmpty(nameof(name));
+
+            return part.GetModelRoot().GetChildrenNamedRecursive(name);
         }
 
         public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");

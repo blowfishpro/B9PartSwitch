@@ -101,12 +101,12 @@ namespace B9PartSwitch
 
         #region Serialization Methods
 
-        public void OnBeforeSerialize()
+        public virtual void OnBeforeSerialize()
         {
             serializedData = this.SerializeToContainer();
         }
 
-        public void OnAfterDeserialize()
+        public virtual void OnAfterDeserialize()
         {
             this.DeserializeFromContainer(serializedData);
 
