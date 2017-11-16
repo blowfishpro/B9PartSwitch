@@ -55,6 +55,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TransformExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
+    <Compile Include="FatalErrorHandler.cs" />
     <Compile Include="Fishbones\Context\Operation.cs" />
     <Compile Include="Fishbones\Context\OperationContext.cs" />
     <Compile Include="Fishbones\FieldWrappers\FieldWrapper.cs" />
