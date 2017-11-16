@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones
@@ -28,9 +29,20 @@ namespace B9PartSwitch.Fishbones
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
-            foreach (INodeDataField field in fields)
+            try
             {
-                field.Load(node, context);
+                foreach (INodeDataField field in fields)
+                {
+                    field.Load(node, context);
+                }
+            }
+            catch (HandledFatalException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                FatalErrorHandler.HandleFatalError(new FatalException($"Fatal exception while attempting to load fields for {context.Subject?.GetType()}", e));
             }
         }
 
