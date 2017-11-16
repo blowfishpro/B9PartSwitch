@@ -34,6 +34,17 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.0.0
+
+* Only match on exact attach node id
+* When switching in flight, resources should always start empty
+* Allow individual subtypes to not allow switching in flight via `allowSwitchInFlight` field
+* Allow `ModuleB9PartSwitch` to have its GUI hidden if it has `advancedTweakablesOnly = true` and advanced tweakables are disabled
+* Better error handling if resource of tank type does not exist (show error dialog in game and force the user to quit)
+* Fix .version file not being able to be parsed by KSP-AVC
+* Move remote .avc file from bintray to s3
+* Add back assembly guid (accidentally removed a while ago)
+
 ### v1.10.0
 
 * Add new GUI that allows selecting subtype from a list
