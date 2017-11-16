@@ -25,12 +25,9 @@ namespace B9PartSwitch.Fishbones
             }
             catch(Exception e)
             {
-                Debug.LogError($"Exception while generating field configuration for type {type}");
-                Debug.LogError("This is fatal");
-                Debug.LogError("Exception:");
-                Debug.LogError(e.ToString());
-                Debug.LogError("The game will now exit");
-                Application.Quit();
+                Debug.LogError($"Fatal exception while generating field configuration for type {type}");
+                Debug.LogException(e);
+                FatalErrorHandler.HandleFatalError(e.Message);
             }
 
             dict[type] = list;
