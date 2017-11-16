@@ -36,12 +36,13 @@ namespace B9PartSwitch.Fishbones
                     field.Load(node, context);
                 }
             }
+            catch (HandledFatalException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
-                Debug.LogError($"Fatal exception while attempting to load fields for {context.Subject?.GetType()}");
-                Debug.LogException(e);
-                FatalErrorHandler.HandleFatalError(e.Message);
-                throw;
+                FatalErrorHandler.HandleFatalError(new FatalException($"Fatal exception while attempting to load fields for {context.Subject?.GetType()}", e));
             }
         }
 
