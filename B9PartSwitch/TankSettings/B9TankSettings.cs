@@ -65,25 +65,10 @@ namespace B9PartSwitch
             return tankTypes[name].CloneUsingFields();
         }
 
-        public static bool TankTypeExists(string name)
-        {
-            CheckTankDefs();
-            return tankTypes.ContainsKey(name);
-        }
-
         private static void CheckTankDefs()
         {
             if (!LoadedTankDefs)
                 throw new InvalidOperationException("The tank definitions have not been loaded yet (done after game database load).  This is likely caused by an earlier error or by ModuleManager being missing or out of date");
-        }
-
-        // This will raise an exception when the resource is not found
-        public static PartResourceDefinition FindResourceDefinition(string name)
-        {
-            PartResourceDefinition resource = PartResourceLibrary.Instance.GetDefinition(name);
-            if (resource == null)
-                throw new KeyNotFoundException($"No resource with the name {name} could be found");
-            return resource;
         }
     }
 }
