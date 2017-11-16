@@ -14,7 +14,11 @@ namespace B9PartSwitch
         {
             try
             {
-                if (allMessages.Count < MAX_MESSAGE_COUNT && !allMessages.Contains(message))
+                if (allMessages.Contains(message))
+                {
+                    return;
+                }
+                else if (allMessages.Count < MAX_MESSAGE_COUNT)
                 {
                     allMessages.Add(message);
                 }
