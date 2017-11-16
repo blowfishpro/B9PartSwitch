@@ -28,6 +28,7 @@ namespace B9PartSwitch.Fishbones
                 Debug.LogError($"Fatal exception while generating field configuration for type {type}");
                 Debug.LogException(e);
                 FatalErrorHandler.HandleFatalError(e.Message);
+                throw;
             }
 
             dict[type] = list;

@@ -41,6 +41,7 @@ namespace B9PartSwitch.Fishbones
                 Debug.LogError($"Fatal exception while attempting to load fields for {context.Subject?.GetType()}");
                 Debug.LogException(e);
                 FatalErrorHandler.HandleFatalError(e.Message);
+                throw;
             }
         }
 
