@@ -327,23 +327,21 @@ namespace B9PartSwitch
             nodes = new List<AttachNode>();
             foreach (var nodeName in nodeNames)
             {
-                AttachNode[] tempNodes = Part.FindAttachNodes(nodeName);
-                if (tempNodes == null || tempNodes.Length == 0)
+                bool foundNode = false;
+
+                foreach (AttachNode node in Part.attachNodes.Where(node => node.id == nodeName))
                 {
-                    LogError($"No attach nodes matching {nodeName} found");
+                    foundNode = true;
+
+                    // If a node has been deactivated then it will be a docking node
+                    // Alternative: activate all nodes on serialization
+                    if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
+                        nodes.Add(node);
+                    else
+                        LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
                 }
-                else
-                {
-                    foreach (var node in tempNodes)
-                    {
-                        // If a node has been deactivated then it will be a docking node
-                        // Alternative: activate all nodes on serialization
-                        if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
-                            nodes.Add(node);
-                        else
-                            LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch (found by node identifier {nodeName})");
-                    }
-                }
+
+                if (!foundNode) LogError($"No attach nodes matching {nodeName} found");
             }
         }
 
