@@ -59,6 +59,9 @@ namespace B9PartSwitch
             CheckTankDefs();
             if (name.IsNullOrEmpty())
                 return StructuralTankType;
+            else if (!tankTypes.ContainsKey(name))
+                throw new KeyNotFoundException($"No tank type named '{name}' exists");
+
             return tankTypes[name].CloneUsingFields();
         }
 
