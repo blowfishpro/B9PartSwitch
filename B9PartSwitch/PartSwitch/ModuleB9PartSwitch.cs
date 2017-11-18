@@ -263,7 +263,7 @@ namespace B9PartSwitch
         public void UpdateVolume()
         {
             UpdateVolumeFromChildren();
-            CurrentSubtype.AddResources(true);
+            CurrentSubtype.UpdateVolume();
         }
 
         #endregion
@@ -299,11 +299,13 @@ namespace B9PartSwitch
         private void SetupForIcon()
         {
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
-            foreach (var subtype in subtypes)
+            foreach (PartSubtype subtype in subtypes)
             {
-                subtype.DeactivateObjects();
+                if (subtype == CurrentSubtype)
+                    subtype.ActivateForIcon();
+                else
+                    subtype.DeactivateForIcon();
             }
-            CurrentSubtype.ActivateObjects();
         }
 
         private void SetupSubtypes()

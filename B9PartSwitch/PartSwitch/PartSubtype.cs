@@ -214,40 +214,9 @@ namespace B9PartSwitch
             UpdatePartParams();
         }
 
-        public void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
-
-        public void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
-
-        public void DeactivateObjects() => transforms.ForEach(t => t.Disable());
-
-        public void DeactivateNodes() => nodes.ForEach(n => n.Hide());
-
-        public void AddResources(bool fillTanks)
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                float filledProportion;
-                if (HighLogic.LoadedSceneIsFlight && fillTanks)
-                    filledProportion = 0;
-                else
-                    filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
-                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
-
-                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-
-                if (tweakable.HasValue)
-                    partResource.isTweakable = tweakable.Value;
-            }
-        }
-
-        public void RemoveResources()
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                Part.RemoveResource(resource.ResourceName);
-            }
-        }
+        public void DeactivateForIcon() => DeactivateObjects();
+        public void ActivateForIcon() => ActivateObjects();
+        public void UpdateVolume() => AddResources(true);
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
@@ -350,6 +319,38 @@ namespace B9PartSwitch
             foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
             {
                 field.AssignValueOnSubtype(Context);
+            }
+        }
+
+        private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
+        private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
+        private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
+        private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
+
+        private void AddResources(bool fillTanks)
+        {
+            foreach (TankResource resource in tankType.resources)
+            {
+                float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
+                float filledProportion;
+                if (HighLogic.LoadedSceneIsFlight && fillTanks)
+                    filledProportion = 0;
+                else
+                    filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
+
+                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
+
+                if (tweakable.HasValue)
+                    partResource.isTweakable = tweakable.Value;
+            }
+        }
+
+        private void RemoveResources()
+        {
+            foreach (TankResource resource in tankType.resources)
+            {
+                Part.RemoveResource(resource.ResourceName);
             }
         }
 
