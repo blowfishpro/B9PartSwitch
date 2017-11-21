@@ -122,6 +122,9 @@
   <PropertyGroup>
     <PreBuildEvent>sh -c "mkdir -p ../../Properties/ &amp;&amp; cd ../../../ &amp;&amp; build_script/script/fill_version.rb 'files/AssemblyInfo.cs.erb' 'B9PartSwitch/Properties/AssemblyInfo.cs'"</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>sh -c "mkdir -p '../../../GameData/B9PartSwitch/Plugins/' &amp;&amp; cp './B9PartSwitch.dll' '../../../GameData/B9PartSwitch/Plugins/'"</PostBuildEvent>
+  </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
