@@ -199,16 +199,6 @@ namespace B9PartSwitch
             }
         }
 
-        public void OnWasCopied()
-        {
-            foreach (PartSubtype subtype in InactiveSubtypes)
-            {
-                subtype.OnWasCopiedInactiveSubtype();
-            }
-
-            CurrentSubtype.OnWasCopiedActiveSubtype();
-        }
-
         #endregion
 
         #region Interface Methods
@@ -317,6 +307,16 @@ namespace B9PartSwitch
         {
             UpdateVolumeFromChildren();
             CurrentSubtype.UpdateVolume();
+        }
+
+        public void OnWasCopied()
+        {
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnWasCopiedInactiveSubtype();
+            }
+
+            CurrentSubtype.OnWasCopiedActiveSubtype();
         }
 
         #endregion
