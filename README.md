@@ -34,6 +34,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.1.1
+
+* Fix texture replacements being reset when drag cubes are rendered
+* Fix battery tank type having 100x too much electric charge, bring mass in-line with stock
+
 ### v2.1.0
 
 * Add texture switching
