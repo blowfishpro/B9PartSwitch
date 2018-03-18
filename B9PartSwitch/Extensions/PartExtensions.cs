@@ -100,7 +100,7 @@ namespace B9PartSwitch
         {
             part.ThrowIfNullArgument(nameof(part));
 
-            return part.partTransform.FindChild("model");
+            return part.partTransform.Find("model");
         }
 
         public static IEnumerable<Transform> GetModelTransforms(this Part part, string name)
