@@ -1,6 +1,6 @@
 language: csharp
 mono:
-  - 5.4.1
+  - 5.10.0
 solution: B9PartSwitch.sln
 install:
   - bundle install
