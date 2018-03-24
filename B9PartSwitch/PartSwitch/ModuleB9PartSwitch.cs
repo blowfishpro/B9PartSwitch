@@ -354,11 +354,11 @@ namespace B9PartSwitch
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
             foreach (PartSubtype subtype in subtypes)
             {
-                if (subtype == CurrentSubtype)
-                    subtype.ActivateForIcon();
-                else
-                    subtype.DeactivateForIcon();
+                if (subtype == CurrentSubtype) continue;
+                subtype.DeactivateForIcon();
             }
+
+            CurrentSubtype.ActivateForIcon();
         }
 
         private void SetupSubtypes()
