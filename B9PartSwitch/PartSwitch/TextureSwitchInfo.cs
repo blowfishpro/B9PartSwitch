@@ -126,7 +126,7 @@ namespace B9PartSwitch
                 foreach (Transform transform in part.GetModelTransforms(transformName))
                 {
                     foundTransform = true;
-                    Renderer[] transformRenderers = transform.GetComponentsInChildren<Renderer>();
+                    Renderer[] transformRenderers = transform.GetComponents<Renderer>();
 
                     if (transformRenderers.Length == 0)
                     {
