@@ -363,6 +363,7 @@ namespace B9PartSwitchTests.Fishbones
 
         #region Mapper Builder Creation
 
+        [Fact]
         public void TestCreateValueScalarMapperBuilder()
         {
             builder.NodeDataName.Returns("foo");
@@ -375,6 +376,7 @@ namespace B9PartSwitchTests.Fishbones
             Assert.Same(parseMap, mapperBuilder.parseMap);
         }
 
+        [Fact]
         public void TestCreateValueListMapperBuilder()
         {
             builder.NodeDataName.Returns("foo");
@@ -387,6 +389,7 @@ namespace B9PartSwitchTests.Fishbones
             Assert.Same(parseMap, mapperBuilder.parseMap);
         }
 
+        [Fact]
         public void TestCreateNodeScalarMapperBuilder()
         {
             builder.NodeDataName.Returns("foo");
@@ -398,6 +401,7 @@ namespace B9PartSwitchTests.Fishbones
             Assert.Same(typeof(DummyIConfigNode), mapperBuilder.fieldType);
         }
 
+        [Fact]
         public void TestCreateNodeListMapperBuilder()
         {
             builder.NodeDataName.Returns("foo");
