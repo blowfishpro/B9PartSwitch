@@ -10,7 +10,7 @@ http://forum.kerbalspaceprogram.com/index.php?showtopic=140541
 
 ## Requirements
 
-* KSP version 1.4.1 (build 2089) is the only supported KSP version
+* KSP version 1.4.2 (build 2110) is the only supported KSP version
 * [ModuleManager](http://forum.kerbalspaceprogram.com/index.php?showtopic=50533) is required.
 
 ## Installation
@@ -33,6 +33,12 @@ The source can be found at [Github](https://github.com/blowfishpro/B9PartSwitch)
 This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.0.en.html)
 
 ## Changelog
+
+### v2.2.1
+
+* Recompile against KSP 1.4.2
+* Fix transforms incorrectly being disabled in the part icon if subtypes are in a particular order
+* Fix `transform` in a `TEXTURE` node looking for renderers in child transforms too
 
 ### v2.2.0
 
