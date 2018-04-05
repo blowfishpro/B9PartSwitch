@@ -239,12 +239,12 @@ namespace B9PartSwitch
             AddResources(true);
         }
 
-        public void OnBeforeSerializeActiveSubtype()
+        public void OnWillBeCopiedActiveSubtype()
         {
             DeactivateTextures();
         }
 
-        public void OnBeforeSerializeInactiveSubtype()
+        public void OnWillBeCopiedInactiveSubtype()
         {
             ActivateNodes();
         }

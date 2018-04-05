@@ -9,11 +9,6 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
-        private class CopyOriginalContainer : ScriptableObject
-        {
-            public ModuleB9PartSwitch module;
-        }
-
         #region Node Data Fields
         
         [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
@@ -77,9 +72,6 @@ namespace B9PartSwitch
         private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
-        [SerializeField]
-        private CopyOriginalContainer originalHolder;
-
         #endregion
 
         #region Properties
@@ -122,18 +114,6 @@ namespace B9PartSwitch
             base.OnAwake();
 
             InitializeSubtypes();
-
-            if (originalHolder != null)
-            {
-                if (originalHolder.module != this && originalHolder.module != null)
-                {
-                    originalHolder.module.OnWasCopied();
-                    originalHolder.module.originalHolder = null;
-                }
-                
-                Destroy(originalHolder);
-                originalHolder = null;
-            }
         }
 
         protected override void OnLoadPrefab(ConfigNode node)
@@ -179,24 +159,6 @@ namespace B9PartSwitch
             CheckOtherModules();
             
             UpdateOnStart();
-        }
-
-        public override void OnBeforeSerialize()
-        {
-            base.OnBeforeSerialize();
-
-            foreach (PartSubtype subtype in InactiveSubtypes)
-            {
-                subtype.OnBeforeSerializeInactiveSubtype();
-            }
-
-            CurrentSubtype.OnBeforeSerializeActiveSubtype();
-
-            if (originalHolder == null)
-            {
-                originalHolder = ScriptableObject.CreateInstance<CopyOriginalContainer>();
-                originalHolder.module = this;
-            }
         }
 
         #endregion
@@ -309,8 +271,22 @@ namespace B9PartSwitch
             CurrentSubtype.UpdateVolume();
         }
 
-        public void OnWasCopied()
+        public override void OnWillBeCopied(bool asSymCounterpart)
         {
+            base.OnWillBeCopied(asSymCounterpart);
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnWillBeCopiedInactiveSubtype();
+            }
+
+            CurrentSubtype.OnWillBeCopiedActiveSubtype();
+        }
+
+        public override void OnWasCopied(PartModule copyPartModule, bool asSymCounterpart)
+        {
+            base.OnWasCopied(copyPartModule, asSymCounterpart);
+
             foreach (PartSubtype subtype in InactiveSubtypes)
             {
                 subtype.OnWasCopiedInactiveSubtype();
