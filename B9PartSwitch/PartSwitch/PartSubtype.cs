@@ -362,6 +362,12 @@ namespace B9PartSwitch
             if (parent == null)
                 throw new InvalidOperationException("Parent has not been set");
 
+            // Ensure that textures are reset before doing this
+            foreach(TextureReplacement tr in textureReplacements)
+            {
+                tr.Deactivate();
+            }
+
             textureReplacements.Clear();
 
             foreach (TextureSwitchInfo info in textureSwitches)
