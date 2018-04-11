@@ -34,6 +34,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.2.2
+
+* Fix texture replacements getting locked in when loading a craft in the editor if a part up the hierarchy renders procedural drag cubes
+
 ### v2.2.1
 
 * Recompile against KSP 1.4.2
