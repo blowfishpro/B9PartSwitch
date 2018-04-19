@@ -26,6 +26,9 @@ namespace B9PartSwitch
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
 
+        [NodeData(name = "MOVE_TRANSFORM")]
+        public List<TransformMoverInfo> transformMoverInfos = new List<TransformMoverInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -92,6 +95,7 @@ namespace B9PartSwitch
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
+        private List<TransformMover> transformMovers = new List<TransformMover>();
 
         #endregion
 
@@ -176,6 +180,7 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
+            FindTransformMovers();
         }
 
         #endregion
@@ -197,6 +202,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             ActivateTextures();
+            ActivateTransformMovers();
             AddResources(false);
             UpdatePartParams();
         }
@@ -211,6 +217,7 @@ namespace B9PartSwitch
                 ActivateNodes();
 
             DeactivateTextures();
+            DeactivateTransformMovers();
             RemoveResources();
         }
 
@@ -219,6 +226,7 @@ namespace B9PartSwitch
             ActivateObjects();
             ActivateNodes();
             ActivateTextures();
+            ActivateTransformMovers();
             AddResources(true);
             UpdatePartParams();
         }
@@ -232,6 +240,7 @@ namespace B9PartSwitch
         {
             ActivateObjects();
             ActivateTextures();
+            ActivateTransformMovers();
         }
 
         public void UpdateVolume()
@@ -242,6 +251,7 @@ namespace B9PartSwitch
         public void OnBeforeSerializeActiveSubtype()
         {
             DeactivateTextures();
+            DeactivateTransformMovers();
         }
 
         public void OnBeforeSerializeInactiveSubtype()
@@ -252,6 +262,7 @@ namespace B9PartSwitch
         public void OnWasCopiedActiveSubtype()
         {
             ActivateTextures();
+            ActivateTransformMovers();
             ActivateNodes();
         }
 
@@ -384,6 +395,32 @@ namespace B9PartSwitch
             }
         }
 
+        private void FindTransformMovers()
+        {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
+            foreach (TransformMover tm in transformMovers)
+            {
+                tm.Deactivate();
+            }
+
+            transformMovers.Clear();
+
+            foreach (TransformMoverInfo info in transformMoverInfos)
+            {
+                try
+                {
+                    transformMovers.AddRange(info.CreateTransformMovers(Part));
+                }
+                catch (Exception e)
+                {
+                    LogError("Exception while initializing a transform mover:");
+                    Debug.LogException(e);
+                }
+            }
+        }
+
         private void UpdatePartParams()
         {
             foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
@@ -395,9 +432,11 @@ namespace B9PartSwitch
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
         private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
+        private void ActivateTransformMovers() => transformMovers.ForEach(t => t.Activate());
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
         private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
         private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
+        private void DeactivateTransformMovers() => transformMovers.ForEach(t => t.Deactivate());
 
         private void AddResources(bool fillTanks)
         {

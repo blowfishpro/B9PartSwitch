@@ -101,6 +101,8 @@
     <Compile Include="PartSwitch\SubtypePartFields.cs" />
     <Compile Include="PartSwitch\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
+    <Compile Include="PartSwitch\TransformMover.cs" />
+    <Compile Include="PartSwitch\TransformMoverInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
