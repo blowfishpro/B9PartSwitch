@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.4.1
+  TargetRubyVersion: 2.5.1
 
 Metrics/LineLength:
   Max: 120
@@ -17,5 +17,8 @@ Style/RegexpLiteral:
   EnforcedStyle: slashes
   AllowInnerSlashes: true
 
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
