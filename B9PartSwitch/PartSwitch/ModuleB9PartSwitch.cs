@@ -218,7 +218,7 @@ namespace B9PartSwitch
             {
                 outStr += $"\n<b>- {subtype.title}</b>";
                 foreach (var resource in subtype.tankType)
-                    outStr += $"\n  <color=#99ff00ff>- {resource.ResourceName}</color>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
+                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
             }
             return outStr;
         }
