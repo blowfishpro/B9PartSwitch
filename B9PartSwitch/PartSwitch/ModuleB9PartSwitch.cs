@@ -3,14 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
+using KSP.Localization;
 using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
+        #region Localized Strings
+
+        private static readonly string ModuleTitle = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_title");
+        private static readonly string TankVolumeString = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_tank_volume");
+        private static readonly string DefaultSwitcherDescription = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description");
+        private static readonly string DefaultSwitcherDescriptionPlural = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description_plural");
+
+        #endregion
+
         #region Node Data Fields
-        
+
         [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
         public List<PartSubtype> subtypes = new List<PartSubtype>();
 
@@ -18,10 +28,10 @@ namespace B9PartSwitch
         public float baseVolume = 0f;
 
         [NodeData]
-        public string switcherDescription = "Subtype";
+        public string switcherDescription = DefaultSwitcherDescription; // Subtype
 
         [NodeData]
-        public string switcherDescriptionPlural = "Subtypes";
+        public string switcherDescriptionPlural = DefaultSwitcherDescriptionPlural; // Subtypes
 
         [NodeData]
         public bool affectDragCubes = true;
@@ -185,13 +195,13 @@ namespace B9PartSwitch
             return outStr;
         }
 
-        public string GetModuleTitle() => "Switchable Part";
+        public string GetModuleTitle() => ModuleTitle; // Switchable Part
 
         public string GetPrimaryField()
         {
             string outStr = $"<b>{subtypes.Count} {switcherDescriptionPlural}</b>";
             if (baseVolume > 0)
-                outStr += $" (<b>Volume:</b> {baseVolume :F0})";
+                outStr += $" (<b>{TankVolumeString}:</b> {baseVolume :F0})"; // Volume
             return outStr;
         }
 
