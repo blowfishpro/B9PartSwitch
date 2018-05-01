@@ -10,15 +10,6 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
-        #region Localized Strings
-
-        private static readonly string ModuleTitle = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_title");
-        private static readonly string TankVolumeString = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_tank_volume");
-        private static readonly string DefaultSwitcherDescription = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description");
-        private static readonly string DefaultSwitcherDescriptionPlural = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description_plural");
-
-        #endregion
-
         #region Node Data Fields
 
         [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
@@ -28,10 +19,10 @@ namespace B9PartSwitch
         public float baseVolume = 0f;
 
         [NodeData]
-        public string switcherDescription = DefaultSwitcherDescription; // Subtype
+        public string switcherDescription = Localization.ModuleB9PartSwitch_DefaultSwitcherDescription; // Subtype
 
         [NodeData]
-        public string switcherDescriptionPlural = DefaultSwitcherDescriptionPlural; // Subtypes
+        public string switcherDescriptionPlural = Localization.ModuleB9PartSwitch_DefaultSwitcherDescriptionPlural; // Subtypes
 
         [NodeData]
         public bool affectDragCubes = true;
@@ -195,13 +186,13 @@ namespace B9PartSwitch
             return outStr;
         }
 
-        public string GetModuleTitle() => ModuleTitle; // Switchable Part
+        public string GetModuleTitle() => Localization.ModuleB9PartSwitch_ModuleTitle; // Switchable Part
 
         public string GetPrimaryField()
         {
             string outStr = $"<b>{subtypes.Count} {switcherDescriptionPlural}</b>";
             if (baseVolume > 0)
-                outStr += $" (<b>{TankVolumeString}:</b> {baseVolume :F0})"; // Volume
+                outStr += $" (<b>{Localization.ModuleB9PartSwitch_TankVolumeString}:</b> {baseVolume :F0})"; // Volume
             return outStr;
         }
 
