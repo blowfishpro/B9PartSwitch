@@ -111,6 +111,26 @@ namespace B9PartSwitch
             return part.GetModelRoot().GetChildrenNamedRecursive(name);
         }
 
+        public static void FixModuleJettison(this Part part)
+        {
+            if (!HighLogic.LoadedSceneIsFlight) return;
+
+            foreach (ModuleJettison module in part.Modules.OfType<ModuleJettison>())
+            {
+                if (
+                    !module.useMultipleDragCubes ||
+                    !module.isFairing ||
+                    !module.decoupleEnabled ||
+                    module.isJettisoned ||
+                    module.jettisonTransform == null ||
+                    module.jettisonTransform.root == part.gameObject.transform.root
+                ) continue;
+                Object.Instantiate(module.jettisonTransform, module.jettisonTransform.parent);
+                module.jettisonTransform.parent = part.GetModelRoot();
+                module.jettisonTransform.gameObject.SetActive(false);
+            }
+        }
+
         public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");
         public static void LogWarning(this Part part, object message) => Debug.LogWarning($"[WARNING] [Part {part.name}] {message}");
         public static void LogError(this Part part, object message) => Debug.LogError($"[ERROR] [Part {part.name}] {message}");

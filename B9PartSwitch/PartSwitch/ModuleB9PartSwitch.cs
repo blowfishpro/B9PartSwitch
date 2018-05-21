@@ -128,7 +128,9 @@ namespace B9PartSwitch
         {
             base.OnLoadInstance(node);
 
+            InitializeSubtypes();
             FindBestSubtype(node);
+            UpdateOnLoad();
         }
 
         public override void OnIconCreate()
@@ -158,7 +160,9 @@ namespace B9PartSwitch
         {
             CheckOtherSwitchers();
             CheckOtherModules();
-            
+
+            if (affectDragCubes) part.FixModuleJettison();
+
             UpdateOnStart();
         }
 
@@ -418,6 +422,14 @@ namespace B9PartSwitch
         {
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiActive = switchInFlight && subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
+        }
+
+        private void UpdateOnLoad()
+        {
+            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
+            RemoveUnusedResources();
+            UpdateVolumeFromChildren();
+            CurrentSubtype.ActivateOnStart();
         }
 
         private void UpdateOnStart()
