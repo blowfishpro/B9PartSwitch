@@ -39,11 +39,7 @@ namespace B9PartSwitch
         private void Start()
         {
             if (HighLogic.LoadedSceneIsFlight || !part.Modules.OfType<ModuleB9PartSwitch>().Any(m => DisplayInfoOnSwitcher(m)))
-            {
-                part.Modules.Remove(this);
-                Destroy(this);
                 return;
-            }
 
             SetupGUI();
             UpdateFields();
