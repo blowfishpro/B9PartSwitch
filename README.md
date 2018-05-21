@@ -34,6 +34,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.3.1
+
+* Fix ModuleJettison shroud disappearing in flight if used with a ModuleB9PartSwitch that affects drag cubes
+* Don't destroy info module in flight since that messes with module order
+
 ### v2.3.0
 
 * Recompile against KSP 1.4.3
