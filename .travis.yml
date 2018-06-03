@@ -3,14 +3,14 @@ mono:
   - 5.12.0
 solution: B9PartSwitch.sln
 install:
-  - bundle install
+  - rvm install $(cat .ruby-version)
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
 script:
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
   - build_script/script/make_release.sh
-  - build_script/script/fill_version.rb templates/B9PartSwitch.version.erb release/GameData/B9PartSwitch/B9PartSwitch.version
+  - bin/fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
   - build_script/script/make_zip.sh
 after_success:
   - mkdir deploy

@@ -17,6 +17,9 @@ Style/RegexpLiteral:
   EnforcedStyle: slashes
   AllowInnerSlashes: true
 
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
+
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 
