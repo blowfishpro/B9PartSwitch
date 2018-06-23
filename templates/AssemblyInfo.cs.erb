@@ -15,7 +15,8 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("011a01e9-0074-47d5-82f8-4259d3d927b7")]
 
-[assembly: AssemblyVersion("<%= version.full_version %>")]
-[assembly: AssemblyFileVersion("<%= version.full_version %>")]
+[assembly: AssemblyInformationalVersionAttribute("<%= git_version %>")]
+[assembly: AssemblyVersion("<%= mod_version.to_s(4) %>")]
+[assembly: AssemblyFileVersion("<%= mod_version.to_s(4) %>")]
 
-[assembly: KSPAssembly("B9PartSwitch", <%= version.major %>, <%= version.minor %>, <%= version.patch %>)]
+[assembly: KSPAssembly("B9PartSwitch", <%= mod_version.major %>, <%= mod_version.minor %>, <%= mod_version.patch %>)]
