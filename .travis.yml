@@ -21,6 +21,7 @@ deploy:
     access_key_id: ${S3_ACCESS_KEY_ID}
     secret_access_key: ${S3_SECRET_ACCESS_KEY}
     bucket: blowfish-ksp-b9partswitch-dev-builds
+    storage_class: ONEZONE_IA
     local_dir: deploy/s3/
     upload-dir: ${TRAVIS_BRANCH}
     on:
