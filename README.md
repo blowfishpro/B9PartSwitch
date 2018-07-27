@@ -34,6 +34,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.3.3
+
+* Recompile against KSP 1.4.5
+
 ### v2.3.2
 
 * Recompile against KSP 1.4.4
