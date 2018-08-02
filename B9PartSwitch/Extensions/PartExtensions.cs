@@ -24,6 +24,8 @@ namespace B9PartSwitch
             resource.flowMode = PartResource.FlowMode.Both;
             part.Resources.dict.Add(info.name.GetHashCode(), resource);
 
+            GameEvents.onPartResourceListChange.Fire(part);
+
             return resource;
         }
 
