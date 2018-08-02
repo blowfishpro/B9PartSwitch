@@ -61,9 +61,8 @@ namespace B9PartSwitch
             }
             else
             {
-                renderers = Enumerable.Empty<Renderer>();
-                renderers = GetBaseTransformRenderers(part, renderers);
-                renderers = GetTransformRenderers(part, renderers);
+                renderers = GetBaseTransformRenderers(part);
+                renderers = renderers.Concat(GetTransformRenderers(part));
 
                 renderers = renderers.Distinct();
             }
@@ -86,9 +85,10 @@ namespace B9PartSwitch
             }
         }
 
-        private IEnumerable<Renderer> GetBaseTransformRenderers(Part part, IEnumerable<Renderer> currentRenderers)
+        private IEnumerable<Renderer> GetBaseTransformRenderers(Part part)
         {
-            if (baseTransformNames == null) return currentRenderers;
+            IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
+            if (baseTransformNames == null) return result;
 
             foreach (string baseTransformName in baseTransformNames)
             {
@@ -106,18 +106,19 @@ namespace B9PartSwitch
                         continue;
                     }
 
-                    currentRenderers = currentRenderers.Concat(transformRenderers);
+                    result = result.Concat(transformRenderers);
                 }
 
                 if (!foundTransform) Debug.LogError($"No transforms named {baseTransformName} found");
             }
 
-            return currentRenderers;
+            return result;
         }
 
-        private IEnumerable<Renderer> GetTransformRenderers(Part part, IEnumerable<Renderer> currentRenderers)
+        private IEnumerable<Renderer> GetTransformRenderers(Part part)
         {
-            if (transformNames == null) return currentRenderers;
+            IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
+            if (transformNames == null) return result;
 
             foreach (string transformName in transformNames)
             {
@@ -134,13 +135,13 @@ namespace B9PartSwitch
                         continue;
                     }
 
-                    currentRenderers = currentRenderers.Concat(transformRenderers);
+                    result = result.Concat(transformRenderers);
                 }
 
                 if (!foundTransform) Debug.LogError($"No transforms named {transformName} found");
             }
 
-            return currentRenderers;
+            return result;
         }
     }
 }
