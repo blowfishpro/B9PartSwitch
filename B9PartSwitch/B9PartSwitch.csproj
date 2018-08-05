@@ -102,10 +102,7 @@
     <Compile Include="PartSwitch\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
-    <Compile Include="PartSwitch\PartSubtypeContext.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
-    <Compile Include="PartSwitch\SubtypePartField.cs" />
-    <Compile Include="PartSwitch\SubtypePartFields.cs" />
     <Compile Include="PartSwitch\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />

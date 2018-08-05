@@ -105,8 +105,6 @@ namespace B9PartSwitch
 
         public Part Part => parent.part;
 
-        public PartSubtypeContext Context => new PartSubtypeContext(Part, parent, this);
-
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
         public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
@@ -132,6 +130,17 @@ namespace B9PartSwitch
 
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
+
+        public bool ManagesMaxTemp => maxTemp > 0;
+        public bool ManagesSkinMaxTemp => skinMaxTemp > 0;
+        public bool ManagesCrashTolerance => crashTolerance > 0;
+        public bool ManagesAttachNode => attachNode.IsNotNull();
+        public bool ManagesCoMOffset => CoMOffset.IsFinite();
+        public bool ManagesCoPOffset => CoPOffset.IsFinite();
+        public bool ManagesCoLOffset => CoLOffset.IsFinite();
+        public bool ManagesCenterOfBuoyancy => CenterOfBuoyancy.IsNotNull();
+        public bool ManagesCenterOfDisplacement => CenterOfDisplacement.IsNotNull();
+        public bool ManagesStackSymmetry => stackSymmetry >= 0;
 
         #endregion
 
@@ -229,7 +238,7 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(false);
-            UpdatePartParams();
+            SetPartParams();
             attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
         }
 
@@ -249,6 +258,7 @@ namespace B9PartSwitch
 
             DeactivateTextures();
             RemoveResources();
+            UnsetPartParams();
             attachNodeMovers.ForEach(nm => nm.DeactivateOnSwitch());
         }
 
@@ -258,7 +268,7 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(true);
-            UpdatePartParams();
+            SetPartParams();
             attachNodeMovers.ForEach(nm => nm.ActivateOnSwitch());
         }
 
@@ -440,12 +450,82 @@ namespace B9PartSwitch
             }
         }
 
-        private void UpdatePartParams()
+        private void SetPartParams()
         {
-            foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
+            if (maxTemp > 0)
+                Part.maxTemp = maxTemp;
+
+            if (skinMaxTemp > 0)
+                Part.skinMaxTemp = skinMaxTemp;
+
+            if (crashTolerance > 0)
+                Part.crashTolerance = crashTolerance;
+
+            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull())
             {
-                field.AssignValueOnSubtype(Context);
+                if (attachNode != null)
+                {
+                    Part.srfAttachNode.position = attachNode.position * parent.Scale;
+                    Part.srfAttachNode.orientation = attachNode.orientation;
+                }
             }
+
+            if (CoMOffset.IsFinite())
+                Part.CoMOffset = CoMOffset;
+
+            if (CoPOffset.IsFinite())
+                Part.CoPOffset = CoPOffset;
+
+            if (CoLOffset.IsFinite())
+                Part.CoLOffset = CoLOffset;
+
+            if (CenterOfBuoyancy.IsFinite())
+                Part.CenterOfBuoyancy = CenterOfBuoyancy;
+
+            if (CenterOfDisplacement.IsFinite())
+                Part.CenterOfDisplacement = CenterOfDisplacement;
+
+            if (stackSymmetry >= 0)
+                Part.stackSymmetry = stackSymmetry;
+        }
+
+        private void UnsetPartParams()
+        {
+            if (maxTemp > 0)
+                Part.maxTemp = Part.GetPrefab().maxTemp;
+
+            if (skinMaxTemp > 0)
+                Part.skinMaxTemp = Part.GetPrefab().maxTemp;
+
+            if (crashTolerance > 0)
+                Part.crashTolerance = Part.GetPrefab().crashTolerance;
+
+            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull())
+            {
+                if (attachNode != null)
+                {
+                    Part.srfAttachNode.position = Part.GetPrefab().srfAttachNode.position * parent.Scale;
+                    Part.srfAttachNode.orientation = Part.GetPrefab().srfAttachNode.orientation;
+                }
+            }
+
+            if (CoMOffset.IsFinite())
+                Part.CoMOffset = Part.GetPrefab().CoMOffset;
+
+            if (CoPOffset.IsFinite())
+                Part.CoPOffset = Part.GetPrefab().CoPOffset;
+
+            if (CoLOffset.IsFinite())
+                Part.CoLOffset = Part.GetPrefab().CoLOffset;
+
+            if (CenterOfBuoyancy.IsFinite())
+                Part.CenterOfBuoyancy = Part.GetPrefab().CenterOfBuoyancy;
+
+            if (CenterOfDisplacement.IsFinite())
+                Part.CenterOfDisplacement = Part.GetPrefab().CenterOfDisplacement;
+
+            if (stackSymmetry >= 0)
+                Part.stackSymmetry = Part.GetPrefab().stackSymmetry;
         }
 
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
