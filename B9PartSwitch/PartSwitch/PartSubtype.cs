@@ -96,6 +96,7 @@ namespace B9PartSwitch
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
         private List<AttachNodeMover> attachNodeMovers = new List<AttachNodeMover>();
+        private List<IPartModifier> partModifiers = new List<IPartModifier>();
 
         #endregion
 
@@ -216,6 +217,38 @@ namespace B9PartSwitch
             FindNodes();
             FindTextureReplacements();
             FindAttachNodeMovers();
+
+            Part partPrefab = Part.GetPrefab();
+
+            if (maxTemp > 0)
+                partModifiers.Add(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
+
+            if (skinMaxTemp > 0)
+                partModifiers.Add(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
+
+            if (crashTolerance > 0)
+                partModifiers.Add(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
+
+            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull() && attachNode != null)
+                partModifiers.Add(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+
+            if (CoMOffset.IsFinite())
+                partModifiers.Add(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
+
+            if (CoPOffset.IsFinite())
+                partModifiers.Add(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
+
+            if (CoLOffset.IsFinite())
+                partModifiers.Add(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
+
+            if (CenterOfBuoyancy.IsFinite())
+                partModifiers.Add(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
+
+            if (CenterOfDisplacement.IsFinite())
+                partModifiers.Add(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
+
+            if (stackSymmetry >= 0)
+                partModifiers.Add(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
         }
 
         #endregion
@@ -452,80 +485,12 @@ namespace B9PartSwitch
 
         private void SetPartParams()
         {
-            if (maxTemp > 0)
-                Part.maxTemp = maxTemp;
-
-            if (skinMaxTemp > 0)
-                Part.skinMaxTemp = skinMaxTemp;
-
-            if (crashTolerance > 0)
-                Part.crashTolerance = crashTolerance;
-
-            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull())
-            {
-                if (attachNode != null)
-                {
-                    Part.srfAttachNode.position = attachNode.position * parent.Scale;
-                    Part.srfAttachNode.orientation = attachNode.orientation;
-                }
-            }
-
-            if (CoMOffset.IsFinite())
-                Part.CoMOffset = CoMOffset;
-
-            if (CoPOffset.IsFinite())
-                Part.CoPOffset = CoPOffset;
-
-            if (CoLOffset.IsFinite())
-                Part.CoLOffset = CoLOffset;
-
-            if (CenterOfBuoyancy.IsFinite())
-                Part.CenterOfBuoyancy = CenterOfBuoyancy;
-
-            if (CenterOfDisplacement.IsFinite())
-                Part.CenterOfDisplacement = CenterOfDisplacement;
-
-            if (stackSymmetry >= 0)
-                Part.stackSymmetry = stackSymmetry;
+            partModifiers.ForEach(modifier => modifier.Activate());
         }
 
         private void UnsetPartParams()
         {
-            if (maxTemp > 0)
-                Part.maxTemp = Part.GetPrefab().maxTemp;
-
-            if (skinMaxTemp > 0)
-                Part.skinMaxTemp = Part.GetPrefab().maxTemp;
-
-            if (crashTolerance > 0)
-                Part.crashTolerance = Part.GetPrefab().crashTolerance;
-
-            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull())
-            {
-                if (attachNode != null)
-                {
-                    Part.srfAttachNode.position = Part.GetPrefab().srfAttachNode.position * parent.Scale;
-                    Part.srfAttachNode.orientation = Part.GetPrefab().srfAttachNode.orientation;
-                }
-            }
-
-            if (CoMOffset.IsFinite())
-                Part.CoMOffset = Part.GetPrefab().CoMOffset;
-
-            if (CoPOffset.IsFinite())
-                Part.CoPOffset = Part.GetPrefab().CoPOffset;
-
-            if (CoLOffset.IsFinite())
-                Part.CoLOffset = Part.GetPrefab().CoLOffset;
-
-            if (CenterOfBuoyancy.IsFinite())
-                Part.CenterOfBuoyancy = Part.GetPrefab().CenterOfBuoyancy;
-
-            if (CenterOfDisplacement.IsFinite())
-                Part.CenterOfDisplacement = Part.GetPrefab().CenterOfDisplacement;
-
-            if (stackSymmetry >= 0)
-                Part.stackSymmetry = Part.GetPrefab().stackSymmetry;
+            partModifiers.ForEach(modifier => modifier.Deactivate());
         }
 
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
@@ -571,5 +536,273 @@ namespace B9PartSwitch
         #endregion
 
         #endregion
+    }
+
+    public interface IPartModifier
+    {
+        void Activate();
+        void Deactivate();
+    }
+
+    public class PartMaxTempModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly double origMaxTemp;
+        private readonly double newMaxTemp;
+
+        public PartMaxTempModifier(Part part, double origMaxTemp, double newMaxTemp)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origMaxTemp = origMaxTemp;
+            this.newMaxTemp = newMaxTemp;
+        }
+
+        public void Activate()
+        {
+            part.maxTemp = newMaxTemp;
+        }
+
+        public void Deactivate()
+        {
+            part.maxTemp = origMaxTemp;
+        }
+    }
+
+    public class PartSkinMaxTempModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly double origSkinMaxTemp;
+        private readonly double newSkinMaxTemp;
+
+        public PartSkinMaxTempModifier(Part part, double origSkinMaxTemp, double newSkinMaxTemp)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origSkinMaxTemp = origSkinMaxTemp;
+            this.newSkinMaxTemp = newSkinMaxTemp;
+        }
+
+        public void Activate()
+        {
+            part.skinMaxTemp = newSkinMaxTemp;
+        }
+
+        public void Deactivate()
+        {
+            part.skinMaxTemp = origSkinMaxTemp;
+        }
+    }
+
+    public class PartCrashToleranceModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly float origCrashTolerance;
+        private readonly float newCrashTolerance;
+
+        public PartCrashToleranceModifier(Part part, float origCrashTolerance, float newCrashTolerance)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCrashTolerance = origCrashTolerance;
+            this.newCrashTolerance = newCrashTolerance;
+        }
+
+        public void Activate()
+        {
+            part.crashTolerance = newCrashTolerance;
+        }
+
+        public void Deactivate()
+        {
+            part.crashTolerance = origCrashTolerance;
+        }
+    }
+
+    public class PartAttachNodeModifier : IPartModifier
+    {
+        private readonly AttachNode partAttachNode;
+        private readonly AttachNode referenceAttachNode;
+        private readonly AttachNode newAttachNode;
+
+        public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode)
+        {
+            partAttachNode.ThrowIfNullArgument(nameof(partAttachNode));
+
+            this.partAttachNode = partAttachNode;
+            this.referenceAttachNode = referenceAttachNode;
+            this.newAttachNode = newAttachNode;
+        }
+
+        public void Activate()
+        {
+            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.orientation = referenceAttachNode.orientation;
+        }
+
+        public void Deactivate()
+        {
+            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.orientation = referenceAttachNode.orientation;
+        }
+    }
+
+    public class PartCoMOffsetModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly Vector3 origCoMOffset;
+        private readonly Vector3 newCoMOffset;
+
+        public PartCoMOffsetModifier(Part part, Vector3 origCoMOffset, Vector3 newCoMOffset)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCoMOffset = origCoMOffset;
+            this.newCoMOffset = newCoMOffset;
+        }
+
+        public void Activate()
+        {
+            part.CoMOffset = newCoMOffset;
+        }
+
+        public void Deactivate()
+        {
+            part.CoMOffset = origCoMOffset;
+        }
+    }
+
+    public class PartCoPOffsetModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly Vector3 origCoPOffset;
+        private readonly Vector3 newCoPOffset;
+
+        public PartCoPOffsetModifier(Part part, Vector3 origCoPOffset, Vector3 newCoPOffset)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCoPOffset = origCoPOffset;
+            this.newCoPOffset = newCoPOffset;
+        }
+
+        public void Activate()
+        {
+            part.CoPOffset = newCoPOffset;
+        }
+
+        public void Deactivate()
+        {
+            part.CoPOffset = origCoPOffset;
+        }
+    }
+
+    public class PartCoLOffsetModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly Vector3 origCoLOffset;
+        private readonly Vector3 newCoLOffset;
+
+        public PartCoLOffsetModifier(Part part, Vector3 origCoLOffset, Vector3 newCoLOffset)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCoLOffset = origCoLOffset;
+            this.newCoLOffset = newCoLOffset;
+        }
+
+        public void Activate()
+        {
+            part.CoLOffset = newCoLOffset;
+        }
+
+        public void Deactivate()
+        {
+            part.CoLOffset = origCoLOffset;
+        }
+    }
+
+    public class PartCenterOfDisplacementModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly Vector3 origCenterOfDisplacement;
+        private readonly Vector3 newCenterOfDisplacement;
+
+        public PartCenterOfDisplacementModifier(Part part, Vector3 origCenterOfDisplacement, Vector3 newCenterOfDisplacement)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCenterOfDisplacement = origCenterOfDisplacement;
+            this.newCenterOfDisplacement = newCenterOfDisplacement;
+        }
+
+        public void Activate()
+        {
+            part.CenterOfDisplacement = newCenterOfDisplacement;
+        }
+
+        public void Deactivate()
+        {
+            part.CenterOfDisplacement = origCenterOfDisplacement;
+        }
+    }
+
+    public class PartCenterOfBuoyancyModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly Vector3 origCenterOfBuoyancy;
+        private readonly Vector3 newCenterOfBuoyancy;
+
+        public PartCenterOfBuoyancyModifier(Part part, Vector3 origCenterOfBuoyancy, Vector3 newCenterOfBuoyancy)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origCenterOfBuoyancy = origCenterOfBuoyancy;
+            this.newCenterOfBuoyancy = newCenterOfBuoyancy;
+        }
+
+        public void Activate()
+        {
+            part.CenterOfBuoyancy = newCenterOfBuoyancy;
+        }
+
+        public void Deactivate()
+        {
+            part.CenterOfBuoyancy = origCenterOfBuoyancy;
+        }
+    }
+
+    public class PartStackSymmetryModifier : IPartModifier
+    {
+        private readonly Part part;
+        private readonly int origStackSymmetry;
+        private readonly int newStackSymmetry;
+
+        public PartStackSymmetryModifier(Part part, int origStackSymmetry, int newStackSymmetry)
+        {
+            part.ThrowIfNullArgument(nameof(part));
+
+            this.part = part;
+            this.origStackSymmetry = origStackSymmetry;
+            this.newStackSymmetry = newStackSymmetry;
+        }
+
+        public void Activate()
+        {
+            part.stackSymmetry = newStackSymmetry;
+        }
+
+        public void Deactivate()
+        {
+            part.stackSymmetry = origStackSymmetry;
+        }
     }
 }
