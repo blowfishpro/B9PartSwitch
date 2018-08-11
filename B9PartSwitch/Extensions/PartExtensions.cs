@@ -8,7 +8,7 @@ namespace B9PartSwitch
     {
         public static Part GetPrefab(this Part part)
         {
-            return part.partInfo.partPrefab;
+            return part.partInfo?.partPrefab;
         }
 
         public static PartResource AddResource(this Part part, PartResourceDefinition info, float maxAmount, float amount)

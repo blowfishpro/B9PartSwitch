@@ -70,9 +70,9 @@ namespace B9PartSwitch
             dryCostField.guiName = hasResources ? DryCostGUIString : CostGUIString;
             Fields[nameof(wetCost)].guiActiveEditor = showInfo && showCost && hasResources;
 
-            Fields[nameof(maxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.ManagesMaxTemp);
-            Fields[nameof(skinMaxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.ManagesSkinMaxTemp);
-            Fields[nameof(crashTolerance)].guiActiveEditor = showInfo && switcherModules.Any(module => module.ManagesCrashTolerance);
+            Fields[nameof(maxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("maxTemp"));
+            Fields[nameof(skinMaxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("skinMaxTemp"));
+            Fields[nameof(crashTolerance)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("crashTolerance"));
         }
 
         private void UpdateFields()
@@ -95,9 +95,9 @@ namespace B9PartSwitch
             return
                 switcher.ChangesMass ||
                 switcher.ChangesCost ||
-                switcher.ManagesMaxTemp ||
-                switcher.ManagesSkinMaxTemp ||
-                switcher.ManagesCrashTolerance;
+                switcher.HasPartAspectLock("maxTemp") ||
+                switcher.HasPartAspectLock("skinMaxTemp") ||
+                switcher.HasPartAspectLock("crashTolerance");
         }
     }
 }

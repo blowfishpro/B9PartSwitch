@@ -97,6 +97,7 @@ namespace B9PartSwitch
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
         private List<AttachNodeMover> attachNodeMovers = new List<AttachNodeMover>();
         private List<IPartModifier> partModifiers = new List<IPartModifier>();
+        private List<object> aspectLocks = new List<object>();
 
         #endregion
 
@@ -132,16 +133,7 @@ namespace B9PartSwitch
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
 
-        public bool ManagesMaxTemp => maxTemp > 0;
-        public bool ManagesSkinMaxTemp => skinMaxTemp > 0;
-        public bool ManagesCrashTolerance => crashTolerance > 0;
-        public bool ManagesAttachNode => attachNode.IsNotNull();
-        public bool ManagesCoMOffset => CoMOffset.IsFinite();
-        public bool ManagesCoPOffset => CoPOffset.IsFinite();
-        public bool ManagesCoLOffset => CoLOffset.IsFinite();
-        public bool ManagesCenterOfBuoyancy => CenterOfBuoyancy.IsNotNull();
-        public bool ManagesCenterOfDisplacement => CenterOfDisplacement.IsNotNull();
-        public bool ManagesStackSymmetry => stackSymmetry >= 0;
+        public IEnumerable<object> PartAspectLocks => aspectLocks.All();
 
         #endregion
 
@@ -213,42 +205,146 @@ namespace B9PartSwitch
 
             this.parent = parent;
 
+            aspectLocks.Clear();
+
             FindObjects();
             FindNodes();
             FindTextureReplacements();
             FindAttachNodeMovers();
 
-            Part partPrefab = Part.GetPrefab();
+            Part partPrefab = Part.GetPrefab() ?? Part;
+
+            IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
             if (maxTemp > 0)
-                partModifiers.Add(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
+            {
+                if (aspectLocksOnOtherModules.Contains("maxTemp"))
+                {
+                    LogError("More than one module can't manage a part's maxTemp");
+                }
+                else
+                {
+                    partModifiers.Add(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
+                    aspectLocks.Add("maxTemp");
+                }
+            }
 
             if (skinMaxTemp > 0)
-                partModifiers.Add(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
+            {
+                if (aspectLocksOnOtherModules.Contains("skinMaxTemp"))
+                {
+                    LogError("More than one module can't manage a part's skinMaxTemp");
+                }
+                else
+                {
+                    partModifiers.Add(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
+                    aspectLocks.Add("skinMaxTemp");
+                }
+            }
 
             if (crashTolerance > 0)
-                partModifiers.Add(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
+            {
+                if (aspectLocksOnOtherModules.Contains("crashTolerance"))
+                {
+                    LogError("More than one module can't manage a part's crashTolerance");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
+                    aspectLocks.Add("crashTolerance");
+                }
+            }
 
             if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull() && attachNode != null)
-                partModifiers.Add(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+            {
+                if (aspectLocksOnOtherModules.Contains("attachNode"))
+                {
+                    LogError("More than one module can't manage a part's attach node");
+                }
+                else
+                {
+                    partModifiers.Add(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+                    aspectLocks.Add("attachNode");
+                }
+            }
 
             if (CoMOffset.IsFinite())
-                partModifiers.Add(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
+            {
+                if (aspectLocksOnOtherModules.Contains("CoMOffset"))
+                {
+                    LogError("More than one module can't manage a part's CoMOffset");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
+                    aspectLocks.Add("CoMOffset");
+                }
+            }
 
             if (CoPOffset.IsFinite())
-                partModifiers.Add(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
+            {
+                if (aspectLocksOnOtherModules.Contains("CoPOffset"))
+                {
+                    LogError("More than one module can't manage a part's CoPOffset");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
+                    aspectLocks.Add("CoPOffset");
+                }
+            }
 
             if (CoLOffset.IsFinite())
-                partModifiers.Add(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
+            {
+                if (aspectLocksOnOtherModules.Contains("CoLOffset"))
+                {
+                    LogError("More than one module can't manage a part's CoLOffset");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
+                    aspectLocks.Add("CoLOffset");
+                }
+            }
 
             if (CenterOfBuoyancy.IsFinite())
-                partModifiers.Add(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
+            {
+                if (aspectLocksOnOtherModules.Contains("CenterOfBuoyancy"))
+                {
+                    LogError("More than one module can't manage a part's CenterOfBuoyancy");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
+                    aspectLocks.Add("CenterOfBuoyancy");
+                }
+            }
 
             if (CenterOfDisplacement.IsFinite())
-                partModifiers.Add(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
+            {
+                if (aspectLocksOnOtherModules.Contains("CenterOfDisplacement"))
+                {
+                    LogError("More than one module can't manage a part's CenterOfDisplacement");
+                }
+                else
+                {
+                    partModifiers.Add(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
+                    aspectLocks.Add("CenterOfDisplacement");
+                }
+            }
 
             if (stackSymmetry >= 0)
-                partModifiers.Add(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
+            {
+                if (aspectLocksOnOtherModules.Contains("stackSymmetry"))
+                {
+                    LogError("More than one module can't manage a part's stackSymmetry");
+                }
+                else
+                {
+                    partModifiers.Add(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
+                    aspectLocks.Add("stackSymmetry");
+                }
+            }
         }
 
         #endregion
