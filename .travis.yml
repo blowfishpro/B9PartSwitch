@@ -23,7 +23,7 @@ deploy:
     bucket: blowfish-ksp-b9partswitch-dev-builds
     storage_class: ONEZONE_IA
     local_dir: deploy/s3/
-    upload-dir: ${TRAVIS_BRANCH}
+    upload-dir: builds/${TRAVIS_BRANCH}
     on:
       all_branches: true
       tags: false
