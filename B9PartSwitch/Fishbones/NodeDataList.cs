@@ -6,7 +6,7 @@ namespace B9PartSwitch.Fishbones
 {
     public class NodeDataList
     {
-        private INodeDataField[] fields;
+        private readonly INodeDataField[] fields;
 
         public NodeDataList(params INodeDataField[] fields)
         {
