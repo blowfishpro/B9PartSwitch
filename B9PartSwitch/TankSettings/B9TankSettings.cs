@@ -41,7 +41,18 @@ namespace B9PartSwitch
             {
                 TankType t = new TankType();
                 OperationContext context = new OperationContext(Operation.LoadPrefab, t);
-                t.Load(node, context);
+
+                try
+                {
+                    t.Load(node, context);
+                }
+                catch (Exception ex)
+                {
+                    Exception ex2 = new Exception($"Fatal exception while loading tank type {t.tankName ?? "<unknown>"}", ex);
+                    FatalErrorHandler.HandleFatalError(ex2);
+                    throw ex2;
+                }
+
                 if (tankTypes.ContainsKey(t.tankName))
                 {
                     Debug.LogError($"B9TankSettings: The tank type {t.tankName} already exists");

@@ -23,13 +23,11 @@ namespace B9PartSwitch.Fishbones
                 NodeDataListBuilder builder = new NodeDataListBuilder(type);
                 list = builder.CreateList();
             }
-            catch (HandledFatalException)
-            {
-                throw;
-            }
             catch (Exception e)
             {
-                FatalErrorHandler.HandleFatalError(new FatalException($"Fatal exception while generating field configuration for type {type}", e));
+                Exception e2 = new Exception($"Fatal exception while generating field configuration for type {type}", e);
+                FatalErrorHandler.HandleFatalError(e2);
+                throw e2;
             }
 
             dict[type] = list;

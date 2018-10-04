@@ -134,12 +134,31 @@ namespace B9PartSwitch
 
         public void Load(ConfigNode node, OperationContext context)
         {
-            OperationContext newContext = this.LoadFields(node, context);
+            OperationContext newContext;
+
+            try
+            {
+                newContext = this.LoadFields(node, context);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Exception while loading fields on subtype {this}", ex);
+            }
 
             OnLoad(node, newContext);
         }
 
-        public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
+        public void Save(ConfigNode node, OperationContext context)
+        {
+            try
+            {
+                this.SaveFields(node, context);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Exception while loading fields on subtype {this}", ex);
+            }
+        }
 
         #endregion
 

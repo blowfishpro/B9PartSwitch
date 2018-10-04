@@ -28,20 +28,16 @@ namespace B9PartSwitch.Fishbones
             node.ThrowIfNullArgument(nameof(node));
             context.ThrowIfNullArgument(nameof(context));
 
-            try
+            foreach (INodeDataField field in fields)
             {
-                foreach (INodeDataField field in fields)
+                try
                 {
                     field.Load(node, context);
                 }
-            }
-            catch (HandledFatalException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                FatalErrorHandler.HandleFatalError(new FatalException($"Fatal exception while attempting to load fields for {context.Subject?.GetType()}", e));
+                catch(Exception ex)
+                {
+                    throw new Exception($"Exception while loading field {field.Name} on type {context.Subject?.GetType()}", ex);
+                }
             }
         }
 
@@ -52,7 +48,14 @@ namespace B9PartSwitch.Fishbones
 
             foreach (INodeDataField field in fields)
             {
-                field.Save(node, context);
+                try
+                {
+                    field.Save(node, context);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Exception while saving field {field.Name} on type {context.Subject?.GetType()}", ex);
+                }
             }
         }
     }
