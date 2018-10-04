@@ -90,6 +90,12 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         }
 
         [Fact]
+        public void TestName()
+        {
+            Assert.Equal("b1", wrapper.Name);
+        }
+
+        [Fact]
         public void TestFieldType()
         {
             PropertyWrapper wrapper1 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.b1)));

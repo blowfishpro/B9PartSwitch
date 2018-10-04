@@ -28,6 +28,9 @@ namespace B9PartSwitchTests.Fishbones
         {
             Assert.Same(fieldWrapper, field.field);
             Assert.Same(operationManager, field.operationManager);
+
+            fieldWrapper.Name.Returns("abcde");
+            Assert.Equal("abcde", field.Name);
         }
 
         [Fact]
