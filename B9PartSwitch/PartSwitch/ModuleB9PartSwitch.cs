@@ -121,6 +121,13 @@ namespace B9PartSwitch
         {
             base.OnLoadPrefab(node);
 
+            if (subtypes.Count == 0)
+            {
+                Exception ex = new Exception($"No subtypes found on {this}");
+                FatalErrorHandler.HandleFatalError(ex);
+                throw ex;
+            }
+
             InitializeSubtypes();
         }
 
