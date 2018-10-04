@@ -45,8 +45,8 @@ namespace B9PartSwitchTests.Fishbones
 
             list.Load(node, context);
 
-            field1.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
-            field2.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
+            field1.Received().Load(node, context);
+            field2.Received().Load(node, context);
 
             field1.DidNotReceiveWithAnyArgs().Save(null, null);
             field2.DidNotReceiveWithAnyArgs().Save(null, null);
@@ -76,8 +76,8 @@ namespace B9PartSwitchTests.Fishbones
 
             list.Save(node, context);
 
-            field1.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
-            field2.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
+            field1.Received().Save(node, context);
+            field2.Received().Save(node, context);
 
             field1.DidNotReceiveWithAnyArgs().Load(null, null);
             field2.DidNotReceiveWithAnyArgs().Load(null, null);
