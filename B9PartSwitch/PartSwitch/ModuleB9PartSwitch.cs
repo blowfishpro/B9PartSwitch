@@ -10,6 +10,12 @@ namespace B9PartSwitch
 {
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
+        #region Constants
+        
+        private static readonly string[] INCOMAPTIBLE_MODULES_FOR_RESOURCE_SWITCHING = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
+
+        #endregion
+
         #region Node Data Fields
 
         [NodeData(name = "SUBTYPE", alwaysSerialize = true)]
@@ -476,13 +482,12 @@ namespace B9PartSwitch
             foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
             {
                 if (otherModule == this) continue;
-                bool destroy = false;
+                string error = "";
                 foreach (string resourceName in ManagedResourceNames)
                 {
                     if (otherModule.IsManagedResource(resourceName))
                     {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same resource: {resourceName}");
-                        destroy = true;
+                        error += $"\n  Two modules cannot manage the same resource: {resourceName}";
                     }
                 }
 
@@ -490,8 +495,7 @@ namespace B9PartSwitch
                 {
                     if (otherModule.IsManagedMaterial(material))
                     {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot manage the same material: {material.name}");
-                        destroy = true;
+                        error += $"\n  Two modules cannot manage the same material: {material.name}";
                     }
                 }
 
@@ -499,15 +503,15 @@ namespace B9PartSwitch
                 {
                     if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
                     {
-                        LogError($"Two {nameof(ModuleB9PartSwitch)} modules cannot both manage the part's {field.Name}");
-                        destroy = true;
+                        error += $"\n  Two modules cannot both manage the part's {field.Name}";
                     }
                 }
 
-                if (destroy)
+                if (error != "")
                 {
-                    LogWarning($"{nameof(ModuleB9PartSwitch)} with moduleID '{otherModule.moduleID}' is incomatible, and will be removed.");
-                    part.RemoveModule(otherModule);
+                    Exception ex = new Exception($"Conflict found between {this} and {otherModule}:" + error);
+                    FatalErrorHandler.HandleFatalError(ex);
+                    throw ex;
                 }
             }
         }
@@ -516,21 +520,13 @@ namespace B9PartSwitch
         {
             if (ManagesResources)
             {
-                bool incompatible = false;
-                string[] incompatibleModules = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
-                foreach (var moduleName in incompatibleModules.Where(modName => part.Modules.Contains(modName)))
-                {
-                    LogError($"{nameof(ModuleB9PartSwitch)} and {moduleName} cannot both manage resources on the same part.  {nameof(ModuleB9PartSwitch)} will not manage resources.");
-                    incompatible = true;
-                }
+                string[] incompatibleModulesOnPart = INCOMAPTIBLE_MODULES_FOR_RESOURCE_SWITCHING.Where(modName => part.Modules.Contains(modName)).ToArray();
 
-                if (incompatible)
+                if (incompatibleModulesOnPart.Length > 0)
                 {
-                    foreach (var subtype in subtypes)
-                    {
-                        if (!subtype.tankType.IsStructuralTankType)
-                            subtype.AssignStructuralTankType();
-                    }
+                    Exception ex = new Exception($"Conflict found between {this} and {string.Join(", ", incompatibleModulesOnPart)} - cannot both manage resources on the same part");
+                    FatalErrorHandler.HandleFatalError(ex);
+                    throw ex;
                 }
 
             }
