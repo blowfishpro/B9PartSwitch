@@ -28,6 +28,7 @@ namespace B9PartSwitch.Fishbones.FieldWrappers
             field.SetValue(subject, value);
         }
 
+        public string Name => field.Name;
         public Type FieldType => field.FieldType;
         public MemberInfo MemberInfo => field;
     }

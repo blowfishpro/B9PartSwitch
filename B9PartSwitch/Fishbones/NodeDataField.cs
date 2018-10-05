@@ -6,6 +6,8 @@ namespace B9PartSwitch.Fishbones
 {
     public interface INodeDataField
     {
+        string Name { get; }
+
         void Load(ConfigNode node, OperationContext context);
         void Save(ConfigNode node, OperationContext context);
     }
@@ -14,6 +16,8 @@ namespace B9PartSwitch.Fishbones
     {
         public readonly IFieldWrapper field;
         public readonly IOperaitonManager operationManager;
+
+        public string Name => field.Name;
 
         public NodeDataField(IFieldWrapper field, IOperaitonManager operationManager)
         {

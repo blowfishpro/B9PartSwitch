@@ -1,4 +1,5 @@
-﻿using UniLinq;
+using System;
+using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
@@ -74,7 +75,17 @@ namespace B9PartSwitch
             bool loadingPrefab = part.partInfo.IsNull() || node.name == CURRENT_UPGRADE;
             Operation operation = loadingPrefab ? Operation.LoadPrefab : Operation.LoadInstance;
             OperationContext context = new OperationContext(operation, this);
-            this.LoadFields(node, context);
+
+            try
+            {
+                this.LoadFields(node, context);
+            }
+            catch (Exception ex)
+            {
+                Exception ex2 = new Exception($"Fatal exception while loading fields on module {this}", ex);
+                FatalErrorHandler.HandleFatalError(ex2);
+                throw ex2;
+            }
 
             if (loadingPrefab)
                 OnLoadPrefab(node);
@@ -94,7 +105,17 @@ namespace B9PartSwitch
             base.OnSave(node);
 
             OperationContext context = new OperationContext(Operation.Save, this);
-            this.SaveFields(node, context);
+
+            try
+            {
+                this.SaveFields(node, context);
+            }
+            catch (Exception ex)
+            {
+                Exception ex2 = new Exception($"Fatal exception while saving fields on module {this}", ex);
+                FatalErrorHandler.HandleFatalError(ex2);
+                throw ex2;
+            }
         }
 
         #endregion

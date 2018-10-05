@@ -4,28 +4,24 @@ using UnityEngine;
 
 namespace B9PartSwitch
 {
-    public class FatalException : Exception
-    {
-        public FatalException(string message, Exception innerException) : base(message, innerException) { }
-    }
-
-    public class HandledFatalException : Exception
-    {
-        public HandledFatalException(FatalException exception) : base(exception.Message, exception.InnerException) { }
-    }
-
     public static class FatalErrorHandler
     {
         private const int MAX_MESSAGE_COUNT = 10;
         private static PopupDialog dialog;
         private static List<string> allMessages = new List<string>();
 
-        public static void HandleFatalError(FatalException exception)
+        public static void HandleFatalError(Exception exception)
         {
             try
             {
-                string message = exception.InnerException?.Message;
-
+                string message = exception.Message;
+                Exception innerException = exception.InnerException;
+                while (innerException != null)
+                {
+                    message += "\n  ";
+                    message += innerException.Message;
+                    innerException = innerException.InnerException;
+                }
                 UpsertDialog(message);
             }
             catch (Exception ex)
@@ -34,8 +30,6 @@ namespace B9PartSwitch
                 Debug.LogException(ex);
                 Application.Quit();
             }
-
-            throw new HandledFatalException(exception);
         }
 
         private static void UpsertDialog(string message)

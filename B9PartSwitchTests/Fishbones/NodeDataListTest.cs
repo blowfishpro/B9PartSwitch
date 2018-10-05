@@ -45,8 +45,8 @@ namespace B9PartSwitchTests.Fishbones
 
             list.Load(node, context);
 
-            field1.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
-            field2.Received().Load(node, Arg.Is<OperationContext>(x => x.Operation == Operation.LoadInstance && x.Subject == subject));
+            field1.Received().Load(node, context);
+            field2.Received().Load(node, context);
 
             field1.DidNotReceiveWithAnyArgs().Save(null, null);
             field2.DidNotReceiveWithAnyArgs().Save(null, null);
@@ -60,6 +60,31 @@ namespace B9PartSwitchTests.Fishbones
             
             Assert.Throws<ArgumentNullException>(() => list.Load(null, context));
             Assert.Throws<ArgumentNullException>(() => list.Load(node, null));
+        }
+
+        [Fact]
+        public void TestLoad__Exception()
+        {
+            ConfigNode node = new ConfigNode();
+
+            object subject = new object();
+            OperationContext context = new OperationContext(Operation.LoadInstance, subject);
+
+            Exception ex = new Exception("some error");
+            field1.When(f => f.Load(node, context)).Throw(ex);
+            field1.Name.Returns("someField");
+
+            Exception ex2 = Assert.Throws<Exception>(delegate
+            {
+                list.Load(node, context);
+            });
+
+            Assert.Equal("Exception while loading field someField on type System.Object", ex2.Message);
+            
+            field2.DidNotReceiveWithAnyArgs().Load(null, null);
+
+            field1.DidNotReceiveWithAnyArgs().Save(null, null);
+            field2.DidNotReceiveWithAnyArgs().Save(null, null);
         }
 
         #endregion
@@ -76,8 +101,8 @@ namespace B9PartSwitchTests.Fishbones
 
             list.Save(node, context);
 
-            field1.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
-            field2.Received().Save(node, Arg.Is<OperationContext>(x => x.Operation == Operation.Save && x.Subject == subject));
+            field1.Received().Save(node, context);
+            field2.Received().Save(node, context);
 
             field1.DidNotReceiveWithAnyArgs().Load(null, null);
             field2.DidNotReceiveWithAnyArgs().Load(null, null);
@@ -91,6 +116,31 @@ namespace B9PartSwitchTests.Fishbones
             
             Assert.Throws<ArgumentNullException>(() => list.Save(null, context));
             Assert.Throws<ArgumentNullException>(() => list.Save(node, null));
+        }
+
+        [Fact]
+        public void TestSave__Exception()
+        {
+            ConfigNode node = new ConfigNode();
+
+            object subject = new object();
+            OperationContext context = new OperationContext(Operation.Save, subject);
+
+            Exception ex = new Exception("some error");
+            field1.When(f => f.Save(node, context)).Throw(ex);
+            field1.Name.Returns("someField");
+
+            Exception ex2 = Assert.Throws<Exception>(delegate
+            {
+                list.Save(node, context);
+            });
+
+            Assert.Equal("Exception while saving field someField on type System.Object", ex2.Message);
+            
+            field2.DidNotReceiveWithAnyArgs().Save(null, null);
+
+            field1.DidNotReceiveWithAnyArgs().Load(null, null);
+            field2.DidNotReceiveWithAnyArgs().Load(null, null);
         }
 
         #endregion
