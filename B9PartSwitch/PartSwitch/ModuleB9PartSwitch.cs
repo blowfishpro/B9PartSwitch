@@ -128,6 +128,15 @@ namespace B9PartSwitch
                 throw ex;
             }
 
+            string[] duplicatedNames = subtypes.GroupBy(s => s.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToArray();
+
+            if (duplicatedNames.Length > 0)
+            {
+                Exception ex = new Exception($"Duplicated subtype names found on {this}: {string.Join(", ", duplicatedNames)}");
+                FatalErrorHandler.HandleFatalError(ex);
+                throw ex;
+            }
+
             InitializeSubtypes();
         }
 
