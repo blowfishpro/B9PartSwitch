@@ -42,7 +42,7 @@ namespace B9PartSwitch
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
-            get => CurrentSubtype?.Name;
+            get => subtypes.Count > 0 ? CurrentSubtype?.Name : null;
             private set
             {
                 int index = subtypes.FindIndex(subtype => subtype.Name == value);
