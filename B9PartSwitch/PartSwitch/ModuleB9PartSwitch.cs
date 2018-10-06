@@ -45,6 +45,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool advancedTweakablesOnly = false;
 
+        [NodeData]
+        public bool showPAWButton = true;
+
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
@@ -78,6 +81,8 @@ namespace B9PartSwitch
 
         private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+        private bool firstUpdateDone = false;
+        private int updatecount = 0;
 
         #endregion
 
@@ -192,6 +197,39 @@ namespace B9PartSwitch
             if (affectDragCubes) part.FixModuleJettison();
 
             UpdateOnStart();
+        }
+
+        #endregion
+
+        #region Update
+
+        // We need to give some time to PartModules to properly initialize themself on load before attempting to disable them
+        // From testing, it seems that we need 2 FixedUpdates after the partmodule start for everything to be allright
+        // For example, the part.Effects emitters used by ModuleRCSFX and ModuleEnginesFX are still null on the second FixedUpdate.
+        // This need to be tested in heavy load situation (500+ parts vessel) to ensure that this stays consistent.
+
+        public void FixedUpdate()
+        {
+            if (!firstUpdateDone)
+            {
+                if (HighLogic.LoadedSceneIsEditor)
+                {
+                    if (updatecount >= 0)
+                    {
+                        CurrentSubtype.DeactivateOnUpdate();
+                        firstUpdateDone = true;
+                    }
+                }
+                else if (HighLogic.LoadedSceneIsFlight)
+                {
+                    if (updatecount > 2 && vessel != null && !vessel.HoldPhysics)
+                    {
+                        CurrentSubtype.DeactivateOnUpdate();
+                        firstUpdateDone = true;
+                    }
+                }
+                updatecount++;
+            }
         }
 
         #endregion
@@ -441,6 +479,7 @@ namespace B9PartSwitch
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
             switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
+            switchSubtypeEvent.guiActiveEditor = showPAWButton;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();

@@ -39,7 +39,10 @@ namespace B9PartSwitch
         private void Start()
         {
             if (HighLogic.LoadedSceneIsFlight || !part.Modules.OfType<ModuleB9PartSwitch>().Any(m => DisplayInfoOnSwitcher(m)))
+            {
+                Fields[nameof(showInfo)].guiActiveEditor = false;
                 return;
+            }
 
             SetupGUI();
             UpdateFields();
@@ -59,6 +62,9 @@ namespace B9PartSwitch
             bool hasResources = part.Resources.Any(resource => resource.info.density != 0f);
             bool showMass = switcherModules.Any(module => module.ChangesMass);
             bool showCost = switcherModules.Any(module => module.ChangesCost);
+            bool hasInfo = switcherModules.Any(module => DisplayInfoOnSwitcher(module));
+
+            Fields[nameof(showInfo)].guiActiveEditor = hasResources || hasInfo;
 
             var dryMassField = Fields[nameof(dryMass)];
             dryMassField.guiActiveEditor = showInfo && showMass;

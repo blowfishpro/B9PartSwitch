@@ -1,0 +1,806 @@
+@PART[*]:HAS[@MODULE[ModuleB9PartSwitch]]:FINAL
+{
+	@MODULE[ModuleB9PartSwitch],*
+	{
+		%switchInFlight = true
+		%showPAWButton = false
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleEngines]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleEngines
+		switcherDescription = ModuleEngines
+		switcherDescriptionPlural = ModuleEngines
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleEngines
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleEnginesFX]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleEnginesFX
+		switcherDescription = ModuleEnginesFX
+		switcherDescriptionPlural = ModuleEnginesFX
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleEnginesFX
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleGimbal]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleGimbal
+		switcherDescription = ModuleGimbal
+		switcherDescriptionPlural = ModuleGimbal
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleGimbal
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleAlternator]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleAlternator
+		switcherDescription = ModuleAlternator
+		switcherDescriptionPlural = ModuleAlternator
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleAlternator
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleRCSFX]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleRCSFX
+		switcherDescription = ModuleRCSFX
+		switcherDescriptionPlural = ModuleRCSFX
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleRCSFX
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleRCS]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleRCS
+		switcherDescription = ModuleRCS
+		switcherDescriptionPlural = ModuleRCS
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleRCS
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+// SECTION : Modules implementing IScalarModule
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleAnimateGeneric]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleAnimateGeneric
+		switcherDescription = ModuleAnimateGeneric
+		switcherDescriptionPlural = ModuleAnimateGeneric
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleAnimateGeneric
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleAnimationSetter]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleAnimationSetter
+		switcherDescription = ModuleAnimationSetter
+		switcherDescriptionPlural = ModuleAnimationSetter
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleAnimationSetter
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleColorChanger]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleColorChanger
+		switcherDescription = ModuleColorChanger
+		switcherDescriptionPlural = ModuleColorChanger
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleColorChanger
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDeployablePart]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDeployablePart
+		switcherDescription = ModuleDeployablePart
+		switcherDescriptionPlural = ModuleDeployablePart
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDeployablePart
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleJettison]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleJettison
+		switcherDescription = ModuleJettison
+		switcherDescriptionPlural = ModuleJettison
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleJettison
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleLight]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleLight
+		switcherDescription = ModuleLight
+		switcherDescriptionPlural = ModuleLight
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleLight
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleProceduralFairing]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleProceduralFairing
+		switcherDescription = ModuleProceduralFairing
+		switcherDescriptionPlural = ModuleProceduralFairing
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleProceduralFairing
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleServiceModule]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleServiceModule
+		switcherDescription = ModuleServiceModule
+		switcherDescriptionPlural = ModuleServiceModule
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleServiceModule
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDeployableSolarPanel]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDeployableSolarPanel
+		switcherDescription = ModuleDeployableSolarPanel
+		switcherDescriptionPlural = ModuleDeployableSolarPanel
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDeployableSolarPanel
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDeployableAntenna]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDeployableAntenna
+		switcherDescription = ModuleDeployableAntenna
+		switcherDescriptionPlural = ModuleDeployableAntenna
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDeployableAntenna
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDeployableRadiator]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDeployableRadiator
+		switcherDescription = ModuleDeployableRadiator
+		switcherDescriptionPlural = ModuleDeployableRadiator
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDeployableRadiator
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+// ENDSECTION : Modules implementing IScalarModule
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDataTransmitter]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDataTransmitter
+		switcherDescription = ModuleDataTransmitter
+		switcherDescriptionPlural = ModuleDataTransmitter
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDataTransmitter
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleScienceExperiment]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleScienceExperiment
+		switcherDescription = ModuleScienceExperiment
+		switcherDescriptionPlural = ModuleScienceExperiment
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleScienceExperiment
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleScienceContainer]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleScienceContainer
+		switcherDescription = ModuleScienceContainer
+		switcherDescriptionPlural = ModuleScienceContainer
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleScienceContainer
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleSAS]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleSAS
+		switcherDescription = ModuleSAS
+		switcherDescriptionPlural = ModuleSAS
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleSAS
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleReactionWheel]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleReactionWheel
+		switcherDescription = ModuleReactionWheel
+		switcherDescriptionPlural = ModuleReactionWheel
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleReactionWheel
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleRessourceScanner]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleRessourceScanner
+		switcherDescription = ModuleRessourceScanner
+		switcherDescriptionPlural = ModuleRessourceScanner
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleRessourceScanner
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleParachute]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleParachute
+		switcherDescription = ModuleParachute
+		switcherDescriptionPlural = ModuleParachute
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleParachute
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleDecouple]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleDecouple
+		switcherDescription = ModuleDecouple
+		switcherDescriptionPlural = ModuleDecouple
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleDecouple
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleResourceConverter]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleResourceConverter
+		switcherDescription = ModuleResourceConverter
+		switcherDescriptionPlural = ModuleResourceConverter
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleResourceConverter
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleScienceConverter]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleScienceConverter
+		switcherDescription = ModuleScienceConverter
+		switcherDescriptionPlural = ModuleScienceConverter
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleScienceConverter
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleResourceHarvester]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleResourceHarvester
+		switcherDescription = ModuleResourceHarvester
+		switcherDescriptionPlural = ModuleResourceHarvester
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleResourceHarvester
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleAsteroidDrill]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleAsteroidDrill
+		switcherDescription = ModuleAsteroidDrill
+		switcherDescriptionPlural = ModuleAsteroidDrill
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleAsteroidDrill
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleGenerator]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleGenerator
+		switcherDescription = ModuleGenerator
+		switcherDescriptionPlural = ModuleGenerator
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleGenerator
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleAnimationGroup]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleAnimationGroup
+		switcherDescription = ModuleAnimationGroup
+		switcherDescriptionPlural = ModuleAnimationGroup
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleAnimationGroup
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+@PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleCoreHeat]]
+{
+	MODULE
+	{
+		name = ModuleB9PartSwitch
+		moduleID = ModuleCoreHeat
+		switcherDescription = ModuleCoreHeat
+		switcherDescriptionPlural = ModuleCoreHeat
+		SUBTYPE
+		{
+			name = OFF
+			DISABLEDMODULE
+			{
+				type = ModuleCoreHeat
+				findAll = true
+			}
+		}
+		SUBTYPE 
+		{
+		name = ON
+		}
+	}
+}
+
+// @PART[*]:HAS[!MODULE[KerbalEVA],@MODULE[ModuleTestSubject]]
+// {
+	// MODULE
+	// {
+		// name = ModuleB9PartSwitch
+		// moduleID = ModuleTestSubject
+		// switcherDescription = ModuleTestSubject
+		
+		// SUBTYPE
+		// {
+			// name = ON
+		// }
+		
+		// SUBTYPE
+		// {
+			// name = OFF
+			// DISABLEDMODULE
+			// {
+				// type = ModuleTestSubject
+			// }
+		// }
+	// }
+// }
+
+

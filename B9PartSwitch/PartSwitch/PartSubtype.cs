@@ -26,6 +26,9 @@ namespace B9PartSwitch
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
 
+        [NodeData(name = "DISABLEDMODULE")]
+        public List<PartModuleSwitchInfo> moduleSwitches = new List<PartModuleSwitchInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -92,6 +95,7 @@ namespace B9PartSwitch
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
+        private List<PartModule> disabledModules = new List<PartModule>();
 
         #endregion
 
@@ -197,6 +201,7 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
+            FindModules();
         }
 
         #endregion
@@ -233,15 +238,25 @@ namespace B9PartSwitch
 
             DeactivateTextures();
             RemoveResources();
+            DeactivateModules();
         }
 
         public void ActivateOnSwitch()
         {
+            ActivateModules();
             ActivateObjects();
             ActivateNodes();
             ActivateTextures();
             AddResources(true);
             UpdatePartParams();
+        }
+
+        public void DeactivateOnUpdate()
+        {
+            for (int i = 0; i < disabledModules.Count; i++)
+            {
+                disabledModules[i].Disable();
+            }
         }
 
         public void DeactivateForIcon()
@@ -405,6 +420,15 @@ namespace B9PartSwitch
             }
         }
 
+        private void FindModules()
+        {
+            disabledModules.Clear();
+            foreach (PartModuleSwitchInfo info in moduleSwitches)
+            {
+                disabledModules.AddRange(info.FindModule(Part));
+            }
+        }
+
         private void UpdatePartParams()
         {
             foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
@@ -416,9 +440,11 @@ namespace B9PartSwitch
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
         private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
+        private void ActivateModules() => disabledModules.ForEach(t => t.Disable());
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
         private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
         private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
+        private void DeactivateModules() => disabledModules.ForEach(t => t.Enable());
 
         private void AddResources(bool fillTanks)
         {
