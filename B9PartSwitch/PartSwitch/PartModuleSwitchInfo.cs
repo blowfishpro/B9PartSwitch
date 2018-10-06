@@ -35,7 +35,7 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public List<PartModule> FindModule(Part part)
+        public IEnumerable<PartModule> FindModule(Part part)
         {
             List<PartModule> modules = new List<PartModule>();
             int index = 0;
@@ -48,8 +48,7 @@ namespace B9PartSwitch
                     // we are asked to find all modules of this type
                     if (findAll)
                     {
-                        modules.Add(part.Modules[i]);
-                        continue;
+                        yield return part.Modules[i];
                     }
 
                     // else we try to get the correct module
@@ -57,17 +56,38 @@ namespace B9PartSwitch
                     if (fieldIdentifier.Length != 0)
                     {
                         // get identifier
-                        string id = "";
                         BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
                         FieldInfo field = part.Modules[i].GetType().GetField(fieldIdentifier, flags);
-                        field.SetValue(part.Modules[i], id); // TODO: check what happens with invalid field name, maybe this should be in a try-catch ?
 
-                        // if the identifier value match
-                        if (id == valueIdentifier)
+                        if (field.FieldType == typeof(string))
                         {
-                            // found it
-                            modules.Add(part.Modules[i]);
-                            return modules;
+                            if (string.Equals(valueIdentifier, (string)field.GetValue(part.Modules[i]), StringComparison.OrdinalIgnoreCase))
+                            {
+                                yield return part.Modules[i];
+                            }
+                        }
+                        else if (field.FieldType == typeof(int))
+                        {
+                            int value;
+                            if (int.TryParse(valueIdentifier, out value) && value == (int)field.GetValue(part.Modules[i]))
+                            {
+                                yield return part.Modules[i];
+                            }
+                        }
+                        else if (field.FieldType == typeof(float))
+                        {
+                            float value;
+                            if (float.TryParse(valueIdentifier, out value) && value - (float)field.GetValue(part.Modules[i]) < float.Epsilon)
+                            {
+                                yield return part.Modules[i];
+                            }
+                        }
+                        else if (field.FieldType.IsEnum)
+                        {
+                            if (Enum.Parse(field.FieldType, valueIdentifier, true) == Enum.ToObject(field.FieldType, field.GetValue(part.Modules[i])))
+                            {
+                                yield return part.Modules[i];
+                            }
                         }
                     }
                     // try to use the module index (index derived from modules of the "moduleName" type only)
@@ -75,21 +95,17 @@ namespace B9PartSwitch
                     {
                         if (index == moduleIndex)
                         {
-                            modules.Add(part.Modules[i]);
-                            return modules;
+                            yield return part.Modules[i];
                         }
                     }
                     // else return the first found module
                     else
                     {
-                        modules.Add(part.Modules[i]);
-                        return modules;
+                        yield return part.Modules[i];
                     }
                     index++;
                 }
             }
-            // either no module was found, or findAll == true and all modules of the "moduleName" type are returned
-            return modules;
         }
     }
 }
