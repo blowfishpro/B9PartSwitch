@@ -135,9 +135,7 @@ namespace B9PartSwitch
             }
             if (subtypes.Count == 1)
             {
-                Exception ex = new Exception($"Must have at least two subtypes: {this}");
-                FatalErrorHandler.HandleFatalError(ex);
-                throw ex;
+                LogWarning("Only one subtype found, this may lead to unexpected behavior");
             }
 
             string[] duplicatedNames = subtypes.GroupBy(s => s.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToArray();
