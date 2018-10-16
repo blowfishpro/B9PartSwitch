@@ -19,11 +19,6 @@ http://forum.kerbalspaceprogram.com/index.php?showtopic=140541
 * Make sure the latest version of ModuleManager is installed
 * Copy the B9PartSwitch directory to your KSP GameData directory
 
-## Contributors
-
-* [blowfish](http://forum.kerbalspaceprogram.com/index.php?/profile/119688-blowfish/) - primary developer
-* [bac9](http://forum.kerbalspaceprogram.com/index.php?/profile/57757-bac9/) - author of [PartSubtypeSwitcher](https://bitbucket.org/bac9/ksp_plugins), on which this plugin is heavily based
-
 ## Source
 
 The source can be found at [Github](https://github.com/blowfishpro/B9PartSwitch)
