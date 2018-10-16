@@ -34,7 +34,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 * Recompile against KSP 1.5
 * Provide better context for fatal exceptions
 * A few incompatibilities that previously silently disabled functionality are now fatal errors
-* Add spanish translation of built-in strings
+* Add Spanish translation of built-in strings
 * Fire onPartResourceListChange when changing resources
 
 ### v2.3.3
