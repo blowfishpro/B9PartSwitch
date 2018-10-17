@@ -29,6 +29,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.4.2
+
+* Fix .version file again
+
 ### v2.4.1
 
 * Fix .version file still listing KSP 1.4.x
