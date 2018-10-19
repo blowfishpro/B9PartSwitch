@@ -142,9 +142,9 @@ namespace B9PartSwitch
 
             if (duplicatedNames.Length > 0)
             {
-                Exception ex = new Exception($"Duplicated subtype names found on {this}: {string.Join(", ", duplicatedNames)}");
-                FatalErrorHandler.HandleFatalError(ex);
-                throw ex;
+                string duplicatedNamesList = string.Join(", ", duplicatedNames);
+                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesList}");
+                LogError($"Duplicate subtype names detected: {duplicatedNames}");
             }
 
             InitializeSubtypes();

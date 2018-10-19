@@ -166,7 +166,11 @@ namespace B9PartSwitch
 
         private void OnLoad(ConfigNode node, OperationContext context)
         {
-            if (Name.IsNullOrEmpty()) throw new Exception("Subtype has no name");
+            if (Name.IsNullOrEmpty())
+            {
+                SeriousWarningHandler.DisplaySeriousWarning($"Subtype has no name: {this}");
+                LogError("Subtype has no name");
+            }
 
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;

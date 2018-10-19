@@ -109,6 +109,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="FARChecker.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="SeriousWarningHandler.cs" />
     <Compile Include="TankSettings\B9TankSettings.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
     <Compile Include="PartSwitch\PartSubtype.cs" />
