@@ -29,6 +29,14 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.4.4
+
+* Recompile against KSP 1.5.1
+* Downgrade certain fatal errors to warnings
+  * The user will still get an on-screen message but it can be dismissed without closing the game
+  * Duplicate subtype names is now only a serious warning
+  * Subtype without a name is now only a serious warning
+
 ### v2.4.3
 
 * Fix .version file again again
