@@ -1,6 +1,6 @@
 language: csharp
 mono:
-  - 5.12.0
+  - 5.16.0
 solution: B9PartSwitch.sln
 install:
   - rvm install $(cat .ruby-version)
