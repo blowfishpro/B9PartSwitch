@@ -46,7 +46,7 @@ namespace B9PartSwitch
 
         public void Enable(bool enable)
         {
-            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)) return;
+            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight) || moduleInfo == null) return;
 
             // Get PartModule constructor
             ConstructorInfo ctor = moduleType.GetConstructor(new Type[] { });
@@ -166,15 +166,18 @@ namespace B9PartSwitch
             return configNode;
         }
 
-        public void SetupModuleNode(PartSubtype subtype, ModuleB9PartSwitch parent)
+        public void SetupSwitcher(PartSubtype subtype, ModuleB9PartSwitch parent)
         {
+            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight) || moduleInfo != null) return;
 
-            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight || moduleInfo != null)) return;
-
-            moduleInfo = FindModuleConfigNode(parent.part).CreateCopy();
+            if (!TryFindModule(parent.part, out modules, out moduleInfo))
+            {
+                modules = null;
+                moduleInfo = null;
+                return;
+            }
             moduleInfo.SetValue("isEnabled", true, true);
             modifiedModuleInfo = moduleInfo.CreateCopy();
-            modules = FindModule(parent.part);
             moduleType = modules[0].GetType();
 
             ConfigNode node = parent.part.partInfo.partConfig
@@ -189,61 +192,9 @@ namespace B9PartSwitch
             }
         }
 
-        public ConfigNode FindModuleConfigNode(Part part)
+        public bool TryFindModule(Part part, out List<PartModule> modules, out ConfigNode moduleNode)
         {
-            Part prefab = part.GetPrefab();
-            // for each module in the part
-            for (int i = 0; i < prefab.Modules.Count; i++)
-            {
-                // if the module type match
-                if (prefab.Modules[i].moduleName == name)
-                {
-                    int index = 0;
-                    // we are asked to find all modules of this type
-                    if (findAll)
-                    {
-                        return prefab.partInfo.partConfig.GetNode("MODULE", "name", name);
-                    }
-
-                    // else we try to get the correct module
-                    // try to use the field identifier
-                    if (fieldIdentifier.Length != 0)
-                    {
-                        return prefab.partInfo.partConfig.GetNode("MODULE", fieldIdentifier, valueIdentifier);
-                    }
-                    else
-                    {
-                        ConfigNode[] moduleNodes = prefab.partInfo.partConfig.GetNodes("MODULE", "name", name);
-                        // try to use the module index (index derived from modules of the "moduleName" type only)
-                        if (moduleIndex > -1)
-                        {
-                            for (int j = 0; j < moduleNodes.Count(); j++)
-                            {
-                                if (moduleIndex == j)
-                                {
-                                    return moduleNodes[j];
-                                }
-                            }
-                        }
-                        // else return the first found module
-                        else if (moduleNodes.Count() > 0)
-                        {
-                            return moduleNodes[0];
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                    index++;
-                }
-            }
-            return null;
-        }
-
-        public List<PartModule> FindModule(Part part)
-        {
-            List<PartModule> modules = new List<PartModule>();
+            modules = new List<PartModule>();
             int index = 0;
             // for each module in the part
             for (int i = 0; i < part.Modules.Count; i++)
@@ -262,18 +213,11 @@ namespace B9PartSwitch
                     // try to use the field identifier
                     if (fieldIdentifier.Length != 0)
                     {
-                        // get identifier
-                        string id = "";
-                        BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-                        FieldInfo field = part.Modules[i].GetType().GetField(fieldIdentifier, flags);
-                        field.SetValue(part.Modules[i], id); // TODO: check what happens with invalid field name, maybe this should be in a try-catch ?
-
-                        // if the identifier value match
-                        if (id == valueIdentifier)
+                        string moduleValue = "";
+                        if (part.Modules[i].GetConfigNode().TryGetValue(fieldIdentifier, ref moduleValue) && moduleValue == valueIdentifier)
                         {
-                            // found it
                             modules.Add(part.Modules[i]);
-                            return modules;
+                            break;
                         }
                     }
                     // try to use the module index (index derived from modules of the "moduleName" type only)
@@ -282,20 +226,34 @@ namespace B9PartSwitch
                         if (index == moduleIndex)
                         {
                             modules.Add(part.Modules[i]);
-                            return modules;
+                            break;
                         }
                     }
                     // else return the first found module
                     else
                     {
                         modules.Add(part.Modules[i]);
-                        return modules;
+                        break;
                     }
                     index++;
                 }
             }
-            // either no module was found, or findAll == true and all modules of the "moduleName" type are returned
-            return modules;
+
+            if (modules.Count > 0)
+            {
+                moduleNode = modules[0].GetConfigNode().CreateCopy();
+
+                if (moduleNode.CountNodes > 0 || moduleNode.CountValues > 0)
+                {
+                    return true;
+                }
+            }
+
+            moduleNode = new ConfigNode();
+            if (fieldIdentifier.Length != 0) Debug.LogError($"Cannot find a PartModule of type '{name}' with the field '{fieldIdentifier}' and value '{valueIdentifier}'");
+            else if (moduleIndex > -1) Debug.LogError($"Cannot find a PartModule of type '{name}' with index '{moduleIndex}'");
+            else Debug.LogError($"Cannot find a PartModule of type '{name}'");
+            return false;
         }
     }
 }

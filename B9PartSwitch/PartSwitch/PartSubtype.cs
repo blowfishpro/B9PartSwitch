@@ -420,7 +420,7 @@ namespace B9PartSwitch
         {
             foreach (PartModuleSwitchInfo info in moduleSwitches)
             {
-                info.SetupModuleNode(this, b9Module);
+                info.SetupSwitcher(this, b9Module);
             }
         }
 
