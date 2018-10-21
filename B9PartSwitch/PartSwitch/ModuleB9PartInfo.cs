@@ -1,8 +1,5 @@
 ﻿using UniLinq;
 using System.Collections.Generic;
-using KSP.UI.Screens.Editor;
-using UnityEngine;
-using KSP.UI;
 
 namespace B9PartSwitch
 {
