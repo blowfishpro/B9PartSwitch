@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CustomPartModule.cs" />
     <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
+    <Compile Include="Extensions\ConfigNodeExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -95,11 +96,14 @@
     <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModuleB9DisableTransform.cs" />
+    <Compile Include="PartSwitch\PartModuleSwitchInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartSubtypeContext.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
+    <Compile Include="PartSwitch\PartTooltip.cs" />
     <Compile Include="PartSwitch\SubtypePartField.cs" />
     <Compile Include="PartSwitch\SubtypePartFields.cs" />
+    <Compile Include="PartSwitch\Tests.cs" />
     <Compile Include="PartSwitch\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
@@ -117,8 +121,6 @@
     <Compile Include="TankSettings\TankTypeValueParser.cs" />
     <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
     <Compile Include="Test\PartModuleTest.cs" />
-	<Compile Include="PartSwitch\PartModuleSwitchInfo.cs" />
-	<Compile Include="Extensions\ConfigNodeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -126,13 +128,12 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
-      sh -e -c "cd '$(SolutionDir)' &amp;&amp; 'bin/fill-version' '$(SolutionDir)/templates/AssemblyInfo.cs.erb' '$(ProjectDir)/Properties/AssemblyInfo.cs'"
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-      sh -e -c " mkdir -p '$(SolutionDir)/GameData/B9PartSwitch/Plugins/' &amp;&amp; cp '$(TargetPath)' '$(SolutionDir)/GameData/B9PartSwitch/Plugins/'"
-    </PostBuildEvent>
+    <PostBuildEvent>"C:\Users\Got\Desktop\KSP\Tools\pdb2mdb\pdb2mdb.exe" "C:\Users\Got\Source\Repos\gotmachine\B9PartSwitchFork\B9PartSwitch\bin\Debug\B9PartSwitch.dll"
+xcopy /Y "C:\Users\Got\Source\Repos\gotmachine\B9PartSwitchFork\B9PartSwitch\bin\Debug\B9PartSwitch.dll" "C:\Users\Got\Desktop\KSP\Kerbal Space Program 1.5.0 DEV\GameData\B9PartSwitch\Plugins\"
+xcopy /Y "C:\Users\Got\Source\Repos\gotmachine\B9PartSwitchFork\B9PartSwitch\bin\Debug\B9PartSwitch.dll.mdb" "C:\Users\Got\Desktop\KSP\Kerbal Space Program 1.5.0 DEV\GameData\B9PartSwitch\Plugins\"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

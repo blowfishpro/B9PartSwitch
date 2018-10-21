@@ -81,8 +81,6 @@ namespace B9PartSwitch
 
         private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
-        private bool firstUpdateDone = false;
-        private int updatecount = 0;
 
         #endregion
 
@@ -199,37 +197,12 @@ namespace B9PartSwitch
             UpdateOnStart();
         }
 
-        #endregion
-
-        #region Update
-
-        // We need to give some time to PartModules to properly initialize themself on load before attempting to disable them
-        // From testing, it seems that we need 2 FixedUpdates after the partmodule start for everything to be allright
-        // For example, the part.Effects emitters used by ModuleRCSFX and ModuleEnginesFX are still null on the second FixedUpdate.
-        // This need to be tested in heavy load situation (500+ parts vessel) to ensure that this stays consistent.
-
-        public void FixedUpdate()
+        public override void OnStartFinished(StartState state)
         {
-            if (!firstUpdateDone)
-            {
-                if (HighLogic.LoadedSceneIsEditor)
-                {
-                    if (updatecount >= 0)
-                    {
-                        CurrentSubtype.DeactivateOnUpdate();
-                        firstUpdateDone = true;
-                    }
-                }
-                else if (HighLogic.LoadedSceneIsFlight)
-                {
-                    if (updatecount > 2 && vessel != null && !vessel.HoldPhysics)
-                    {
-                        CurrentSubtype.DeactivateOnUpdate();
-                        firstUpdateDone = true;
-                    }
-                }
-                updatecount++;
-            }
+            base.OnStartFinished(state);
+
+            UpdateOnStartFinished();
+
         }
 
         #endregion
@@ -508,6 +481,14 @@ namespace B9PartSwitch
             UpdateGeometry(true);
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+        }
+
+        // Since we are manually calling start (and later methods) on PartModules,
+        // we must do it after everything has been called by KSP to ensure that
+        // those methods won't be fired again
+        private void UpdateOnStartFinished()
+        {
+            CurrentSubtype.ActivateOnStartFinished();
         }
 
         private void RemoveUnusedResources()

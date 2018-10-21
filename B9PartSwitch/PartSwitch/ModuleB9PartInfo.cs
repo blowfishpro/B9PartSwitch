@@ -14,63 +14,6 @@ namespace B9PartSwitch
         public const string DryCostGUIString = "Cost (Dry)";
         public const string CostGUIString = "Cost";
 
-        [KSPEvent(guiActiveEditor = true)]
-        public void ShowToolTip()
-        {
-            GameObject screen = new GameObject();
-            RectTransform transform = screen.AddComponent<RectTransform>();
-            Canvas canvas = screen.AddComponent<Canvas>();
-            KSPGraphicRaycaster rayCaster = screen.AddComponent<KSPGraphicRaycaster>();
-            rayCaster.blockingObjects = UnityEngine.UI.GraphicRaycaster.BlockingObjects.All;
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-
-            PartListTooltip prefab = FindObjectOfType<PartListTooltipController>().tooltipPrefab;
-            //PartListTooltip tooltip = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
-            PartListTooltip tooltip = Instantiate(prefab,transform);
-            tooltip.gameObject.GetChild("ThumbContainer").DestroyGameObject();
-
-            AvailablePart ap = new AvailablePart();
-            ap.name = part.partInfo.name;
-            ap.title = part.partInfo.title;
-            ap.manufacturer = part.partInfo.manufacturer;
-            ap.author = part.partInfo.author;
-            ap.description = part.partInfo.description;
-            ap.typeDescription = part.partInfo.typeDescription;
-            ap.moduleInfo = part.partInfo.moduleInfo;
-            ap.resourceInfo = part.partInfo.resourceInfo;
-            ap.category = part.partInfo.category;
-            ap.TechHidden = part.partInfo.TechHidden;
-            ap.amountAvailable = part.partInfo.amountAvailable;
-            ap.cost = part.partInfo.cost;
-            ap.bulkheadProfiles = part.partInfo.bulkheadProfiles;
-            ap.tags = part.partInfo.tags;
-            ap.partUrl = part.partInfo.partUrl;
-            ap.iconPrefab = part.partInfo.iconPrefab;
-            ap.iconScale = part.partInfo.iconScale;
-            ap.partPrefab = part;
-            ap.internalConfig = part.partInfo.internalConfig;
-            ap.partConfig = part.partInfo.partConfig;
-            ap.configFileFullName = part.partInfo.configFileFullName;
-            ap.partUrlConfig = part.partInfo.partUrlConfig;
-            ap.fileTimes = new List<string>(part.partInfo.fileTimes);
-            ap.partSize = part.partInfo.partSize;
-            ap.TechRequired = part.partInfo.TechRequired;
-            ap.identicalParts = part.partInfo.identicalParts;
-            ap.moduleInfos = new List<AvailablePart.ModuleInfo>(part.partInfo.moduleInfos);
-            ap.resourceInfos = new List<AvailablePart.ResourceInfo>(part.partInfo.resourceInfos);
-            ap.variant = part.partInfo.variant;
-            ap.showVesselNaming = part.partInfo.showVesselNaming;
-            tooltip.Setup(ap, null);
-            tooltip.DisplayExtendedInfo(true, "hint text");
-
-            screen.SetLayerRecursive(LayerMask.NameToLayer("UI"));
-
-            Canvas.ForceUpdateCanvases();
-            UIMasterController.RepositionTooltip((RectTransform)tooltip.transform, Vector2.one, 8f);
-            //PartListTooltipController. -> component of the each part icon in the part list, has reference to the partlisttooltip prefab
-        }
-
         [UI_Toggle(enabledText = "Enabled", disabledText = "Hidden")]
         [KSPField(guiActiveEditor = true, guiName = "Part Info")]
         public bool showInfo = false;

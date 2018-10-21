@@ -26,7 +26,7 @@ namespace B9PartSwitch
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
 
-        [NodeData(name = "DISABLEDMODULE")]
+        [NodeData(name = "MODULESWITCH")]
         public List<PartModuleSwitchInfo> moduleSwitches = new List<PartModuleSwitchInfo>();
 
         [NodeData]
@@ -95,7 +95,6 @@ namespace B9PartSwitch
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
-        private List<PartModule> disabledModules = new List<PartModule>();
 
         #endregion
 
@@ -201,7 +200,7 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
-            FindModules();
+            FindModules(parent);
         }
 
         #endregion
@@ -227,6 +226,11 @@ namespace B9PartSwitch
             UpdatePartParams();
         }
 
+        public void ActivateOnStartFinished()
+        {
+            ActivateModules();
+        }
+
         public void DeactivateOnSwitch()
         {
             DeactivateObjects();
@@ -243,20 +247,12 @@ namespace B9PartSwitch
 
         public void ActivateOnSwitch()
         {
-            ActivateModules();
             ActivateObjects();
             ActivateNodes();
             ActivateTextures();
             AddResources(true);
             UpdatePartParams();
-        }
-
-        public void DeactivateOnUpdate()
-        {
-            for (int i = 0; i < disabledModules.Count; i++)
-            {
-                disabledModules[i].Disable();
-            }
+            ActivateModules();
         }
 
         public void DeactivateForIcon()
@@ -420,12 +416,11 @@ namespace B9PartSwitch
             }
         }
 
-        private void FindModules()
+        private void FindModules(ModuleB9PartSwitch b9Module)
         {
-            disabledModules.Clear();
             foreach (PartModuleSwitchInfo info in moduleSwitches)
             {
-                disabledModules.AddRange(info.FindModule(Part));
+                info.SetupModuleNode(this, b9Module);
             }
         }
 
@@ -440,11 +435,11 @@ namespace B9PartSwitch
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
         private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
-        private void ActivateModules() => disabledModules.ForEach(t => t.Disable());
+        private void ActivateModules() => moduleSwitches.ForEach(t => t.Enable(true));
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
         private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
         private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
-        private void DeactivateModules() => disabledModules.ForEach(t => t.Enable());
+        private void DeactivateModules() => moduleSwitches.ForEach(t => t.Enable(false));
 
         private void AddResources(bool fillTanks)
         {
