@@ -6,6 +6,7 @@ using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Extensions;
+using KSP.UI.Screens;
 
 namespace B9PartSwitch
 {
@@ -61,18 +62,19 @@ namespace B9PartSwitch
 
             for (int j = 0; j < modules.Count; j++)
                 {
-
                 // Call the module constructor, this helps in resetting private fields
                 ctor.Invoke(modules[j], null);
 
                 // Get confignode and apply module specific support for disabling
                 ConfigNode node = enable ? modifiedModuleInfo : moduleInfo;
-                ApplyEarlyDisableSpecifics(node, modules[j]);
+                ApplyEarlySpecifics(node, modules[j]);
 
                 // Call PartModule.Awake(), this will call PartModule.OnAwake()
                 modules[j].Awake();
 
                 // Ensure module is enabled
+                node.SetValue("IsEnabled", true, true);
+                node.SetValue("moduleIsEnabled", true, true);
                 modules[j].enabled = true;
                 modules[j].isEnabled = true;
                 modules[j].moduleIsEnabled = true;
@@ -99,29 +101,26 @@ namespace B9PartSwitch
                         if (HighLogic.LoadedSceneIsFlight) modules[j].OnStartFinished(modules[j].part.GetModuleStartState());
                         if (HighLogic.LoadedSceneIsFlight) modules[j].OnInitialize();
                     }
-
-                    // Update staging icon visibility
-                    if (modules[j].IsStageable())
-                    {
-                        modules[j].stagingEnabled = !enable;
-                        modules[j].part.UpdateStageability(false, true);
-                    }
-
                     // Enable/disable the unity component
                     modules[j].enabled = !enable;
                     // Enable/disable the KSP PartModule 
                     modules[j].isEnabled = !enable;
                     modules[j].moduleIsEnabled = !enable;
                 }
+                ApplyLateSpecifics(modules[j], enable);
             }
         }
 
         // Specific support for some stock modules, mainly used to reset state when disabling modules.
-        private ConfigNode ApplyEarlyDisableSpecifics(ConfigNode configNode, PartModule module)
+        private ConfigNode ApplyEarlySpecifics(ConfigNode configNode, PartModule module)
         {
             if (!disableModule)
             {
                 return configNode;
+            }
+            else if (module is ModuleEngines || module is ModuleEnginesFX)
+            {
+                module.part.stackIcon.ClearInfoBoxes();
             }
             else if (module is ModuleColorChanger)
             {
@@ -164,6 +163,22 @@ namespace B9PartSwitch
                 }
             }
             return configNode;
+        }
+
+        private void ApplyLateSpecifics(PartModule module, bool enable)
+        {
+            // Update staging icon visibility
+            if (module.IsStageable())
+            {
+                module.stagingEnabled = !enable;
+                module.part.UpdateStageability(false, true);
+            }
+
+            // Reattach engine effects
+            if (enable && HighLogic.LoadedSceneIsFlight && module is ModuleEngines)
+            {
+                FixEnginesFX((ModuleEngines)module);
+            }
         }
 
         public void SetupSwitcher(PartSubtype subtype, ModuleB9PartSwitch parent)
@@ -254,6 +269,54 @@ namespace B9PartSwitch
             else if (moduleIndex > -1) Debug.LogError($"Cannot find a PartModule of type '{name}' with index '{moduleIndex}'");
             else Debug.LogError($"Cannot find a PartModule of type '{name}'");
             return false;
+        }
+
+        private void FixEnginesFX(ModuleEngines engine)
+        {
+            
+
+
+
+
+            // Why this is needed :
+            // When engines OnStart is called, the modules does this :
+            // - It find the FX XXX on the part
+            // - It duplicate the particule emitter of this FX into the a new FX in the engine XXXGroups list, one for each thrusttransform
+            // - It remove the particule emitter from the original FX on the part
+            // - It copy back the new FX named prefix + XXX + index of transform to the part FX list
+            // So when we call Onstart again, the init method can't find the emitters since they are removed from the base FX on the part
+            // To fix this we need to manually re-link the engine XXXGroups with the FX that still are on the part, and call the init method AutoPlaceFXGroup
+
+            engine.flameoutGroups.Clear(); 
+            engine.powerGroups.Clear(); 
+            engine.runningGroups.Clear();
+
+            for (int i = 0; i < engine.thrustTransforms.Count; i++)
+            {
+                FXGroup flameoutFX = engine.part.fxGroups.Find(p => p.name == engine.fxGroupPrefix + "Flameout" + i && p.isValid);
+                if (flameoutFX != null)
+                {
+                    engine.AutoPlaceFXGroup(flameoutFX, engine.thrustTransforms[i]);
+                    engine.flameoutGroups.Add(flameoutFX);
+                }
+
+                FXGroup runningFX = engine.part.fxGroups.Find(p => p.name == engine.fxGroupPrefix + "Running" + i && p.isValid);
+                if (runningFX != null)
+                {
+                    engine.AutoPlaceFXGroup(runningFX, engine.thrustTransforms[i]);
+                    engine.runningGroups.Add(runningFX);
+                }
+
+                FXGroup powerFX = engine.part.fxGroups.Find(p => p.name == engine.fxGroupPrefix + "Power" + i && p.isValid);
+                if (powerFX != null)
+                {
+                    engine.AutoPlaceFXGroup(powerFX, engine.thrustTransforms[i]);
+                    engine.powerGroups.Add(powerFX);
+                }
+            }
+            //engine.AutoPlaceFXGroup(fXGroup3, thruster);
+            //engine.powerGroups.Add(fXGroup3);
+            //engine.part.fxGroups.Add(fXGroup3);
         }
     }
 }
