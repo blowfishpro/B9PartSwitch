@@ -114,52 +114,51 @@ namespace B9PartSwitch
         // Specific support for some stock modules, mainly used to reset state when disabling modules.
         private ConfigNode ApplyEarlySpecifics(ConfigNode configNode, PartModule module)
         {
-            if (!disableModule)
-            {
-                return configNode;
-            }
-            else if (module is ModuleEngines || module is ModuleEnginesFX)
+            if (module is ModuleEngines || module is ModuleEnginesFX)
             {
                 module.part.stackIcon.ClearInfoBoxes();
             }
-            else if (module is ModuleColorChanger)
+            if (disableModule)
             {
-                configNode.SetValue("animState", false, true);
-            }
-            else if (module is ModuleLight)
-            {
-                // Doesn't work in flight
-                configNode.SetValue("IsOn", false, true);
-                ((ModuleLight)module).SetLightState(false);
-            }
-            else if (module is ModuleAnimateGeneric)
-            {
-                configNode.SetValue("aniState", "LOCKED", true);
-                configNode.SetValue("animTime", 0f, true);
-            }
-            else if (module is ModuleAnimationGroup)
-            {
-                configNode.SetValue("isDeployed", false, true);
-            }
-            else if (module is ModuleDeployablePart)
-            {
-                // This one is tricky because the animation is private and is handled trough FixedUpdate
-                configNode.SetValue("storedAnimationTime", 0f, true);
-                configNode.SetValue("deployState", "RETRACTED", true);
-                Animation[] anims = module.GetComponentsInChildren<Animation>();
-                string animName = ((ModuleDeployablePart)module).animationName;
-                Animation deployAnim = null;
-                for (int k = 0; k < anims.Count(); k++)
+                if (module is ModuleColorChanger)
                 {
-                    if (anims[k].GetClip(animName) != null) deployAnim = anims[k];
+                    configNode.SetValue("animState", false, true);
                 }
-                if (deployAnim == null && anims.Count() > 0) deployAnim = anims[0];
-                if (deployAnim != null)
+                else if (module is ModuleLight)
                 {
-                    ((ModuleDeployablePart)module).panelRotationTransform.localRotation = ((ModuleDeployablePart)module).originalRotation;
-                    deployAnim[animName].normalizedTime = 0;
-                    deployAnim.Play(animName);
-                    deployAnim.Sample(); 
+                    // Doesn't work in flight
+                    configNode.SetValue("IsOn", false, true);
+                    ((ModuleLight)module).SetLightState(false);
+                }
+                else if (module is ModuleAnimateGeneric)
+                {
+                    configNode.SetValue("aniState", "LOCKED", true);
+                    configNode.SetValue("animTime", 0f, true);
+                }
+                else if (module is ModuleAnimationGroup)
+                {
+                    configNode.SetValue("isDeployed", false, true);
+                }
+                else if (module is ModuleDeployablePart)
+                {
+                    // This one is tricky because the animation is private and is handled trough FixedUpdate
+                    configNode.SetValue("storedAnimationTime", 0f, true);
+                    configNode.SetValue("deployState", "RETRACTED", true);
+                    Animation[] anims = module.GetComponentsInChildren<Animation>();
+                    string animName = ((ModuleDeployablePart)module).animationName;
+                    Animation deployAnim = null;
+                    for (int k = 0; k < anims.Count(); k++)
+                    {
+                        if (anims[k].GetClip(animName) != null) deployAnim = anims[k];
+                    }
+                    if (deployAnim == null && anims.Count() > 0) deployAnim = anims[0];
+                    if (deployAnim != null)
+                    {
+                        ((ModuleDeployablePart)module).panelRotationTransform.localRotation = ((ModuleDeployablePart)module).originalRotation;
+                        deployAnim[animName].normalizedTime = 0;
+                        deployAnim.Play(animName);
+                        deployAnim.Sample();
+                    }
                 }
             }
             return configNode;
@@ -168,7 +167,7 @@ namespace B9PartSwitch
         private void ApplyLateSpecifics(PartModule module, bool enable)
         {
             // Update staging icon visibility
-            if (module.IsStageable())
+            if (disableModule && module.IsStageable())
             {
                 module.stagingEnabled = !enable;
                 module.part.UpdateStageability(false, true);
@@ -273,11 +272,6 @@ namespace B9PartSwitch
 
         private void FixEnginesFX(ModuleEngines engine)
         {
-            
-
-
-
-
             // Why this is needed :
             // When engines OnStart is called, the modules does this :
             // - It find the FX XXX on the part
@@ -314,9 +308,6 @@ namespace B9PartSwitch
                     engine.powerGroups.Add(powerFX);
                 }
             }
-            //engine.AutoPlaceFXGroup(fXGroup3, thruster);
-            //engine.powerGroups.Add(fXGroup3);
-            //engine.part.fxGroups.Add(fXGroup3);
         }
     }
 }
