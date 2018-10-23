@@ -275,12 +275,13 @@ namespace B9PartSwitch
             // Why this is needed :
             // When engines OnStart is called, the modules does this :
             // - It find the FX XXX on the part
-            // - It duplicate the particule emitter of this FX into the a new FX in the engine XXXGroups list, one for each thrusttransform
+            // - It duplicate the particule emitter of this FX into a new FX in the engine XXXGroups list, one for each thrusttransform
             // - It remove the particule emitter from the original FX on the part
             // - It copy back the new FX named prefix + XXX + index of transform to the part FX list
             // So when we call Onstart again, the init method can't find the emitters since they are removed from the base FX on the part
             // To fix this we need to manually re-link the engine XXXGroups with the FX that still are on the part, and call the init method AutoPlaceFXGroup
 
+            // TODO: remove dirty FX from the parts (isvalid == false)
             engine.flameoutGroups.Clear(); 
             engine.powerGroups.Clear(); 
             engine.runningGroups.Clear();

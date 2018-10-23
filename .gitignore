@@ -241,3 +241,5 @@ B9PartSwitch/Properties/AssemblyInfo.cs
 GameData/B9PartSwitch/B9PartSwitch.version
 Gemfile.lock
 .vs/*
+/B9PartSwitch/B9PartSwitchUser.csproj
+/B9PartSwitchUser.sln
