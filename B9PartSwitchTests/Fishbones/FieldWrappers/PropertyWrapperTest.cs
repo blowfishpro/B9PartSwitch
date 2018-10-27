@@ -69,7 +69,7 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
             DummyClass c = new DummyClass { b1 = false };
 
             wrapper.SetValue(c, true);
-            Assert.Equal(true, c.b1);
+            Assert.True(c.b1);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
             DummyClass c = new DummyClass();
 
             wrapper2.SetValue(c, true);
-            Assert.Equal(true, c.b3);
+            Assert.True(c.b3);
         }
 
         [Fact]

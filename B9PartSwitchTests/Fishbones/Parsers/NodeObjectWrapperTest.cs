@@ -12,6 +12,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
     {
         #region IsNodeType
 
+        [Fact]
         public void TestIsNodeType()
         {
             Assert.True(NodeObjectWrapper.IsNodeType(typeof(DummyIConfigNode)));
