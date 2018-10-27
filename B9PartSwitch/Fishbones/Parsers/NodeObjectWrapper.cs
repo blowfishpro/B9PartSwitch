@@ -18,10 +18,10 @@ namespace B9PartSwitch.Fishbones.Parsers
 
             if (!context.Operation.Loading) throw new ArgumentException("Operation must be a loading operation");
 
-            if (obj is IContextualNode)
-                ((IContextualNode)obj).Load(node, context);
-            else if (obj is IConfigNode)
-                ((IConfigNode)obj).Load(node);
+            if (obj is IContextualNode contextualNode)
+                contextualNode.Load(node, context);
+            else if (obj is IConfigNode configNode)
+                configNode.Load(node);
             else
                 throw new ArgumentException($"Object must be a {nameof(IContextualNode)} or {nameof(IConfigNode)}, but got {obj.GetType()}", nameof(obj));
         }
@@ -34,10 +34,10 @@ namespace B9PartSwitch.Fishbones.Parsers
             
             if (!context.Operation.Saving) throw new ArgumentException("Operation must be a saving operation");
 
-            if (obj is IContextualNode)
-                ((IContextualNode)obj).Save(node, context);
-            else if (obj is IConfigNode)
-                ((IConfigNode)obj).Save(node);
+            if (obj is IContextualNode contextualNode)
+                contextualNode.Save(node, context);
+            else if (obj is IConfigNode configNode)
+                configNode.Save(node);
             else
                 throw new ArgumentException($"Object must be a {nameof(IContextualNode)} or {nameof(IConfigNode)}, but got {obj.GetType()}", nameof(obj));
         }
