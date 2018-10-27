@@ -2,7 +2,7 @@
 
 set -e
 
-runtest="mono ./packages/xunit.runner.console.*/tools/net46/xunit.console.exe"
+runtest="mono ./packages/xunit.runner.console.*/tools/net471/xunit.console.exe"
 
 echo "Running tests..."
 
