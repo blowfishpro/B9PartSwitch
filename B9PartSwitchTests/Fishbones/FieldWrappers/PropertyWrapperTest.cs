@@ -9,16 +9,16 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
     {
         private class DummyClass
         {
-            public bool b1 { get; set; }
-            public bool b2 { private get; set; }
-            public bool b3 { get; private set; } = false;
-            public bool b4 { get { return true; } }
-            public bool b5 { set { } }
+            public bool B1 { get; set; }
+            public bool B2 { private get; set; }
+            public bool B3 { get; private set; } = false;
+            public bool B4 => true;
+            public bool B5 { set { } }
 
-            public int i { get; set; }
+            public int I { get; set; }
         }
 
-        private static readonly PropertyWrapper wrapper = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.b1)));
+        private static readonly PropertyWrapper wrapper = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.B1)));
 
         [Fact]
         public void TestNew__Null()
@@ -29,30 +29,30 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         [Fact]
         public void TestNew__OnlyGetter()
         {
-            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.b4));
+            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.B4));
             Assert.Throws<ArgumentException>(() => new PropertyWrapper(property));
         }
 
         [Fact]
         public void TestNew__OnlySetter()
         {
-            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.b5));
+            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.B5));
             Assert.Throws<ArgumentException>(() => new PropertyWrapper(property));
         }
 
         [Fact]
         public void TestGetValue()
         {
-            DummyClass c = new DummyClass { b1 = true };
+            DummyClass c = new DummyClass { B1 = true };
             Assert.Equal(true, wrapper.GetValue(c));
         }
 
         [Fact]
         public void TestGetValue__Private()
         {
-            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.b2));
+            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.B2));
             PropertyWrapper wrapper2 = new PropertyWrapper(property);
-            DummyClass c = new DummyClass { b2 = true };
+            DummyClass c = new DummyClass { B2 = true };
 
             Assert.Equal(true, wrapper2.GetValue(c));
         }
@@ -66,21 +66,21 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         [Fact]
         public void TestSetValue()
         {
-            DummyClass c = new DummyClass { b1 = false };
+            DummyClass c = new DummyClass { B1 = false };
 
             wrapper.SetValue(c, true);
-            Assert.Equal(true, c.b1);
+            Assert.True(c.B1);
         }
 
         [Fact]
         public void TestSetValue__Private()
         {
-            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.b3));
+            PropertyInfo property = typeof(DummyClass).GetProperty(nameof(DummyClass.B3));
             PropertyWrapper wrapper2 = new PropertyWrapper(property);
             DummyClass c = new DummyClass();
 
             wrapper2.SetValue(c, true);
-            Assert.Equal(true, c.b3);
+            Assert.True(c.B3);
         }
 
         [Fact]
@@ -92,14 +92,14 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         [Fact]
         public void TestName()
         {
-            Assert.Equal("b1", wrapper.Name);
+            Assert.Equal("B1", wrapper.Name);
         }
 
         [Fact]
         public void TestFieldType()
         {
-            PropertyWrapper wrapper1 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.b1)));
-            PropertyWrapper wrapper2 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.i)));
+            PropertyWrapper wrapper1 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.B1)));
+            PropertyWrapper wrapper2 = new PropertyWrapper(typeof(DummyClass).GetProperty(nameof(DummyClass.I)));
 
             Assert.Same(typeof(bool), wrapper1.FieldType);
             Assert.Same(typeof(int), wrapper2.FieldType);
@@ -108,7 +108,7 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
         [Fact]
         public void TestMemberInfo()
         {
-            MemberInfo info = typeof(DummyClass).GetProperty(nameof(DummyClass.b1));
+            MemberInfo info = typeof(DummyClass).GetProperty(nameof(DummyClass.B1));
 
             Assert.Same(info, wrapper.MemberInfo);
         }

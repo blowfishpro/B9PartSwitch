@@ -44,7 +44,7 @@ namespace B9PartSwitchTests.Fishbones.FieldWrappers
 
             wrapper.SetValue(dummy, true);
 
-            Assert.Equal(true, dummy.b);
+            Assert.True(dummy.b);
         }
 
         [Fact]

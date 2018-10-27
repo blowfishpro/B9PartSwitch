@@ -67,7 +67,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             IValueParseMap instance = DefaultValueParseMap.Instance;
 
             Assert.NotNull(instance);
-            Assert.IsNotType<IMutableValueParseMap>(instance);
+            Assert.Null(instance as IMutableValueParseMap);
         }
 
         #endregion
@@ -170,6 +170,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
         #region CanParse
 
+        [Fact]
         public void TestCanParse()
         {
             DefaultValueParseMap map = new DefaultValueParseMap();
@@ -181,6 +182,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             Assert.True(map.CanParse(typeof(DummyClass)));
         }
 
+        [Fact]
         public void TestCanParse__Enum()
         {
             DefaultValueParseMap map = new DefaultValueParseMap();
@@ -188,6 +190,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             Assert.True(map.CanParse(typeof(DummyEnum?)));
         }
 
+        [Fact]
         public void TestCanParse__Nullable()
         {
             DefaultValueParseMap map = new DefaultValueParseMap();
@@ -201,6 +204,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             Assert.True(map.CanParse(typeof(DummyStruct?)));
         }
 
+        [Fact]
         public void TestCanParse__RegisteredEnum()
         {
             DefaultValueParseMap map = new DefaultValueParseMap();
@@ -216,6 +220,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             Assert.True(map.CanParse(typeof(DummyEnum?)));
         }
 
+        [Fact]
         public void TestCanParse__RegisteredNullable()
         {
             DefaultValueParseMap map = new DefaultValueParseMap();

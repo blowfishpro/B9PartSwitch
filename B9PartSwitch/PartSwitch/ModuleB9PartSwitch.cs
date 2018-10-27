@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
-using KSP.Localization;
 using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
@@ -73,8 +73,9 @@ namespace B9PartSwitch
 
         #region Private Fields
 
-        // Tweakscale integration
-        private float scale = 1f;
+        // Tweakscale integration (set via reflection, readonly is ok)
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier")]
+        private readonly float scale = 1f;
 
         private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);

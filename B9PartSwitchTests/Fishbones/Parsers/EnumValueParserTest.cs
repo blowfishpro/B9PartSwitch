@@ -14,12 +14,6 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         }
 
         [Fact]
-        public void TestNew()
-        {
-            Assert.DoesNotThrow(() => new EnumValueParser(typeof(BlahEnum)));
-        }
-
-        [Fact]
         public void TestNew__Null()
         {
             Assert.Throws<ArgumentNullException>(() => new EnumValueParser(null));

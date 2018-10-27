@@ -137,7 +137,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.False(mapper.Load(ref value, node, Exemplars.LoadContext));
             Assert.Same(list, value);
-            Assert.Equal(1, list.Count);
+            Assert.Single(list);
 
             Assert.Equal("blah0", list[0]);
         }
