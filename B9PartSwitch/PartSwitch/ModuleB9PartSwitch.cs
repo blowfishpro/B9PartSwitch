@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
-using KSP.Localization;
 using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
