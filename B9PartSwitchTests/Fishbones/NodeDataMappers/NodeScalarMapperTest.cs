@@ -14,7 +14,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         #region Constructor
 
         [Fact]
-
         public void TestNew()
         {
             NodeScalarMapper mapper2 = new NodeScalarMapper("blah", typeof(DummyIConfigNode));
@@ -23,6 +22,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Same(typeof(DummyIConfigNode), mapper2.fieldType);
         }
 
+        [Fact]
         public void TestNew__IContextualNode()
         {
             NodeScalarMapper mapper2 = new NodeScalarMapper("blah", typeof(DummyIContextualNode));
@@ -31,6 +31,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Same(typeof(DummyIContextualNode), mapper2.fieldType);
         }
 
+        [Fact]
         public void TestNew__BadType()
         {
             Assert.Throws<ArgumentException>(() => new NodeScalarMapper("blah", typeof(DummyClass)));

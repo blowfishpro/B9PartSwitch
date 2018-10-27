@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
-using KSP.Localization;
 using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
@@ -76,8 +76,9 @@ namespace B9PartSwitch
 
         #region Private Fields
 
-        // Tweakscale integration
-        private float scale = 1f;
+        // Tweakscale integration (set via reflection, readonly is ok)
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier")]
+        private readonly float scale = 1f;
 
         private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
@@ -138,18 +139,16 @@ namespace B9PartSwitch
             }
             if (subtypes.Count == 1)
             {
-                Exception ex = new Exception($"Must have at least two subtypes: {this}");
-                FatalErrorHandler.HandleFatalError(ex);
-                throw ex;
+                LogWarning("Only one subtype found, this may lead to unexpected behavior");
             }
 
             string[] duplicatedNames = subtypes.GroupBy(s => s.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToArray();
 
             if (duplicatedNames.Length > 0)
             {
-                Exception ex = new Exception($"Duplicated subtype names found on {this}: {string.Join(", ", duplicatedNames)}");
-                FatalErrorHandler.HandleFatalError(ex);
-                throw ex;
+                string duplicatedNamesList = string.Join(", ", duplicatedNames);
+                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesList}");
+                LogError($"Duplicate subtype names detected: {duplicatedNames}");
             }
 
             InitializeSubtypes();

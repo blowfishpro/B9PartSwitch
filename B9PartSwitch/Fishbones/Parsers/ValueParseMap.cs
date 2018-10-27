@@ -11,8 +11,7 @@ namespace B9PartSwitch.Fishbones.Parsers
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
 
-            IValueParser parser;
-            if (parsers.TryGetValue(parseType, out parser))
+            if (parsers.TryGetValue(parseType, out IValueParser parser))
                 return parser;
             else
                 throw new ParseTypeNotRegisteredException(parseType);

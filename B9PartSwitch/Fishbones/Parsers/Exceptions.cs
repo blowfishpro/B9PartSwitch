@@ -2,6 +2,7 @@
 
 namespace B9PartSwitch.Fishbones.Parsers
 {
+    [Serializable]
     public class ParseTypeNotRegisteredException : Exception
     {
         public ParseTypeNotRegisteredException(Type parseType) :
@@ -11,6 +12,7 @@ namespace B9PartSwitch.Fishbones.Parsers
         }
     }
 
+    [Serializable]
     public class ParseTypeAlreadyRegisteredException : Exception
     {
         public ParseTypeAlreadyRegisteredException(Type parseType) :

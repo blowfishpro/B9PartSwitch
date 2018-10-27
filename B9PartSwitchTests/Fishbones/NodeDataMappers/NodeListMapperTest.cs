@@ -238,7 +238,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.False(mapper.Load(ref value, node, Exemplars.LoadContext));
             Assert.Same(list, value);
-            Assert.Equal(1, list.Count);
+            Assert.Single(list);
 
             AssertDummyIConfigNode(list[0], "thing0");
         }
@@ -351,7 +351,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 
             Assert.False(mapper.Save(list, node, Exemplars.SaveContext));
             Assert.False(node.HasNode("SOME_NODE"));
-            Assert.Equal(0, list.Count);
+            Assert.Empty(list);
         }
 
         [Fact]

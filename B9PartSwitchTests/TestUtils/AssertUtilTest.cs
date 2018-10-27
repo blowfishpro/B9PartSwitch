@@ -49,7 +49,7 @@ namespace B9PartSwitchTests.TestUtils
 
             ConfigNode node2 = node1.CreateCopy();
 
-            Assert.DoesNotThrow(() => AssertUtil.ConfigNodesEqual(node1, node2));
+            AssertUtil.ConfigNodesEqual(node1, node2);
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace B9PartSwitchTests.TestUtils
         {
             ConfigNode node = new ConfigNode();
 
-            Assert.DoesNotThrow(() => AssertUtil.ConfigNodesEqual(null, null));
+            AssertUtil.ConfigNodesEqual(null, null);
             Assert.Throws<Xunit.Sdk.SameException>(() => AssertUtil.ConfigNodesEqual(node, null));
             Assert.Throws<Xunit.Sdk.SameException>(() => AssertUtil.ConfigNodesEqual(null, node));
         }

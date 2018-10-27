@@ -4,6 +4,7 @@ mono:
 solution: B9PartSwitch.sln
 install:
   - rvm install $(cat .ruby-version)
+  - bundle install
   - build_script/install/install_ksp_dlls.sh
   - nuget restore ${TRAVIS_SOLUTION}
 script:
@@ -11,6 +12,7 @@ script:
   - bin/test
   - build_script/script/make_release.sh
   - bin/fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
+  - bundle exec rake spec
   - build_script/script/make_zip.sh
 after_success:
   - mkdir deploy

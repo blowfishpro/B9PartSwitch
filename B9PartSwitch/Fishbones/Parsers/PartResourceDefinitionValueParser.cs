@@ -5,6 +5,7 @@ namespace B9PartSwitch.Fishbones.Parsers
     // No test for this because PartResourceLibrary can't exist outside of Unity, and not worth writing a wrapper for so little
     public class PartResourceDefinitionValueParser : ValueParser<PartResourceDefinition>
     {
+        [Serializable]
         public class PartResourceNotFoundException : Exception
         {
             public PartResourceNotFoundException(string name) : base($"No resource definition named '{name}' could be found") { }

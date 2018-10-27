@@ -6,14 +6,6 @@
     "USERNAME"   : "blowfishpro",
     "REPOSITORY" : "B9PartSwitch"
   },
-  "VERSION" : {
-    "MAJOR" : <%= mod_version.major %>,
-    "MINOR" : <%= mod_version.minor %>,
-    "PATCH" : <%= mod_version.patch %>
-  },
-  "KSP_VERSION" : {
-    "MAJOR" : <%= ksp_version.major %>,
-    "MINOR" : <%= ksp_version.minor %>,
-    "PATCH" : <%= ksp_version.patch %>
-  }
+  "VERSION" : "<%= mod_version.to_s %>",
+  "KSP_VERSION" : "<%= ksp_version.to_s(3) %>"
 }
