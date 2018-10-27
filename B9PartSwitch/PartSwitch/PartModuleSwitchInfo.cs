@@ -5,8 +5,6 @@ using System.Reflection;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
-using B9PartSwitch.Extensions;
-using KSP.UI.Screens;
 
 namespace B9PartSwitch
 {
@@ -30,8 +28,8 @@ namespace B9PartSwitch
         [NodeData(name = "valueIdentifier")]
         public string valueIdentifier = "";
 
-        private ConfigNode moduleInfo;
-        private ConfigNode modifiedModuleInfo;
+        private ConfigNode moduleNode;
+        private ConfigNode modifiersNode;
         private List<PartModule> modules;
         private Type moduleType;
 
@@ -47,7 +45,7 @@ namespace B9PartSwitch
 
         public void Enable(bool enable)
         {
-            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight) || moduleInfo == null) return;
+            if (moduleNode == null || modules == null || moduleType == null) return;
 
             // Get PartModule constructor
             ConstructorInfo ctor = moduleType.GetConstructor(new Type[] { });
@@ -64,23 +62,24 @@ namespace B9PartSwitch
                 {
                 // Call the module constructor, this helps in resetting private fields
                 ctor.Invoke(modules[j], null);
-
-                // Get confignode and apply module specific support for disabling
-                ConfigNode node = enable ? modifiedModuleInfo : moduleInfo;
-                ApplyEarlySpecifics(node, modules[j]);
-
                 // Call PartModule.Awake(), this will call PartModule.OnAwake()
                 modules[j].Awake();
 
-                // Ensure module is enabled
-                node.SetValue("IsEnabled", true, true);
-                node.SetValue("moduleIsEnabled", true, true);
-                modules[j].enabled = true;
-                modules[j].isEnabled = true;
-                modules[j].moduleIsEnabled = true;
+                // Ensure module is enabled -> NOT NEEDED ?
+                //node.SetValue("IsEnabled", true, true);
+                //node.SetValue("moduleIsEnabled", true, true);
+                //modules[j].enabled = true;
+                //modules[j].isEnabled = true;
+                //modules[j].moduleIsEnabled = true;
 
+
+                ApplyEarlySpecifics(modules[j]);
                 // Call PartModule.Load(), this will call PartModule.OnLoad()
-                modules[j].Load(node);
+                modules[j].Load(moduleNode);
+                if (enable && modifiersNode != null)
+                {
+                    modules[j].Load(modifiersNode);
+                }
 
                 // Call OnStart, then start
                 // In the editor, OnStartFinished is called in between
@@ -111,99 +110,24 @@ namespace B9PartSwitch
             }
         }
 
-        // Specific support for some stock modules, mainly used to reset state when disabling modules.
-        private ConfigNode ApplyEarlySpecifics(ConfigNode configNode, PartModule module)
+        public void SetupSwitcher(string moduleID, string subtypeName, Part part)
         {
-            if (module is ModuleEngines || module is ModuleEnginesFX)
-            {
-                module.part.stackIcon.ClearInfoBoxes();
-            }
-            if (disableModule)
-            {
-                if (module is ModuleColorChanger)
-                {
-                    configNode.SetValue("animState", false, true);
-                }
-                else if (module is ModuleLight)
-                {
-                    // Doesn't work in flight
-                    configNode.SetValue("IsOn", false, true);
-                    ((ModuleLight)module).SetLightState(false);
-                }
-                else if (module is ModuleAnimateGeneric)
-                {
-                    configNode.SetValue("aniState", "LOCKED", true);
-                    configNode.SetValue("animTime", 0f, true);
-                }
-                else if (module is ModuleAnimationGroup)
-                {
-                    configNode.SetValue("isDeployed", false, true);
-                }
-                else if (module is ModuleDeployablePart)
-                {
-                    // This one is tricky because the animation is private and is handled trough FixedUpdate
-                    configNode.SetValue("storedAnimationTime", 0f, true);
-                    configNode.SetValue("deployState", "RETRACTED", true);
-                    Animation[] anims = module.GetComponentsInChildren<Animation>();
-                    string animName = ((ModuleDeployablePart)module).animationName;
-                    Animation deployAnim = null;
-                    for (int k = 0; k < anims.Count(); k++)
-                    {
-                        if (anims[k].GetClip(animName) != null) deployAnim = anims[k];
-                    }
-                    if (deployAnim == null && anims.Count() > 0) deployAnim = anims[0];
-                    if (deployAnim != null)
-                    {
-                        ((ModuleDeployablePart)module).panelRotationTransform.localRotation = ((ModuleDeployablePart)module).originalRotation;
-                        deployAnim[animName].normalizedTime = 0;
-                        deployAnim.Play(animName);
-                        deployAnim.Sample();
-                    }
-                }
-            }
-            return configNode;
-        }
+            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight) || moduleNode != null) return;
 
-        private void ApplyLateSpecifics(PartModule module, bool enable)
-        {
-            // Update staging icon visibility
-            if (disableModule && module.IsStageable())
-            {
-                module.stagingEnabled = !enable;
-                module.part.UpdateStageability(false, true);
-            }
-
-            // Reattach engine effects
-            if (enable && HighLogic.LoadedSceneIsFlight && module is ModuleEngines)
-            {
-                FixEnginesFX((ModuleEngines)module);
-            }
-        }
-
-        public void SetupSwitcher(PartSubtype subtype, ModuleB9PartSwitch parent)
-        {
-            if (!(HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight) || moduleInfo != null) return;
-
-            if (!TryFindModule(parent.part, out modules, out moduleInfo))
+            if (!TryFindModule(part, out modules, out moduleNode))
             {
                 modules = null;
-                moduleInfo = null;
+                moduleNode = null;
                 return;
             }
-            moduleInfo.SetValue("isEnabled", true, true);
-            modifiedModuleInfo = moduleInfo.CreateCopy();
+
             moduleType = modules[0].GetType();
 
-            ConfigNode node = parent.part.partInfo.partConfig
-                .GetNode("MODULE", "moduleID", parent.moduleID)
-                .GetNode("SUBTYPE", "name", subtype.Name)
-                .GetNode("MODULESWITCH", "name", name);
-
-            ConfigNode modifiersNode = new ConfigNode();
-            if (node.TryGetNode("MODIFIERS", ref modifiersNode))
-            {
-                modifiersNode.CopyToAsModifier(modifiedModuleInfo);
-            }
+            modifiersNode = part.partInfo.partConfig
+                .GetNode("MODULE", "moduleID", moduleID)
+                .GetNode("SUBTYPE", "name", subtypeName)
+                .GetNode("MODULESWITCH", "name", name)
+                .GetNode("MODIFIERS");
         }
 
         public bool TryFindModule(Part part, out List<PartModule> modules, out ConfigNode moduleNode)
@@ -228,11 +152,16 @@ namespace B9PartSwitch
                     if (fieldIdentifier.Length != 0)
                     {
                         string moduleValue = "";
-                        if (part.Modules[i].GetConfigNode().TryGetValue(fieldIdentifier, ref moduleValue) && moduleValue == valueIdentifier)
+                        ConfigNode prefabModuleNode;
+                        if (modules[i].TryGetConfigNode(out prefabModuleNode))
                         {
-                            modules.Add(part.Modules[i]);
-                            break;
+                            if (prefabModuleNode.TryGetValue(fieldIdentifier, ref moduleValue) && moduleValue == valueIdentifier)
+                            {
+                                modules.Add(part.Modules[i]);
+                                break;
+                            }
                         }
+
                     }
                     // try to use the module index (index derived from modules of the "moduleName" type only)
                     else if (moduleIndex > -1)
@@ -255,37 +184,135 @@ namespace B9PartSwitch
 
             if (modules.Count > 0)
             {
-                moduleNode = modules[0].GetConfigNode().CreateCopy();
-
-                if (moduleNode.CountNodes > 0 || moduleNode.CountValues > 0)
+                ConfigNode prefabModuleNode;
+                if (modules[0].TryGetConfigNode(out prefabModuleNode))
                 {
-                    return true;
+                    if (prefabModuleNode.CountNodes > 0 || prefabModuleNode.CountValues > 0)
+                    {
+                        moduleNode = prefabModuleNode.CreateCopy();
+                        return true;
+                    }
                 }
             }
 
-            moduleNode = new ConfigNode();
+            moduleNode = null;
             if (fieldIdentifier.Length != 0) Debug.LogError($"Cannot find a PartModule of type '{name}' with the field '{fieldIdentifier}' and value '{valueIdentifier}'");
             else if (moduleIndex > -1) Debug.LogError($"Cannot find a PartModule of type '{name}' with index '{moduleIndex}'");
             else Debug.LogError($"Cannot find a PartModule of type '{name}'");
             return false;
         }
 
+        // Specific support for some stock modules, mainly used to reset state when disabling modules.
+        private ConfigNode ApplyEarlySpecifics(PartModule module)
+        {
+            if (module is ModuleEngines || module is ModuleEnginesFX)
+            {
+                module.part.stackIcon.ClearInfoBoxes();
+            }
+            if (disableModule)
+            {
+                if (module is ModuleColorChanger)
+                {
+                    moduleNode.SetValue("animState", false, true);
+                }
+                else if (module is ModuleLight)
+                {
+                    // Doesn't work in flight
+                    moduleNode.SetValue("IsOn", false, true);
+                    ((ModuleLight)module).SetLightState(false);
+                }
+                else if (module is ModuleAnimateGeneric)
+                {
+                    moduleNode.SetValue("aniState", "LOCKED", true);
+                    moduleNode.SetValue("animTime", 0f, true);
+                }
+                else if (module is ModuleAnimationGroup)
+                {
+                    moduleNode.SetValue("isDeployed", false, true);
+                }
+                else if (module is ModuleDeployablePart)
+                {
+                    // This one is tricky because the animation is private and is handled trough FixedUpdate
+                    moduleNode.SetValue("storedAnimationTime", 0f, true);
+                    moduleNode.SetValue("deployState", "RETRACTED", true);
+                    Animation[] anims = module.GetComponentsInChildren<Animation>();
+                    string animName = ((ModuleDeployablePart)module).animationName;
+                    Animation deployAnim = null;
+                    for (int k = 0; k < anims.Count(); k++)
+                    {
+                        if (anims[k].GetClip(animName) != null) deployAnim = anims[k];
+                    }
+                    if (deployAnim == null && anims.Count() > 0) deployAnim = anims[0];
+                    if (deployAnim != null)
+                    {
+                        ((ModuleDeployablePart)module).panelRotationTransform.localRotation = ((ModuleDeployablePart)module).originalRotation;
+                        deployAnim[animName].normalizedTime = 0;
+                        deployAnim.Play(animName);
+                        deployAnim.Sample();
+                    }
+                }
+            }
+            return moduleNode;
+        }
+
+        private void ApplyLateSpecifics(PartModule module, bool enable)
+        {
+            // Update staging icon visibility
+            if (disableModule && module.IsStageable())
+            {
+                module.stagingEnabled = !enable;
+                module.part.UpdateStageability(false, true);
+            }
+
+            if (!(disableModule && enable))
+            {
+                // Unfortunatly ModuleDataTransmitter OnLoad create the reshandler on the prefab 
+                // and never again because it checks for part.partInfo == null
+                if (module is ModuleDataTransmitter && module.resHandler.inputResources.Count == 0)
+                {
+                    string value = "ElectricCharge";
+                    if (modifiersNode != null && !modifiersNode.TryGetValue("requiredResource", ref value))
+                    {
+                        moduleNode.TryGetValue("requiredResource", ref value);
+                    }
+                    ModuleResource moduleResource = new ModuleResource();
+                    moduleResource.name = value;
+                    moduleResource.title = KSPUtil.PrintModuleName(value);
+                    moduleResource.id = value.GetHashCode();
+                    moduleResource.rate = 1.0;
+                    module.resHandler.inputResources.Add(moduleResource);
+                }
+                else if (module is ModuleEngines && HighLogic.LoadedSceneIsFlight)
+                {
+                    FixEnginesFX((ModuleEngines)module);
+                }
+            }
+        }
+
         private void FixEnginesFX(ModuleEngines engine)
         {
             // Why this is needed :
-            // When engines OnStart is called, the modules does this :
+            // When engines OnStart is called, the module does this :
             // - It find the FX XXX on the part
             // - It duplicate the particule emitter of this FX into a new FX in the engine XXXGroups list, one for each thrusttransform
             // - It remove the particule emitter from the original FX on the part
             // - It copy back the new FX named prefix + XXX + index of transform to the part FX list
             // So when we call Onstart again, the init method can't find the emitters since they are removed from the base FX on the part
-            // To fix this we need to manually re-link the engine XXXGroups with the FX that still are on the part, and call the init method AutoPlaceFXGroup
+            // To fix this we need to manually re-link the engine XXXGroups with the FX that still are on the part, and call the setup method AutoPlaceFXGroup
 
-            // TODO: remove dirty FX from the parts (isvalid == false)
+            // Remove garbage FX on the part created by previous loads
+            engine.part.fxGroups.FindAll(p =>
+            (p.name.Contains(engine.fxGroupPrefix + "Flameout")
+            || p.name.Contains(engine.fxGroupPrefix + "Running")
+            || p.name.Contains(engine.fxGroupPrefix + "Power"))
+            && !p.isValid).Clear();
+
+            // Reset the module FX groups
             engine.flameoutGroups.Clear(); 
             engine.powerGroups.Clear(); 
             engine.runningGroups.Clear();
 
+            // Relink the part FX to the module FX list
             for (int i = 0; i < engine.thrustTransforms.Count; i++)
             {
                 FXGroup flameoutFX = engine.part.fxGroups.Find(p => p.name == engine.fxGroupPrefix + "Flameout" + i && p.isValid);

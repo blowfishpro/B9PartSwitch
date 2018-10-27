@@ -200,7 +200,7 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
-            FindModules(parent);
+            FindModules();
         }
 
         #endregion
@@ -416,11 +416,14 @@ namespace B9PartSwitch
             }
         }
 
-        private void FindModules(ModuleB9PartSwitch b9Module)
+        private void FindModules()
         {
+            if (parent == null)
+                throw new InvalidOperationException("Parent has not been set");
+
             foreach (PartModuleSwitchInfo info in moduleSwitches)
             {
-                info.SetupSwitcher(this, b9Module);
+                info.SetupSwitcher(parent.moduleID, Name, parent.part);
             }
         }
 

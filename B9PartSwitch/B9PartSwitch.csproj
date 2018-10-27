@@ -118,7 +118,6 @@
     <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
     <Compile Include="Test\PartModuleTest.cs" />
 	<Compile Include="PartSwitch\PartModuleSwitchInfo.cs" />
-	<Compile Include="Extensions\ConfigNodeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

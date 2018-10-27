@@ -11,9 +11,13 @@
             return module.part.GetPrefab().Modules[module.part.Modules.IndexOf(module)];
         }
 
-        public static ConfigNode GetConfigNode(this PartModule module)
+        public static bool TryGetConfigNode(this PartModule module, out ConfigNode node)
         {
-           return module.part.partInfo.partConfig.GetNode("MODULE", module.part.Modules.IndexOf(module));
+            node = null;
+            if (module.part.partInfo == null) return false;
+            if (module.part.partInfo.partConfig == null) return false;
+            node = module.part.partInfo.partConfig.GetNode("MODULE", module.part.Modules.IndexOf(module));
+            return true;
         }
 
         #region Logging
