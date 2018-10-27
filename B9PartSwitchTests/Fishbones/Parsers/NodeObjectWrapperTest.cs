@@ -98,8 +98,10 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             ConfigNode node = new ConfigNode();
 
-            DummyIConfigNode dummy = new DummyIConfigNode();
-            dummy.value = "test5678";
+            DummyIConfigNode dummy = new DummyIConfigNode
+            {
+                value = "test5678"
+            };
             OperationContext context = new OperationContext(Operation.Save, "some object");
 
             NodeObjectWrapper.Save(dummy, node, context);
@@ -112,8 +114,10 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             ConfigNode node = new ConfigNode();
 
-            DummyIContextualNode dummy = new DummyIContextualNode();
-            dummy.value = "test5678";
+            DummyIContextualNode dummy = new DummyIContextualNode
+            {
+                value = "test5678"
+            };
             OperationContext context = new OperationContext(Operation.Save, "some object");
 
             NodeObjectWrapper.Save(dummy, node, context);
