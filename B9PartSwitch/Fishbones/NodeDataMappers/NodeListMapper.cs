@@ -9,27 +9,26 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
     public class NodeListMapper : INodeDataMapper
     {
         public readonly string name;
-
-        public readonly Type elementType;
         public readonly Type listType;
+        public readonly INodeObjectWrapper nodeObjectWrapper;
 
-        public NodeListMapper(string name, Type elementType)
+        public NodeListMapper(string name, Type elementType, INodeObjectWrapper nodeObjectWrapper)
         {
             name.ThrowIfNullArgument(nameof(name));
             elementType.ThrowIfNullArgument(nameof(elementType));
-
-            if (!NodeObjectWrapper.IsNodeType(elementType))
-                throw new ArgumentException($"Type {elementType} does not implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(elementType));
+            nodeObjectWrapper.ThrowIfNullArgument(nameof(nodeObjectWrapper));
 
             this.name = name;
-            this.elementType = elementType;
             listType = typeof(List<>).MakeGenericType(elementType);
+
+            this.nodeObjectWrapper = nodeObjectWrapper;
         }
 
         public bool Load(ref object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));
+            context.ThrowIfNullArgument(nameof(context));
 
             ConfigNode[] nodes = node.GetNodes(name);
             if (nodes.IsNullOrEmpty()) return false;
@@ -43,8 +42,8 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             foreach (ConfigNode innerNode in nodes)
             {
                 if (innerNode.IsNull()) continue;
-                object obj = Activator.CreateInstance(elementType);
-                NodeObjectWrapper.Load(obj, innerNode, context);
+                object obj = null;
+                nodeObjectWrapper.Load(ref obj, innerNode, context);
                 list.Add(obj);
             }
 
@@ -53,8 +52,9 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
 
         public bool Save(object fieldValue, ConfigNode node, OperationContext context)
         {
-            node.ThrowIfNullArgument(nameof(node));
             fieldValue.EnsureArgumentType(listType, nameof(fieldValue));
+            node.ThrowIfNullArgument(nameof(node));
+            context.ThrowIfNullArgument(nameof(context));
 
             IList list = (IList)fieldValue;
             if (list.IsNullOrEmpty()) return false;
@@ -62,9 +62,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             foreach (object value in list)
             {
                 if (value.IsNull()) continue;
-                ConfigNode innerNode = new ConfigNode();
-                NodeObjectWrapper.Save(value, innerNode, context);
-                node.AddNode(name, innerNode);
+                node.AddNode(name, nodeObjectWrapper.Save(value, context));
             }
 
             return true;

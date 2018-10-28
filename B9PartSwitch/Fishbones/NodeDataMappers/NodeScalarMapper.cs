@@ -7,47 +7,39 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
     public class NodeScalarMapper : INodeDataMapper
     {
         public readonly string name;
-        public readonly Type fieldType;
+        public readonly INodeObjectWrapper nodeObjectWrapper;
 
-        public NodeScalarMapper(string name, Type fieldType)
+        public NodeScalarMapper(string name, INodeObjectWrapper nodeObjectWrapper)
         {
             name.ThrowIfNullArgument(nameof(name));
-            fieldType.ThrowIfNullArgument(nameof(fieldType));
-
-            if (!NodeObjectWrapper.IsNodeType(fieldType))
-                throw new ArgumentException($"Type {fieldType} does not implement {typeof(IConfigNode)} or {typeof(IContextualNode)}", nameof(fieldType));
-
             this.name = name;
-            this.fieldType = fieldType;
+
+            nodeObjectWrapper.ThrowIfNullArgument(nameof(nodeObjectWrapper));
+            this.nodeObjectWrapper = nodeObjectWrapper;
         }
 
         public bool Load(ref object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
-            fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));
+            context.ThrowIfNullArgument(nameof(context));
 
             ConfigNode innerNode = node.GetNode(name);
             if (innerNode.IsNull()) return false;
 
-            if (fieldValue.IsNull()) fieldValue = Activator.CreateInstance(fieldType);
-
-            NodeObjectWrapper.Load(fieldValue, innerNode, context);
-
-            return true;
+            nodeObjectWrapper.Load(ref fieldValue, innerNode, context);
+             return true;
         }
 
         public bool Save(object fieldValue, ConfigNode node, OperationContext context)
         {
             node.ThrowIfNullArgument(nameof(node));
-            fieldValue.EnsureArgumentType<IConfigNode, IContextualNode>(nameof(fieldValue));
+            context.ThrowIfNullArgument(nameof(context));
 
             if (fieldValue.IsNull()) return false;
 
-            ConfigNode innerNode = new ConfigNode();
-            NodeObjectWrapper.Save(fieldValue, innerNode, context);
+            ConfigNode innerNode = nodeObjectWrapper.Save(fieldValue, context);
 
             node.AddNode(name, innerNode);
-
             return true;
         }
     }

@@ -24,7 +24,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         {
             if (!CanBuild) throw new InvalidOperationException();
 
-            return new NodeListMapper(nodeDataName, elementType);
+            return new NodeListMapper(nodeDataName, elementType, NodeObjectWrapper.For(elementType));
         }
     }
 }

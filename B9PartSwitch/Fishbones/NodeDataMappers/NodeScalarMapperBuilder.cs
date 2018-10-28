@@ -23,7 +23,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
         {
             if (!CanBuild) throw new InvalidOperationException();
 
-            return new NodeScalarMapper(nodeDataName, fieldType);
+            return new NodeScalarMapper(nodeDataName, NodeObjectWrapper.For(fieldType));
         }
     }
 }

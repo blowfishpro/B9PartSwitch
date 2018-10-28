@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
@@ -74,8 +75,9 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeListMapper mapper = Assert.IsType<NodeListMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIConfigNode), mapper.elementType);
             Assert.Same(typeof(List<DummyIConfigNode>), mapper.listType);
+            NodeObjectWrapperIConfigNode wrapper = Assert.IsType<NodeObjectWrapperIConfigNode>(mapper.nodeObjectWrapper);
+            Assert.Equal(typeof(DummyIConfigNode), wrapper.type);
         }
 
         [Fact]
@@ -86,8 +88,9 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeListMapper mapper = Assert.IsType<NodeListMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIContextualNode), mapper.elementType);
             Assert.Same(typeof(List<DummyIContextualNode>), mapper.listType);
+            NodeObjectWrapperIContextualNode wrapper = Assert.IsType<NodeObjectWrapperIContextualNode>(mapper.nodeObjectWrapper);
+            Assert.Equal(typeof(DummyIContextualNode), wrapper.type);
         }
 
         [Fact]
