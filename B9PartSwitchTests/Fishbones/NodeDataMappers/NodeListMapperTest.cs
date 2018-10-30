@@ -216,6 +216,51 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         }
 
         [Fact]
+        public void TestLoad__ExistingValue__LoadInstance()
+        {
+            object obj0 = new object();
+
+            List<object> list = new List<object>
+            {
+                obj0,
+            };
+
+            object value = list;
+
+            ConfigNode node = new TestConfigNode
+            {
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing1" },
+                },
+                new TestConfigNode("SOME_NODE")
+                {
+                    { "value", "thing2" },
+                },
+                new TestConfigNode("SOME_OTHER_NODE")
+                {
+                    { "value", "thing2" },
+                },
+            };
+            OperationContext context = new OperationContext(Operation.LoadInstance, new object());
+
+            object obj1 = new object();
+            object obj2 = new object();
+
+            object dummyNull = null;
+
+            wrapper.When(x => x.Load(ref dummyNull, node.nodes[0], context)).Do(x => x[0] = obj1);
+            wrapper.When(x => x.Load(ref dummyNull, node.nodes[1], context)).Do(x => x[0] = obj2);
+
+            Assert.True(mapper.Load(ref value, node, context));
+            Assert.Same(list, value);
+            Assert.Equal(2, list.Count);
+
+            Assert.Same(obj1, list[0]);
+            Assert.Same(obj2, list[1]);
+        }
+
+        [Fact]
         public void TestLoad__NoNodes()
         {
             object obj0 = new object();

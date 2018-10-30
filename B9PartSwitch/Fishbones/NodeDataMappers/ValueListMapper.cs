@@ -37,7 +37,7 @@ namespace B9PartSwitch.Fishbones.NodeDataMappers
             if (fieldValue.IsNull()) fieldValue = Activator.CreateInstance(listType);
             IList list = (IList)fieldValue;
 
-            if (context.Operation == Operation.Deserialize)
+            if (context.Operation == Operation.Deserialize || context.Operation == Operation.LoadInstance)
                 list.Clear();
 
             foreach (string value in values)
