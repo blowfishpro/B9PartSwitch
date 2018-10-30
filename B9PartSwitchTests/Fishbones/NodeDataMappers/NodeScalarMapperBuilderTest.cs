@@ -34,7 +34,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IConfigNode()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyIConfigNode));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -42,7 +41,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IContextualNode()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyIContextualNode));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -50,7 +48,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__ConfigNode()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(ConfigNode));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -58,7 +55,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__False()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyClass));
-
             Assert.False(builder.CanBuild);
         }
 

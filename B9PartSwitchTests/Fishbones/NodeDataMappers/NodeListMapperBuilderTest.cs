@@ -35,7 +35,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IConfigNode()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyIConfigNode>));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -43,7 +42,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IContextualNode()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyIContextualNode>));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -51,7 +49,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__ConfigNode()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<ConfigNode>));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -59,7 +56,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__False()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyClass>));
-
             Assert.False(builder.CanBuild);
         }
 
@@ -67,7 +63,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__NotList()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(DummyIConfigNode));
-
             Assert.False(builder.CanBuild);
         }
 
