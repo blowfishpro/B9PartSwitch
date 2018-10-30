@@ -65,7 +65,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
 
             object obj1 = new object();
             object obj2 = new object();
@@ -104,7 +104,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
 
             object obj1 = new object();
             object obj2 = new object();
@@ -151,7 +151,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
 
             object obj1 = new object();
             object obj2 = new object();
@@ -235,7 +235,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.False(mapper.Load(ref value, node, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref value, node, Exemplars.LoadPrefabContext));
             Assert.Same(list, value);
             Assert.Single(list);
 
@@ -248,7 +248,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NullNode()
         {
             object dummy = null;
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadPrefabContext));
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__WrongType()
         {
             object dummy = "why are you passing a string?";
-            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, new ConfigNode(), Exemplars.LoadContext));
+            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, new ConfigNode(), Exemplars.LoadPrefabContext));
         }
 
         #endregion

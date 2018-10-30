@@ -59,7 +59,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
             Assert.True(mapper.Load(ref dummyRef, outerNode, context));
             Assert.Same(dummyRef, dummy);
 
@@ -85,7 +85,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
             object newDummy = new object();
 
             wrapper.When(x => x.Load(ref dummy, innerNode, context)).Do(x => x[0] = newDummy);
@@ -112,7 +112,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.False(mapper.Load(ref dummyRef, node, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref dummyRef, node, Exemplars.LoadPrefabContext));
             wrapper.DidNotReceiveWithAnyArgs().Load(ref dummyRef, null, null);
             Assert.Same(dummyRef, dummy);
         }
@@ -121,7 +121,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NullNode()
         {
             object dummy = new object();
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadPrefabContext));
         }
 
         [Fact]

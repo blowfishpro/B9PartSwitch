@@ -55,7 +55,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 { "value", "blah" },
             };
 
-            wrapper.Load(ref objRef, node, Exemplars.LoadContext);
+            wrapper.Load(ref objRef, node, Exemplars.LoadPrefabContext);
 
             Assert.Same(obj, objRef);
             Assert.Equal("blah", obj.value);
@@ -71,7 +71,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 { "value", "blah" },
             };
 
-            wrapper.Load(ref obj, node, Exemplars.LoadContext);
+            wrapper.Load(ref obj, node, Exemplars.LoadPrefabContext);
 
             DummyIContextualNode newObj = Assert.IsType<DummyIContextualNode>(obj);
             Assert.Equal("blah", newObj.value);
@@ -84,7 +84,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             ArgumentException ex = Assert.Throws<ArgumentException>(delegate
             {
-                wrapper.Load(ref obj, new ConfigNode(), Exemplars.LoadContext);
+                wrapper.Load(ref obj, new ConfigNode(), Exemplars.LoadPrefabContext);
             });
 
             Assert.Contains("Expected parameter of type B9PartSwitch.Fishbones.IContextualNode but got System.String", ex.Message);
@@ -98,7 +98,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
 
             ArgumentNullException ex = Assert.Throws<ArgumentNullException>(delegate
             {
-                wrapper.Load(ref obj, null, Exemplars.LoadContext);
+                wrapper.Load(ref obj, null, Exemplars.LoadPrefabContext);
             });
 
             Assert.Equal("node", ex.ParamName);
@@ -124,7 +124,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             ArgumentNullException ex = Assert.Throws<ArgumentNullException>(delegate
             {
-                wrapper.Save(null, Exemplars.LoadContext);
+                wrapper.Save(null, Exemplars.LoadPrefabContext);
             });
 
             Assert.Equal("obj", ex.ParamName);
@@ -135,7 +135,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             ArgumentException ex = Assert.Throws<ArgumentException>(delegate
             {
-                wrapper.Save("this is a string", Exemplars.LoadContext);
+                wrapper.Save("this is a string", Exemplars.LoadPrefabContext);
             });
 
             Assert.Contains("Expected parameter of type B9PartSwitch.Fishbones.IContextualNode but got System.String", ex.Message);

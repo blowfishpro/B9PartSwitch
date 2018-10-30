@@ -26,7 +26,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 },
             };
 
-            wrapper.Load(ref value, node, Exemplars.LoadContext);
+            wrapper.Load(ref value, node, Exemplars.LoadPrefabContext);
 
             ConfigNode newNode = Assert.IsType<ConfigNode>(value);
             Assert.NotSame(origValue, newNode);
@@ -49,7 +49,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 },
             };
 
-            wrapper.Load(ref value, node, Exemplars.LoadContext);
+            wrapper.Load(ref value, node, Exemplars.LoadPrefabContext);
 
             ConfigNode newNode = Assert.IsType<ConfigNode>(value);
             Assert.NotSame(node, newNode);
@@ -63,7 +63,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             object obj = null;
             ArgumentNullException ex = Assert.Throws<ArgumentNullException>(delegate
             {
-                wrapper.Load(ref obj, null, Exemplars.LoadContext);
+                wrapper.Load(ref obj, null, Exemplars.LoadPrefabContext);
             });
 
             Assert.Equal("node", ex.ParamName);
