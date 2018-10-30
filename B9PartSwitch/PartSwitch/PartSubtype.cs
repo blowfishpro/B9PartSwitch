@@ -26,6 +26,9 @@ namespace B9PartSwitch
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
 
+        [NodeData(name = "NODE")]
+        public List<AttachNodeModifierInfo> attachNodeModifierInfos = new List<AttachNodeModifierInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -92,6 +95,7 @@ namespace B9PartSwitch
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
+        private List<AttachNodeMover> attachNodeMovers = new List<AttachNodeMover>();
 
         #endregion
 
@@ -110,6 +114,7 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
         public IEnumerable<Material> Materials => textureReplacements.Select(repl => repl.material);
+        public IEnumerable<AttachNode> AttachNodesWithManagedPosition => attachNodeMovers.Select(mover => mover.attachNode);
 
         public float TotalVolume
         {
@@ -201,6 +206,7 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
+            FindAttachNodeMovers();
         }
 
         #endregion
@@ -224,6 +230,7 @@ namespace B9PartSwitch
             ActivateTextures();
             AddResources(false);
             UpdatePartParams();
+            attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
         }
 
         public void DeactivateOnSwitch()
@@ -237,6 +244,7 @@ namespace B9PartSwitch
 
             DeactivateTextures();
             RemoveResources();
+            attachNodeMovers.ForEach(nm => nm.DeactivateOnSwitch());
         }
 
         public void ActivateOnSwitch()
@@ -246,6 +254,7 @@ namespace B9PartSwitch
             ActivateTextures();
             AddResources(true);
             UpdatePartParams();
+            attachNodeMovers.ForEach(nm => nm.ActivateOnSwitch());
         }
 
         public void DeactivateForIcon()
@@ -404,6 +413,23 @@ namespace B9PartSwitch
                 catch(Exception e)
                 {
                     LogError("Exception while initializing a texture replacment:");
+                    Debug.LogException(e);
+                }
+            }
+        }
+
+        private void FindAttachNodeMovers()
+        {
+            foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
+            {
+                try
+                {
+                    AttachNodeMover mover = info.CreateAttachNodeModifier(Part);
+                    if (mover != null) attachNodeMovers.Add(mover);
+                }
+                catch (Exception e)
+                {
+                    LogError("Exception while initializing a node mover:");
                     Debug.LogException(e);
                 }
             }
