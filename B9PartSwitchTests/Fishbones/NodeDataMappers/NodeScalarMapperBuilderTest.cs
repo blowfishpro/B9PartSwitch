@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
@@ -33,7 +34,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IConfigNode()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyIConfigNode));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -41,7 +41,13 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IContextualNode()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyIContextualNode));
+            Assert.True(builder.CanBuild);
+        }
 
+        [Fact]
+        public void TestCanBuild__ConfigNode()
+        {
+            NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(ConfigNode));
             Assert.True(builder.CanBuild);
         }
 
@@ -49,7 +55,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__False()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyClass));
-
             Assert.False(builder.CanBuild);
         }
 
@@ -65,7 +70,8 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeScalarMapper mapper = Assert.IsType<NodeScalarMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIConfigNode), mapper.fieldType);
+            NodeObjectWrapperIConfigNode wrapper = Assert.IsType<NodeObjectWrapperIConfigNode>(mapper.nodeObjectWrapper);
+            Assert.Same(typeof(DummyIConfigNode), wrapper.type);
         }
 
         [Fact]
@@ -76,7 +82,19 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeScalarMapper mapper = Assert.IsType<NodeScalarMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIContextualNode), mapper.fieldType);
+            NodeObjectWrapperIContextualNode wrapper = Assert.IsType<NodeObjectWrapperIContextualNode>(mapper.nodeObjectWrapper);
+            Assert.Same(typeof(DummyIContextualNode), wrapper.type);
+        }
+
+        [Fact]
+        public void TestBuildMapper__ConfigNode()
+        {
+            NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(ConfigNode));
+
+            NodeScalarMapper mapper = Assert.IsType<NodeScalarMapper>(builder.BuildMapper());
+
+            Assert.Equal("foo", mapper.name);
+            Assert.IsType<NodeObjectWrapperConfigNode>(mapper.nodeObjectWrapper);
         }
 
         [Fact]

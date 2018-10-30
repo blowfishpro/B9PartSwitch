@@ -1,46 +1,37 @@
 ﻿using System;
 using Xunit;
+using NSubstitute;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitchTests.TestUtils;
-using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
 {
     public class NodeScalarMapperTest
     {
-        private NodeScalarMapper mapper = new NodeScalarMapper("SOME_NODE", typeof(DummyIConfigNode));
+        private readonly INodeObjectWrapper wrapper;
+        private readonly NodeScalarMapper mapper;
+
+        public NodeScalarMapperTest()
+        {
+            wrapper = Substitute.For<INodeObjectWrapper>();
+            mapper = new NodeScalarMapper("SOME_NODE", wrapper);
+        }
 
         #region Constructor
 
         [Fact]
         public void TestNew()
         {
-            NodeScalarMapper mapper2 = new NodeScalarMapper("blah", typeof(DummyIConfigNode));
-
-            Assert.Equal("blah", mapper2.name);
-            Assert.Same(typeof(DummyIConfigNode), mapper2.fieldType);
-        }
-
-        [Fact]
-        public void TestNew__IContextualNode()
-        {
-            NodeScalarMapper mapper2 = new NodeScalarMapper("blah", typeof(DummyIContextualNode));
-
-            Assert.Equal("blah", mapper2.name);
-            Assert.Same(typeof(DummyIContextualNode), mapper2.fieldType);
-        }
-
-        [Fact]
-        public void TestNew__BadType()
-        {
-            Assert.Throws<ArgumentException>(() => new NodeScalarMapper("blah", typeof(DummyClass)));
+            Assert.Equal("SOME_NODE", mapper.name);
+            Assert.Same(wrapper, mapper.nodeObjectWrapper);
         }
 
         [Fact]
         public void TestNew__ThrowsIfNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper(null, typeof(DummyIConfigNode)));
+            Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper(null, Substitute.For<INodeObjectWrapper>()));
             Assert.Throws<ArgumentNullException>(() => new NodeScalarMapper("SOME_NODE", null));
         }
 
@@ -51,24 +42,28 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestLoad()
         {
-            DummyIConfigNode dummy = new DummyIConfigNode();
+            object dummy = new object();
             object dummyRef = dummy;
 
-            ConfigNode node = new TestConfigNode
+            ConfigNode innerNode = new TestConfigNode("SOME_NODE")
             {
-                new TestConfigNode("SOME_NODE")
-                {
-                    { "value", "something" },
-                },
+                { "value", "something" },
+            };
+
+            ConfigNode outerNode = new TestConfigNode
+            {
+                innerNode,
                 new TestConfigNode("SOME_OTHER_NODE")
                 {
                     { "value", "something else" },
                 },
             };
 
-            Assert.True(mapper.Load(ref dummyRef, node, Exemplars.LoadContext));
+            OperationContext context = Exemplars.LoadPrefabContext;
+            Assert.True(mapper.Load(ref dummyRef, outerNode, context));
             Assert.Same(dummyRef, dummy);
-            Assert.Equal("something", ((DummyIConfigNode)dummy).value);
+
+            wrapper.Received().Load(ref dummyRef, innerNode, context);
         }
 
         [Fact]
@@ -76,83 +71,33 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         {
             object dummy = null;
 
-            ConfigNode node = new TestConfigNode
+            ConfigNode innerNode = new TestConfigNode("SOME_NODE")
             {
-                new TestConfigNode("SOME_NODE")
-                {
-                    { "value", "something" },
-                },
+                { "value", "something" },
+            };
+
+            ConfigNode outerNode = new TestConfigNode
+            {
+                innerNode,
                 new TestConfigNode("SOME_OTHER_NODE")
                 {
                     { "value", "something else" },
                 },
             };
 
-            Assert.True(mapper.Load(ref dummy, node, Exemplars.LoadContext));
-            Assert.IsType<DummyIConfigNode>(dummy);
-            Assert.Equal("something", ((DummyIConfigNode)dummy).value);
-        }
+            OperationContext context = Exemplars.LoadPrefabContext;
+            object newDummy = new object();
 
-        [Fact]
-        public void TestLoad__IContextualNode()
-        {
-            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
-            DummyIContextualNode dummy = new DummyIContextualNode();
-            object dummyRef = dummy;
+            wrapper.When(x => x.Load(ref dummy, innerNode, context)).Do(x => x[0] = newDummy);
+            Assert.True(mapper.Load(ref dummy, outerNode, context));
 
-            ConfigNode node = new TestConfigNode
-            {
-                new TestConfigNode("SOME_NODE")
-                {
-                    { "value", "something" },
-                },
-                new TestConfigNode("SOME_OTHER_NODE")
-                {
-                    { "value", "something else" },
-                },
-            };
-
-            OperationContext context = Exemplars.LoadContext;
-
-            Assert.True(mapper2.Load(ref dummyRef, node, context));
-            Assert.Same(dummyRef, dummy);
-            Assert.Equal("something", dummy.value);
-            Assert.Same(context, dummy.lastContext);
-        }
-
-        [Fact]
-        public void TestLoad__IContextualNode__Null()
-        {
-            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
-            object dummy = null;
-
-            ConfigNode node = new TestConfigNode
-            {
-                new TestConfigNode("SOME_NODE")
-                {
-                    { "value", "something" },
-                },
-                new TestConfigNode("SOME_OTHER_NODE")
-                {
-                    { "value", "something else" },
-                },
-            };
-
-            OperationContext context = Exemplars.LoadContext;
-
-            Assert.True(mapper2.Load(ref dummy, node, context));
-            Assert.IsType<DummyIContextualNode>(dummy);
-
-            DummyIContextualNode dummy2 = (DummyIContextualNode)dummy;
-
-            Assert.Equal("something", dummy2.value);
-            Assert.Same(context, dummy2.lastContext);
+            Assert.Same(dummy, newDummy);
         }
 
         [Fact]
         public void TestLoad__NoNode()
         {
-            object dummy = new DummyIConfigNode { value = "abc" };
+            object dummy = new object();
             object dummyRef = dummy;
 
             ConfigNode node = new TestConfigNode
@@ -167,33 +112,23 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
                 },
             };
 
-            Assert.False(mapper.Load(ref dummy, node, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref dummyRef, node, Exemplars.LoadPrefabContext));
+            wrapper.DidNotReceiveWithAnyArgs().Load(ref dummyRef, null, null);
             Assert.Same(dummyRef, dummy);
-            Assert.Equal("abc", ((DummyIConfigNode)dummy).value);
         }
 
         [Fact]
         public void TestLoad__NullNode()
         {
-            object dummy = new DummyIConfigNode() { value = "abc" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadContext));
+            object dummy = new object();
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, null, Exemplars.LoadPrefabContext));
         }
 
         [Fact]
-        public void TestLoad__WrongType()
+        public void TestLoad__NullContext()
         {
-            object dummy = "why are you passing a string?";
-
-            ConfigNode node = new TestConfigNode
-            {
-                new TestConfigNode("SOME_NODE")
-                {
-                    { "value", "something" },
-                },
-            };
-
-            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, new ConfigNode(), Exemplars.LoadContext));
-            Assert.Throws<ArgumentException>(() => mapper.Load(ref dummy, node, Exemplars.LoadContext));
+            object dummy = new object();
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref dummy, new ConfigNode(), null));
         }
 
         #endregion
@@ -203,16 +138,16 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         [Fact]
         public void TestSave()
         {
-            ConfigNode node = new ConfigNode();
-            DummyIConfigNode dummy = new DummyIConfigNode { value = "foo" };
+            object dummy = new object();
+            OperationContext context = Exemplars.SaveContext;
+            ConfigNode innerNode = new ConfigNode();
+            ConfigNode outerNode = new ConfigNode();
 
-            Assert.True(mapper.Save(dummy, node, Exemplars.SaveContext));
+            wrapper.Save(dummy, context).Returns(innerNode);
+            Assert.True(mapper.Save(dummy, outerNode, context));
+            wrapper.Received().Save(dummy, context);
 
-            ConfigNode innerNode = node.GetNode("SOME_NODE");
-            Assert.NotNull(innerNode);
-            Assert.Equal("foo", innerNode.GetValue("value"));
-
-            Assert.Equal("foo", dummy.value);
+            Assert.Same(innerNode, outerNode.GetNode("SOME_NODE"));
         }
 
         [Fact]
@@ -222,41 +157,21 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             object dummy = null;
 
             Assert.False(mapper.Save(dummy, node, Exemplars.SaveContext));
+            wrapper.DidNotReceiveWithAnyArgs().Save(null, null);
 
             Assert.Null(node.GetNode("SOME_NODE"));
         }
 
         [Fact]
-        public void TestSave__IContextualNode()
-        {
-            NodeScalarMapper mapper2 = new NodeScalarMapper("SOME_NODE", typeof(DummyIContextualNode));
-            ConfigNode node = new ConfigNode();
-            DummyIContextualNode dummy = new DummyIContextualNode { value = "foo" };
-            OperationContext context = Exemplars.SaveContext;
-
-            Assert.True(mapper2.Save(dummy, node, context));
-
-            ConfigNode innerNode = node.GetNode("SOME_NODE");
-            Assert.NotNull(innerNode);
-            Assert.Equal("foo", innerNode.GetValue("value"));
-
-            Assert.Equal("foo", dummy.value);
-            Assert.Same(context, dummy.lastContext);
-        }
-
-        [Fact]
         public void TestSave__NullNode()
         {
-            DummyIConfigNode dummy = new DummyIConfigNode { value = "abc" };
-            Assert.Throws<ArgumentNullException>(() => mapper.Save(dummy, null, Exemplars.SaveContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(new object(), null, Exemplars.SaveContext));
         }
 
         [Fact]
-        public void TestSave__WrongType()
+        public void TestSave__NullContext()
         {
-            string dummy = "why are you passing a string?";
-
-            Assert.Throws<ArgumentException>(() => mapper.Save(dummy, new ConfigNode(), Exemplars.SaveContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Save(new object(), new ConfigNode(), null));
         }
 
         #endregion

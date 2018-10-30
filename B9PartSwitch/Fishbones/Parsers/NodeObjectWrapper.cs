@@ -1,45 +1,25 @@
 ﻿using System;
-using B9PartSwitch.Fishbones.Context;
 
 namespace B9PartSwitch.Fishbones.Parsers
 {
     public static class NodeObjectWrapper
     {
+        public static INodeObjectWrapper For(Type type)
+        {
+            type.ThrowIfNullArgument(nameof(type));
+            if (type.Implements<IConfigNode>())
+                return new NodeObjectWrapperIConfigNode(type);
+            else if (type.Implements<IContextualNode>())
+                return new NodeObjectWrapperIContextualNode(type);
+            else if (type == typeof(ConfigNode))
+                return new NodeObjectWrapperConfigNode();
+            else
+                throw new NotImplementedException($"No way to build node object wrapper for type {type}");
+        }
+
         public static bool IsNodeType(Type type)
         {
-            return type.Implements<IConfigNode>() || type.Implements<IContextualNode>();
-        }
-
-        public static void Load(object obj, ConfigNode node, OperationContext context)
-        {
-            obj.ThrowIfNullArgument(nameof(obj));
-            node.ThrowIfNullArgument(nameof(node));
-            context.ThrowIfNullArgument(nameof(context));
-
-            if (!context.Operation.Loading) throw new ArgumentException("Operation must be a loading operation");
-
-            if (obj is IContextualNode)
-                ((IContextualNode)obj).Load(node, context);
-            else if (obj is IConfigNode)
-                ((IConfigNode)obj).Load(node);
-            else
-                throw new ArgumentException($"Object must be a {nameof(IContextualNode)} or {nameof(IConfigNode)}, but got {obj.GetType()}", nameof(obj));
-        }
-
-        public static void Save(object obj, ConfigNode node, OperationContext context)
-        {
-            obj.ThrowIfNullArgument(nameof(obj));
-            node.ThrowIfNullArgument(nameof(node));
-            context.ThrowIfNullArgument(nameof(context));
-            
-            if (!context.Operation.Saving) throw new ArgumentException("Operation must be a saving operation");
-
-            if (obj is IContextualNode)
-                ((IContextualNode)obj).Save(node, context);
-            else if (obj is IConfigNode)
-                ((IConfigNode)obj).Save(node);
-            else
-                throw new ArgumentException($"Object must be a {nameof(IContextualNode)} or {nameof(IConfigNode)}, but got {obj.GetType()}", nameof(obj));
+            return type.Implements<IConfigNode>() || type.Implements<IContextualNode>() || type == typeof(ConfigNode);
         }
     }
 }

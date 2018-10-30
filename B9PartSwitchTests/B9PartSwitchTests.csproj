@@ -97,6 +97,9 @@
     <Compile Include="Fishbones\Parsers\DefaultValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\EnumValueParserTest.cs" />
     <Compile Include="Fishbones\Parsers\ExceptionsTest.cs" />
+    <Compile Include="Fishbones\Parsers\NodeObjectWrapperConfigNodeTest.cs" />
+    <Compile Include="Fishbones\Parsers\NodeObjectWrapperIConfigNodeTest.cs" />
+    <Compile Include="Fishbones\Parsers\NodeObjectWrapperIContextualNodeTest.cs" />
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\OverrideValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapTest.cs" />

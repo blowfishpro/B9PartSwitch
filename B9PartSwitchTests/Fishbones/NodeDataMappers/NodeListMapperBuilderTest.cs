@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using B9PartSwitch.Fishbones.NodeDataMappers;
+using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitchTests.TestUtils.DummyTypes;
 
 namespace B9PartSwitchTests.Fishbones.NodeDataMappers
@@ -34,7 +35,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IConfigNode()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyIConfigNode>));
-
             Assert.True(builder.CanBuild);
         }
 
@@ -42,7 +42,13 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__IContextualNode()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyIContextualNode>));
+            Assert.True(builder.CanBuild);
+        }
 
+        [Fact]
+        public void TestCanBuild__ConfigNode()
+        {
+            NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<ConfigNode>));
             Assert.True(builder.CanBuild);
         }
 
@@ -50,7 +56,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__False()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<DummyClass>));
-
             Assert.False(builder.CanBuild);
         }
 
@@ -58,7 +63,6 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestCanBuild__NotList()
         {
             NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(DummyIConfigNode));
-
             Assert.False(builder.CanBuild);
         }
 
@@ -74,8 +78,9 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeListMapper mapper = Assert.IsType<NodeListMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIConfigNode), mapper.elementType);
             Assert.Same(typeof(List<DummyIConfigNode>), mapper.listType);
+            NodeObjectWrapperIConfigNode wrapper = Assert.IsType<NodeObjectWrapperIConfigNode>(mapper.nodeObjectWrapper);
+            Assert.Equal(typeof(DummyIConfigNode), wrapper.type);
         }
 
         [Fact]
@@ -86,8 +91,21 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             NodeListMapper mapper = Assert.IsType<NodeListMapper>(builder.BuildMapper());
 
             Assert.Equal("foo", mapper.name);
-            Assert.Same(typeof(DummyIContextualNode), mapper.elementType);
             Assert.Same(typeof(List<DummyIContextualNode>), mapper.listType);
+            NodeObjectWrapperIContextualNode wrapper = Assert.IsType<NodeObjectWrapperIContextualNode>(mapper.nodeObjectWrapper);
+            Assert.Equal(typeof(DummyIContextualNode), wrapper.type);
+        }
+
+        [Fact]
+        public void TestBuildMapper__ConfigNode()
+        {
+            NodeListMapperBuilder builder = new NodeListMapperBuilder("foo", typeof(List<ConfigNode>));
+
+            NodeListMapper mapper = Assert.IsType<NodeListMapper>(builder.BuildMapper());
+
+            Assert.Equal("foo", mapper.name);
+            Assert.Same(typeof(List<ConfigNode>), mapper.listType);
+            Assert.IsType<NodeObjectWrapperConfigNode>(mapper.nodeObjectWrapper);;
         }
 
         [Fact]

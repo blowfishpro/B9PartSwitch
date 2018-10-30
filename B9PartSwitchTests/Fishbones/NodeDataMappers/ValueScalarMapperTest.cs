@@ -38,7 +38,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = null;
-            Assert.True(mapper.Load(ref value, node, Exemplars.LoadContext));
+            Assert.True(mapper.Load(ref value, node, Exemplars.LoadPrefabContext));
             Assert.Equal("!!bar!!", value);
         }
 
@@ -52,7 +52,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             };
 
             object value = "abc";
-            Assert.False(mapper.Load(ref value, node, Exemplars.LoadContext));
+            Assert.False(mapper.Load(ref value, node, Exemplars.LoadPrefabContext));
             Assert.Equal("abc", value);
         }
 
@@ -60,7 +60,7 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         public void TestLoad__NodeNull()
         {
             object value = null;
-            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref value, null, Exemplars.LoadContext));
+            Assert.Throws<ArgumentNullException>(() => mapper.Load(ref value, null, Exemplars.LoadPrefabContext));
         }
 
         #endregion

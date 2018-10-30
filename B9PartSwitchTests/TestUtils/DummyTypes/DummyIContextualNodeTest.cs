@@ -17,7 +17,7 @@ namespace B9PartSwitchTests.TestUtils.DummyTypes
                 { "otherValue", "blah6789" },
             };
 
-            OperationContext context = Exemplars.LoadContext;
+            OperationContext context = Exemplars.LoadPrefabContext;
 
             dummy.Load(node, context);
             Assert.Equal("blah1234", dummy.value);
