@@ -11,13 +11,15 @@ namespace B9PartSwitch.Fishbones.Parsers
                 return new NodeObjectWrapperIConfigNode(type);
             else if (type.Implements<IContextualNode>())
                 return new NodeObjectWrapperIContextualNode(type);
+            else if (type == typeof(ConfigNode))
+                return new NodeObjectWrapperConfigNode();
             else
                 throw new NotImplementedException($"No way to build node object wrapper for type {type}");
         }
 
         public static bool IsNodeType(Type type)
         {
-            return type.Implements<IConfigNode>() || type.Implements<IContextualNode>();
+            return type.Implements<IConfigNode>() || type.Implements<IContextualNode>() || type == typeof(ConfigNode);
         }
     }
 }

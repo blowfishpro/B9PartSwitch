@@ -82,6 +82,7 @@
     <Compile Include="Fishbones\Parsers\IValueParser.cs" />
     <Compile Include="Fishbones\Parsers\Exceptions.cs" />
     <Compile Include="Fishbones\Parsers\NodeObjectWrapper.cs" />
+    <Compile Include="Fishbones\Parsers\NodeObjectWrapperConfigNode.cs" />
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperIConfigNode.cs" />
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperIContextualNode.cs" />
     <Compile Include="Fishbones\Parsers\OverrideValueParseMap.cs" />

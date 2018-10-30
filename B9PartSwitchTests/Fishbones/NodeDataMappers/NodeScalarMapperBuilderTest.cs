@@ -47,6 +47,14 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
         }
 
         [Fact]
+        public void TestCanBuild__ConfigNode()
+        {
+            NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(ConfigNode));
+
+            Assert.True(builder.CanBuild);
+        }
+
+        [Fact]
         public void TestCanBuild__False()
         {
             NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(DummyClass));
@@ -80,6 +88,17 @@ namespace B9PartSwitchTests.Fishbones.NodeDataMappers
             Assert.Equal("foo", mapper.name);
             NodeObjectWrapperIContextualNode wrapper = Assert.IsType<NodeObjectWrapperIContextualNode>(mapper.nodeObjectWrapper);
             Assert.Same(typeof(DummyIContextualNode), wrapper.type);
+        }
+
+        [Fact]
+        public void TestBuildMapper__ConfigNode()
+        {
+            NodeScalarMapperBuilder builder = new NodeScalarMapperBuilder("foo", typeof(ConfigNode));
+
+            NodeScalarMapper mapper = Assert.IsType<NodeScalarMapper>(builder.BuildMapper());
+
+            Assert.Equal("foo", mapper.name);
+            Assert.IsType<NodeObjectWrapperConfigNode>(mapper.nodeObjectWrapper);
         }
 
         [Fact]

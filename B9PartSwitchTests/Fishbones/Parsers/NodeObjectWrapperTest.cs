@@ -24,6 +24,12 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         }
 
         [Fact]
+        public void TestFor__ConfigNode()
+        {
+            Assert.IsType<NodeObjectWrapperConfigNode>(NodeObjectWrapper.For(typeof(ConfigNode)));
+        }
+
+        [Fact]
         public void TestFor__OtherType()
         {
             NotImplementedException ex = Assert.Throws<NotImplementedException>(delegate
@@ -43,6 +49,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             Assert.True(NodeObjectWrapper.IsNodeType(typeof(DummyIConfigNode)));
             Assert.True(NodeObjectWrapper.IsNodeType(typeof(DummyIContextualNode)));
+            Assert.True(NodeObjectWrapper.IsNodeType(typeof(ConfigNode)));
             Assert.False(NodeObjectWrapper.IsNodeType(typeof(DummyClass)));
         }
 
