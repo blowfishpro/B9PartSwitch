@@ -144,9 +144,9 @@ namespace B9PartSwitch
 
             if (duplicatedNames.Length > 0)
             {
-                string duplicatedNamesList = string.Join(", ", duplicatedNames);
-                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesList}");
-                LogError($"Duplicate subtype names detected: {duplicatedNames}");
+                string duplicatedNamesString = string.Join(", ", duplicatedNames);
+                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesString}");
+                LogError($"Duplicate subtype names detected: {duplicatedNamesString}");
             }
 
             InitializeSubtypes();
