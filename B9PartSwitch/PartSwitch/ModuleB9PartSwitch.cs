@@ -11,7 +11,7 @@ namespace B9PartSwitch
     public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
     {
         #region Constants
-        
+
         private static readonly string[] INCOMAPTIBLE_MODULES_FOR_RESOURCE_SWITCHING = { "FSfuelSwitch", "InterstellarFuelSwitch", "ModuleFuelTanks" };
 
         #endregion
@@ -144,9 +144,9 @@ namespace B9PartSwitch
 
             if (duplicatedNames.Length > 0)
             {
-                string duplicatedNamesList = string.Join(", ", duplicatedNames);
-                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesList}");
-                LogError($"Duplicate subtype names detected: {duplicatedNames}");
+                string duplicatedNamesString = string.Join(", ", duplicatedNames);
+                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesString}");
+                LogError($"Duplicate subtype names detected: {duplicatedNamesString}");
             }
 
             InitializeSubtypes();
@@ -424,7 +424,7 @@ namespace B9PartSwitch
                     currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
                 }
             }
-            
+
             // No useful way to determine correct subtype, just pick first
             if (!subtypes.ValidIndex(currentSubtypeIndex))
                 currentSubtypeIndex = 0;
@@ -558,7 +558,7 @@ namespace B9PartSwitch
             {
                 foreach (var counterpart in this.FindSymmetryCounterparts())
                     counterpart.UpdateFromSymmetry(currentSubtypeIndex);
-                
+
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
                 GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
             }
