@@ -57,6 +57,9 @@ namespace B9PartSwitch
             {
                 resource.maxAmount = maxAmount;
 
+                PartResource simulationResource = part.SimulationResources?[info.name];
+                if (simulationResource.IsNotNull()) simulationResource.maxAmount = maxAmount;
+
                 if (modifyAmountIfPresent)
                     resource.amount = amount;
             }
