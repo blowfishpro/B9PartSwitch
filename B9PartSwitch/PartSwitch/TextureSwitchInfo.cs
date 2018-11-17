@@ -57,7 +57,7 @@ namespace B9PartSwitch
             IEnumerable<Renderer> renderers;
             if (baseTransformNames.IsNullOrEmpty() && transformNames.IsNullOrEmpty())
             {
-                renderers = part.GetModelRoot().GetComponentsInChildren<Renderer>();
+                renderers = part.GetModelRoot().GetComponentsInChildren<Renderer>(true);
             }
             else
             {
@@ -98,7 +98,7 @@ namespace B9PartSwitch
                 {
                     foundTransform = true;
 
-                    Renderer[] transformRenderers = transform.GetComponentsInChildren<Renderer>();
+                    Renderer[] transformRenderers = transform.GetComponentsInChildren<Renderer>(true);
 
                     if (transformRenderers.Length == 0)
                     {
