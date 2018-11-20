@@ -6,8 +6,7 @@ namespace B9PartSwitch
     public class AttachNodeMover
     {
         public readonly AttachNode attachNode;
-
-        public readonly Vector3 position;
+        private readonly Vector3 position;
 
         public AttachNodeMover(AttachNode attachNode, Vector3 position)
         {
