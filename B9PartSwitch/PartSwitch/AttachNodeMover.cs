@@ -23,7 +23,7 @@ namespace B9PartSwitch
         }
 
         public void ActivateOnSwitch()
-    {
+        {
             Vector3 offset = position - attachNode.position;
             attachNode.position = position;
 
@@ -42,7 +42,7 @@ namespace B9PartSwitch
         {
             Vector3 offset = attachNode.originalPosition - attachNode.position;
             attachNode.position = attachNode.originalPosition;
-                
+
             if (!HighLogic.LoadedSceneIsEditor) return;
             if (attachNode.owner.parent != null && attachNode.owner.parent == attachNode.attachedPart)
             {
