@@ -24,7 +24,7 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public AttachNodeMover CreateAttachNodeModifier(Part part)
+        public AttachNodeMover CreateAttachNodeModifier(Part part, ILinearScaleProvider linearScaleProvider)
         {
             if (position == null) return null;
             AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && n.id == nodeID);
@@ -35,7 +35,15 @@ namespace B9PartSwitch
                 return null;
             }
 
-            return new AttachNodeMover(node, position.Value);
+            // Explanation
+            // Config has scale and rescaleFactor which both multiply node positions, but doesn't store scale directly
+            // Instead it stores scaleFactor which is scale / rescaleFactor
+            // So we have to multiply by rescaleFactor again to get it back
+            // Use the prefab since TweakScale modifies rescaleFactor
+            Part maybePrefab = part.partInfo?.partPrefab ?? part;
+            float fixedScale = maybePrefab.scaleFactor * maybePrefab.rescaleFactor * maybePrefab.rescaleFactor;
+
+            return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
         }
     }
 }

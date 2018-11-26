@@ -7,24 +7,33 @@ namespace B9PartSwitch
     {
         public readonly AttachNode attachNode;
         private readonly Vector3 position;
+        private readonly ILinearScaleProvider linearScaleProvider;
 
-        public AttachNodeMover(AttachNode attachNode, Vector3 position)
+        public AttachNodeMover(AttachNode attachNode, Vector3 position, ILinearScaleProvider linearScaleProvider)
         {
             attachNode.ThrowIfNullArgument(nameof(attachNode));
+            linearScaleProvider.ThrowIfNullArgument(nameof(linearScaleProvider));
 
             this.attachNode = attachNode;
             this.position = position;
+            this.linearScaleProvider = linearScaleProvider;
         }
 
         public void ActivateOnStart()
         {
-            attachNode.position = position;
+            SetAttachNodePosition();
+        }
+
+        public void ActivateAfterStart()
+        {
+            // TweakScale resets node positions, therefore we need to wait a frame and fix them
+            SetAttachNodePosition();
         }
 
         public void ActivateOnSwitch()
         {
-            Vector3 offset = position - attachNode.position;
-            attachNode.position = position;
+            Vector3 offset = (position * linearScaleProvider.LinearScale) - attachNode.position;
+            SetAttachNodePosition();
 
             if (!HighLogic.LoadedSceneIsEditor) return;
             if (attachNode.owner.parent != null && attachNode.owner.parent == attachNode.attachedPart)
@@ -39,8 +48,8 @@ namespace B9PartSwitch
 
         public void DeactivateOnSwitch()
         {
-            Vector3 offset = attachNode.originalPosition - attachNode.position;
-            attachNode.position = attachNode.originalPosition;
+            Vector3 offset = attachNode.position - (position * linearScaleProvider.LinearScale);
+            attachNode.position = attachNode.originalPosition * linearScaleProvider.LinearScale;
 
             if (!HighLogic.LoadedSceneIsEditor) return;
             if (attachNode.owner.parent != null && attachNode.owner.parent == attachNode.attachedPart)
@@ -51,6 +60,11 @@ namespace B9PartSwitch
             {
                 attachNode.attachedPart.transform.localPosition += offset;
             }
+        }
+
+        private void SetAttachNodePosition()
+        {
+            attachNode.position = position * linearScaleProvider.LinearScale;
         }
     }
 }

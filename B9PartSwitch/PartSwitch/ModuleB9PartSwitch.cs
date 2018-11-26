@@ -8,7 +8,12 @@ using B9PartSwitch.Fishbones;
 
 namespace B9PartSwitch
 {
-    public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo
+    public interface ILinearScaleProvider
+    {
+        float LinearScale { get; }
+    }
+
+    public class ModuleB9PartSwitch : CustomPartModule, IPartMassModifier, IPartCostModifier, IModuleInfo, ILinearScaleProvider
     {
         #region Constants
 
@@ -112,6 +117,7 @@ namespace B9PartSwitch
         public bool ChangesCost => subtypes.Any(s => s.ChangesCost);
 
         public float Scale => scale;
+        public float LinearScale => scale;
         public float VolumeScale => scale * scale * scale;
 
         #endregion
@@ -181,6 +187,14 @@ namespace B9PartSwitch
             FindBestSubtype();
 
             SetupGUI();
+
+            IEnumerator InvokeUpdateAfterStart()
+            {
+                yield return null;
+                UpdateAfterStart();
+            }
+
+            StartCoroutine(InvokeUpdateAfterStart());
         }
 
         // This runs after OnStart() so everything should be initalized
@@ -471,6 +485,11 @@ namespace B9PartSwitch
             UpdateGeometry(true);
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+        }
+
+        private void UpdateAfterStart()
+        {
+            CurrentSubtype.ActivateAfterStart();
         }
 
         private void RemoveUnusedResources()
