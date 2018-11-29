@@ -34,7 +34,10 @@ namespace B9PartSwitch
             (context, attachNode) => {
                 if (!context.Part.attachRules.allowSrfAttach || context.Part.srfAttachNode.IsNull() || attachNode.IsNull()) return;
 
-                context.Part.srfAttachNode.position = attachNode.position * context.Module.Scale;
+                Part maybePrefab = context.Part.partInfo?.partPrefab ?? context.Part;
+                float fixedScale = maybePrefab.scaleFactor * maybePrefab.rescaleFactor * maybePrefab.rescaleFactor;
+
+                context.Part.srfAttachNode.position = attachNode.position * fixedScale * context.Module.Scale;
                 context.Part.srfAttachNode.orientation = attachNode.orientation;
             });
 
