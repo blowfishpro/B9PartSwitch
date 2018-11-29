@@ -233,6 +233,11 @@ namespace B9PartSwitch
             attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
         }
 
+        public void ActivateAfterStart()
+        {
+            attachNodeMovers.ForEach(nm => nm.ActivateAfterStart());
+        }
+
         public void DeactivateOnSwitch()
         {
             DeactivateObjects();
@@ -424,7 +429,7 @@ namespace B9PartSwitch
             {
                 try
                 {
-                    AttachNodeMover mover = info.CreateAttachNodeModifier(Part);
+                    AttachNodeMover mover = info.CreateAttachNodeModifier(Part, parent);
                     if (mover != null) attachNodeMovers.Add(mover);
                 }
                 catch (Exception e)
