@@ -559,9 +559,11 @@ namespace B9PartSwitch
 
                 if (incompatibleModulesOnPart.Length > 0)
                 {
-                    Exception ex = new Exception($"Conflict found between {this} and {string.Join(", ", incompatibleModulesOnPart)} - cannot both manage resources on the same part");
-                    FatalErrorHandler.HandleFatalError(ex);
-                    throw ex;
+                    foreach (PartSubtype subtype in subtypes)
+                    {
+                        subtype.AssignStructuralTankType();
+                    }
+                    SeriousWarningHandler.DisplaySeriousWarning($"{this} and {string.Join(", ", incompatibleModulesOnPart)} - cannot both manage resources on the same part, B9 resource switching will be disabled");
                 }
 
             }
