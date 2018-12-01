@@ -67,6 +67,9 @@ namespace B9PartSwitch
         [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int currentSubtypeIndex = -1;
 
+        [KSPField]
+        public string currentSubtypeTitle = null;
+
         #endregion
 
         #region Events
@@ -140,10 +143,6 @@ namespace B9PartSwitch
                 Exception ex = new Exception($"No subtypes found on {this}");
                 FatalErrorHandler.HandleFatalError(ex);
                 throw ex;
-            }
-            if (subtypes.Count == 1)
-            {
-                LogWarning("Only one subtype found, this may lead to unexpected behavior");
             }
 
             string[] duplicatedNames = subtypes.GroupBy(s => s.Name).Where(g => g.Count() > 1).Select(g => g.Key).ToArray();
@@ -449,6 +448,7 @@ namespace B9PartSwitch
             BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
             chooseField.advancedTweakable = advancedTweakablesOnly;
+            chooseField.guiActiveEditor = subtypes.Count > 1;
 
             UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
             chooseOption.options = subtypes.Select(s => s.title).ToArray();
@@ -457,6 +457,12 @@ namespace B9PartSwitch
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
             switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
+            switchSubtypeEvent.guiActiveEditor = subtypes.Count > 1;
+
+            BaseField subtypeTitleField = Fields[nameof(currentSubtypeTitle)];
+            subtypeTitleField.guiName = switcherDescription;
+            subtypeTitleField.advancedTweakable = advancedTweakablesOnly;
+            subtypeTitleField.guiActiveEditor = subtypes.Count == 1;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
@@ -464,8 +470,12 @@ namespace B9PartSwitch
 
         private void UpdateSwitchEventFlightVisibility()
         {
+            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
-            switchSubtypeEvent.guiActive = switchInFlight && subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
+            switchSubtypeEvent.guiActive = switchInFlight && switchInFlightEnabled;
+
+            BaseField subtypeTitleField = Fields[nameof(currentSubtypeTitle)];
+            subtypeTitleField.guiActive = switchInFlight && !switchInFlightEnabled;
         }
 
         private void UpdateOnLoad()
@@ -483,6 +493,7 @@ namespace B9PartSwitch
             UpdateVolumeFromChildren();
             CurrentSubtype.ActivateOnStart();
             UpdateGeometry(true);
+            currentSubtypeTitle = CurrentSubtype.title;
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
@@ -605,6 +616,7 @@ namespace B9PartSwitch
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry(false);
             parent?.UpdateVolume();
+            currentSubtypeTitle = CurrentSubtype.title;
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
