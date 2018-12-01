@@ -29,6 +29,14 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.5.1
+
+* Moved stack nodes now respect `scale`, `rescaleFactor`, and TweakScale
+* Moved surface attach node now respects `scale` and `rescaleFactor`
+* When only one subtype is present, disable switching GUI and display subtype title as non-interactable string
+* Downgrade incompatible resource switching module to a warning and disable B9 resource switching in that case
+* French localization
+
 ### v2.5.0
 
 * Allow moving stack nodes
