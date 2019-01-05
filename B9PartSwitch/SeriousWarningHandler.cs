@@ -51,7 +51,7 @@ namespace B9PartSwitch
                 new Vector2(0.5f, 0.5f),
                 new MultiOptionDialog(
                     "B9PartSwitchSeriousWarning",
-                    $"B9PartSwitch has encountered a serious warning. The game will continue to run but this should be fixed ASAP.\n\n{string.Join("\n\n", allMessages.ToArray())}\n\nPlease see KSP's log for addtional details",
+                    $"B9PartSwitch has encountered a serious warning. The game will continue to run but this should be fixed ASAP.\n\n{string.Join("\n\n", allMessages.ToArray())}\n\nPlease see KSP's log for additional details",
                     "B9PartSwitch - Serious Warning",
                     HighLogic.UISkin,
                     new Rect(0.5f, 0.5f, 500f, 60f),
