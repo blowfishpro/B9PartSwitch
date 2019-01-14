@@ -10,7 +10,7 @@ http://forum.kerbalspaceprogram.com/index.php?showtopic=140541
 
 ## Requirements
 
-* KSP version 1.5.1 (build 2335) is the only supported KSP version
+* KSP version 1.6.1 (build 2401) is the only supported KSP version
 * [ModuleManager](http://forum.kerbalspaceprogram.com/index.php?showtopic=50533) is required.
 
 ## Installation
@@ -28,6 +28,11 @@ The source can be found at [Github](https://github.com/blowfishpro/B9PartSwitch)
 This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.0.en.html)
 
 ## Changelog
+
+### v2.6.0
+
+* Recompile against KSP 1.6.1
+* Fix misspellings in fatal error and serious warning handlers
 
 ### v2.5.1
 
