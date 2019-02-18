@@ -95,9 +95,9 @@ namespace B9PartSwitch
             return
                 switcher.ChangesMass ||
                 switcher.ChangesCost ||
-                switcher.HasPartAspectLock("maxTemp") ||
-                switcher.HasPartAspectLock("skinMaxTemp") ||
-                switcher.HasPartAspectLock("crashTolerance");
+                switcher.HasPartAspectLock(PartMaxTempModifier.PART_ASPECT_LOCK) ||
+                switcher.HasPartAspectLock(PartSkinMaxTempModifier.PART_ASPECT_LOCK) ||
+                switcher.HasPartAspectLock(PartCrashToleranceModifier.PART_ASPECT_LOCK);
         }
     }
 }

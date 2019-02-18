@@ -216,135 +216,48 @@ namespace B9PartSwitch
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
-            if (maxTemp > 0)
+            void MaybeAddModifier(IPartModifier modifier)
             {
-                if (aspectLocksOnOtherModules.Contains("maxTemp"))
+                if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
                 {
-                    LogError("More than one module can't manage a part's maxTemp");
+                    LogError($"More than one module can't manage {modifier.Description}");
                 }
                 else
                 {
-                    partModifiers.Add(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
-                    aspectLocks.Add("maxTemp");
+                    partModifiers.Add(modifier);
+                    aspectLocks.Add(modifier.PartAspectLock);
                 }
             }
+
+            if (maxTemp > 0)
+                MaybeAddModifier(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
 
             if (skinMaxTemp > 0)
-            {
-                if (aspectLocksOnOtherModules.Contains("skinMaxTemp"))
-                {
-                    LogError("More than one module can't manage a part's skinMaxTemp");
-                }
-                else
-                {
-                    partModifiers.Add(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
-                    aspectLocks.Add("skinMaxTemp");
-                }
-            }
+                MaybeAddModifier(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
 
             if (crashTolerance > 0)
-            {
-                if (aspectLocksOnOtherModules.Contains("crashTolerance"))
-                {
-                    LogError("More than one module can't manage a part's crashTolerance");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
-                    aspectLocks.Add("crashTolerance");
-                }
-            }
+                MaybeAddModifier(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
 
             if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull() && attachNode != null)
-            {
-                if (aspectLocksOnOtherModules.Contains("attachNode"))
-                {
-                    LogError("More than one module can't manage a part's attach node");
-                }
-                else
-                {
-                    partModifiers.Add(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
-                    aspectLocks.Add("attachNode");
-                }
-            }
+                MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
 
             if (CoMOffset.IsFinite())
-            {
-                if (aspectLocksOnOtherModules.Contains("CoMOffset"))
-                {
-                    LogError("More than one module can't manage a part's CoMOffset");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
-                    aspectLocks.Add("CoMOffset");
-                }
-            }
+                MaybeAddModifier(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
 
             if (CoPOffset.IsFinite())
-            {
-                if (aspectLocksOnOtherModules.Contains("CoPOffset"))
-                {
-                    LogError("More than one module can't manage a part's CoPOffset");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
-                    aspectLocks.Add("CoPOffset");
-                }
-            }
+                MaybeAddModifier(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
 
             if (CoLOffset.IsFinite())
-            {
-                if (aspectLocksOnOtherModules.Contains("CoLOffset"))
-                {
-                    LogError("More than one module can't manage a part's CoLOffset");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
-                    aspectLocks.Add("CoLOffset");
-                }
-            }
+                MaybeAddModifier(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
 
             if (CenterOfBuoyancy.IsFinite())
-            {
-                if (aspectLocksOnOtherModules.Contains("CenterOfBuoyancy"))
-                {
-                    LogError("More than one module can't manage a part's CenterOfBuoyancy");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
-                    aspectLocks.Add("CenterOfBuoyancy");
-                }
-            }
+                MaybeAddModifier(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
 
             if (CenterOfDisplacement.IsFinite())
-            {
-                if (aspectLocksOnOtherModules.Contains("CenterOfDisplacement"))
-                {
-                    LogError("More than one module can't manage a part's CenterOfDisplacement");
-                }
-                else
-                {
-                    partModifiers.Add(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
-                    aspectLocks.Add("CenterOfDisplacement");
-                }
-            }
+                MaybeAddModifier(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
 
             if (stackSymmetry >= 0)
-            {
-                if (aspectLocksOnOtherModules.Contains("stackSymmetry"))
-                {
-                    LogError("More than one module can't manage a part's stackSymmetry");
-                }
-                else
-                {
-                    partModifiers.Add(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
-                    aspectLocks.Add("stackSymmetry");
-                }
-            }
+                MaybeAddModifier(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
         }
 
         #endregion
@@ -636,15 +549,22 @@ namespace B9PartSwitch
 
     public interface IPartModifier
     {
+        object PartAspectLock { get; }
+        string Description { get; }
         void Activate();
         void Deactivate();
     }
 
     public class PartMaxTempModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "maxTemp";
+
         private readonly Part part;
         private readonly double origMaxTemp;
         private readonly double newMaxTemp;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's maxTemp";
 
         public PartMaxTempModifier(Part part, double origMaxTemp, double newMaxTemp)
         {
@@ -668,9 +588,14 @@ namespace B9PartSwitch
 
     public class PartSkinMaxTempModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "skinMaxTemp";
+
         private readonly Part part;
         private readonly double origSkinMaxTemp;
         private readonly double newSkinMaxTemp;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's skinMaxTemp";
 
         public PartSkinMaxTempModifier(Part part, double origSkinMaxTemp, double newSkinMaxTemp)
         {
@@ -694,9 +619,14 @@ namespace B9PartSwitch
 
     public class PartCrashToleranceModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "crashTolerance";
+
         private readonly Part part;
         private readonly float origCrashTolerance;
         private readonly float newCrashTolerance;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's crashTolerance";
 
         public PartCrashToleranceModifier(Part part, float origCrashTolerance, float newCrashTolerance)
         {
@@ -720,9 +650,14 @@ namespace B9PartSwitch
 
     public class PartAttachNodeModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "attachNode";
+
         private readonly AttachNode partAttachNode;
         private readonly AttachNode referenceAttachNode;
         private readonly AttachNode newAttachNode;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's surface attach node";
 
         public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode)
         {
@@ -748,9 +683,14 @@ namespace B9PartSwitch
 
     public class PartCoMOffsetModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "CoMOffset";
+
         private readonly Part part;
         private readonly Vector3 origCoMOffset;
         private readonly Vector3 newCoMOffset;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's CoMOffset";
 
         public PartCoMOffsetModifier(Part part, Vector3 origCoMOffset, Vector3 newCoMOffset)
         {
@@ -774,9 +714,14 @@ namespace B9PartSwitch
 
     public class PartCoPOffsetModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "CoPOffset";
+
         private readonly Part part;
         private readonly Vector3 origCoPOffset;
         private readonly Vector3 newCoPOffset;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's CoPOffset";
 
         public PartCoPOffsetModifier(Part part, Vector3 origCoPOffset, Vector3 newCoPOffset)
         {
@@ -800,9 +745,14 @@ namespace B9PartSwitch
 
     public class PartCoLOffsetModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "CoLOffset";
+
         private readonly Part part;
         private readonly Vector3 origCoLOffset;
         private readonly Vector3 newCoLOffset;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's CoLOffset";
 
         public PartCoLOffsetModifier(Part part, Vector3 origCoLOffset, Vector3 newCoLOffset)
         {
@@ -826,9 +776,14 @@ namespace B9PartSwitch
 
     public class PartCenterOfDisplacementModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "CenterOfDisplacement";
+
         private readonly Part part;
         private readonly Vector3 origCenterOfDisplacement;
         private readonly Vector3 newCenterOfDisplacement;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's CenterOfDisplacement";
 
         public PartCenterOfDisplacementModifier(Part part, Vector3 origCenterOfDisplacement, Vector3 newCenterOfDisplacement)
         {
@@ -852,9 +807,14 @@ namespace B9PartSwitch
 
     public class PartCenterOfBuoyancyModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "CenterOfBuoyancy";
+
         private readonly Part part;
         private readonly Vector3 origCenterOfBuoyancy;
         private readonly Vector3 newCenterOfBuoyancy;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's CenterOfBuoyancy";
 
         public PartCenterOfBuoyancyModifier(Part part, Vector3 origCenterOfBuoyancy, Vector3 newCenterOfBuoyancy)
         {
@@ -878,9 +838,14 @@ namespace B9PartSwitch
 
     public class PartStackSymmetryModifier : IPartModifier
     {
+        public const string PART_ASPECT_LOCK = "stackSymmetry";
+
         private readonly Part part;
         private readonly int origStackSymmetry;
         private readonly int newStackSymmetry;
+
+        public object PartAspectLock => PART_ASPECT_LOCK;
+        public string Description => "a part's stackSymmetry";
 
         public PartStackSymmetryModifier(Part part, int origStackSymmetry, int newStackSymmetry)
         {
