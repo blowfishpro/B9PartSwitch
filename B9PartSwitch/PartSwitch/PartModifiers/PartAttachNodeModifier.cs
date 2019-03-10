@@ -1,0 +1,46 @@
+﻿using System;
+
+namespace B9PartSwitch.PartSwitch.PartModifiers
+{
+    public class PartAttachNodeModifier : PartModifierBase
+    {
+        public const string PART_ASPECT_LOCK = "attachNode";
+
+        private readonly AttachNode partAttachNode;
+        private readonly AttachNode referenceAttachNode;
+        private readonly AttachNode newAttachNode;
+
+        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public override string Description => "a part's surface attach node";
+
+        public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode)
+        {
+            partAttachNode.ThrowIfNullArgument(nameof(partAttachNode));
+
+            this.partAttachNode = partAttachNode;
+            this.referenceAttachNode = referenceAttachNode;
+            this.newAttachNode = newAttachNode;
+        }
+
+        public override void ActivateOnStartEditor() => Activate();
+        public override void ActivateOnStartFlight() => Activate();
+        public override void DeactivateOnStartEditor() => Deactivate();
+        public override void DeactivateOnStartFlight() => Deactivate();
+        public override void ActivateOnSwitchEditor() => Activate();
+        public override void ActivateOnSwitchFlight() => Activate();
+        public override void DeactivateOnSwitchEditor() => Deactivate();
+        public override void DeactivateOnSwitchFlight() => Deactivate();
+
+        private void Activate()
+        {
+            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.orientation = referenceAttachNode.orientation;
+        }
+
+        private void Deactivate()
+        {
+            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.orientation = referenceAttachNode.orientation;
+        }
+    }
+}

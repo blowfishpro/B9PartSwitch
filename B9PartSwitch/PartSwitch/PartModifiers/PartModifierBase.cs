@@ -1,0 +1,28 @@
+﻿using System;
+
+namespace B9PartSwitch.PartSwitch.PartModifiers
+{
+    public abstract class PartModifierBase : IPartModifier
+    {
+        public virtual object PartAspectLock { get; }
+        public virtual string Description { get; }
+
+        public virtual void DeactivateOnStartEditor() { }
+        public virtual void DeactivateOnStartFlight() { }
+        public virtual void ActivateOnStartEditor() { }
+        public virtual void ActivateOnStartFlight() { }
+        public virtual void ActivateAfterStart() { }
+        public virtual void DeactivateOnSwitchEditor() { }
+        public virtual void DeactivateOnSwitchFlight() { }
+        public virtual void ActivateOnSwitchEditor() { }
+        public virtual void ActivateOnSwitchFlight() { }
+        public virtual void OnIconCreateInactiveSubtype() { }
+        public virtual void OnIconCreateActiveSubtype() { }
+        public virtual void UpdateVolumeEditor() { }
+        public virtual void UpdateVolumeFlight() { }
+        public virtual void OnWillBeCopiedActiveSubtype() { }
+        public virtual void OnWillBeCopiedInactiveSubtype() { }
+        public virtual void OnWasCopiedActiveSubtype() { }
+        public virtual void OnWasCopiedInactiveSubtype() { }
+    }
+}

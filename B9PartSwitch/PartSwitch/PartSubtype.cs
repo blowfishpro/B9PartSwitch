@@ -4,6 +4,7 @@ using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
+using B9PartSwitch.PartSwitch.PartModifiers;
 
 namespace B9PartSwitch
 {
@@ -269,9 +270,15 @@ namespace B9PartSwitch
             DeactivateObjects();
 
             if (HighLogic.LoadedSceneIsEditor)
+            {
                 DeactivateNodes();
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartEditor());
+            }
             else
+            {
                 ActivateNodes();
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFlight());
+            }
         }
 
         public void ActivateOnStart()
@@ -280,13 +287,19 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(false);
-            SetPartParams();
             attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
+
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFlight());
         }
 
         public void ActivateAfterStart()
         {
             attachNodeMovers.ForEach(nm => nm.ActivateAfterStart());
+
+            partModifiers.ForEach(modifier => modifier.ActivateAfterStart());
         }
 
         public void DeactivateOnSwitch()
@@ -300,8 +313,12 @@ namespace B9PartSwitch
 
             DeactivateTextures();
             RemoveResources();
-            UnsetPartParams();
             attachNodeMovers.ForEach(nm => nm.DeactivateOnSwitch());
+
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchFlight());
         }
 
         public void ActivateOnSwitch()
@@ -310,45 +327,66 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(true);
-            SetPartParams();
             attachNodeMovers.ForEach(nm => nm.ActivateOnSwitch());
+
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnSwitchEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnSwitchFlight());
         }
 
         public void DeactivateForIcon()
         {
             DeactivateObjects();
+
+            partModifiers.ForEach(modifier => modifier.OnIconCreateInactiveSubtype());
         }
 
         public void ActivateForIcon()
         {
             ActivateObjects();
             ActivateTextures();
+
+            partModifiers.ForEach(modifier => modifier.OnIconCreateActiveSubtype());
         }
 
         public void UpdateVolume()
         {
             AddResources(true);
+
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.UpdateVolumeEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.UpdateVolumeFlight());
         }
 
         public void OnWillBeCopiedActiveSubtype()
         {
             DeactivateTextures();
+
+            partModifiers.ForEach(modifier => modifier.OnWillBeCopiedActiveSubtype());
         }
 
         public void OnWillBeCopiedInactiveSubtype()
         {
             ActivateNodes();
+
+            partModifiers.ForEach(modifier => modifier.OnWillBeCopiedInactiveSubtype());
         }
 
         public void OnWasCopiedActiveSubtype()
         {
             ActivateTextures();
             ActivateNodes();
+
+            partModifiers.ForEach(modifier => modifier.OnWasCopiedActiveSubtype());
         }
 
         public void OnWasCopiedInactiveSubtype()
         {
             DeactivateNodes();
+
+            partModifiers.ForEach(modifier => modifier.OnWasCopiedInactiveSubtype());
         }
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
@@ -492,16 +530,6 @@ namespace B9PartSwitch
             }
         }
 
-        private void SetPartParams()
-        {
-            partModifiers.ForEach(modifier => modifier.Activate());
-        }
-
-        private void UnsetPartParams()
-        {
-            partModifiers.ForEach(modifier => modifier.Deactivate());
-        }
-
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
         private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
@@ -545,325 +573,5 @@ namespace B9PartSwitch
         #endregion
 
         #endregion
-    }
-
-    public interface IPartModifier
-    {
-        object PartAspectLock { get; }
-        string Description { get; }
-        void Activate();
-        void Deactivate();
-    }
-
-    public class PartMaxTempModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "maxTemp";
-
-        private readonly Part part;
-        private readonly double origMaxTemp;
-        private readonly double newMaxTemp;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's maxTemp";
-
-        public PartMaxTempModifier(Part part, double origMaxTemp, double newMaxTemp)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origMaxTemp = origMaxTemp;
-            this.newMaxTemp = newMaxTemp;
-        }
-
-        public void Activate()
-        {
-            part.maxTemp = newMaxTemp;
-        }
-
-        public void Deactivate()
-        {
-            part.maxTemp = origMaxTemp;
-        }
-    }
-
-    public class PartSkinMaxTempModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "skinMaxTemp";
-
-        private readonly Part part;
-        private readonly double origSkinMaxTemp;
-        private readonly double newSkinMaxTemp;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's skinMaxTemp";
-
-        public PartSkinMaxTempModifier(Part part, double origSkinMaxTemp, double newSkinMaxTemp)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origSkinMaxTemp = origSkinMaxTemp;
-            this.newSkinMaxTemp = newSkinMaxTemp;
-        }
-
-        public void Activate()
-        {
-            part.skinMaxTemp = newSkinMaxTemp;
-        }
-
-        public void Deactivate()
-        {
-            part.skinMaxTemp = origSkinMaxTemp;
-        }
-    }
-
-    public class PartCrashToleranceModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "crashTolerance";
-
-        private readonly Part part;
-        private readonly float origCrashTolerance;
-        private readonly float newCrashTolerance;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's crashTolerance";
-
-        public PartCrashToleranceModifier(Part part, float origCrashTolerance, float newCrashTolerance)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCrashTolerance = origCrashTolerance;
-            this.newCrashTolerance = newCrashTolerance;
-        }
-
-        public void Activate()
-        {
-            part.crashTolerance = newCrashTolerance;
-        }
-
-        public void Deactivate()
-        {
-            part.crashTolerance = origCrashTolerance;
-        }
-    }
-
-    public class PartAttachNodeModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "attachNode";
-
-        private readonly AttachNode partAttachNode;
-        private readonly AttachNode referenceAttachNode;
-        private readonly AttachNode newAttachNode;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's surface attach node";
-
-        public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode)
-        {
-            partAttachNode.ThrowIfNullArgument(nameof(partAttachNode));
-
-            this.partAttachNode = partAttachNode;
-            this.referenceAttachNode = referenceAttachNode;
-            this.newAttachNode = newAttachNode;
-        }
-
-        public void Activate()
-        {
-            partAttachNode.position = referenceAttachNode.position;
-            partAttachNode.orientation = referenceAttachNode.orientation;
-        }
-
-        public void Deactivate()
-        {
-            partAttachNode.position = referenceAttachNode.position;
-            partAttachNode.orientation = referenceAttachNode.orientation;
-        }
-    }
-
-    public class PartCoMOffsetModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "CoMOffset";
-
-        private readonly Part part;
-        private readonly Vector3 origCoMOffset;
-        private readonly Vector3 newCoMOffset;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's CoMOffset";
-
-        public PartCoMOffsetModifier(Part part, Vector3 origCoMOffset, Vector3 newCoMOffset)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCoMOffset = origCoMOffset;
-            this.newCoMOffset = newCoMOffset;
-        }
-
-        public void Activate()
-        {
-            part.CoMOffset = newCoMOffset;
-        }
-
-        public void Deactivate()
-        {
-            part.CoMOffset = origCoMOffset;
-        }
-    }
-
-    public class PartCoPOffsetModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "CoPOffset";
-
-        private readonly Part part;
-        private readonly Vector3 origCoPOffset;
-        private readonly Vector3 newCoPOffset;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's CoPOffset";
-
-        public PartCoPOffsetModifier(Part part, Vector3 origCoPOffset, Vector3 newCoPOffset)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCoPOffset = origCoPOffset;
-            this.newCoPOffset = newCoPOffset;
-        }
-
-        public void Activate()
-        {
-            part.CoPOffset = newCoPOffset;
-        }
-
-        public void Deactivate()
-        {
-            part.CoPOffset = origCoPOffset;
-        }
-    }
-
-    public class PartCoLOffsetModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "CoLOffset";
-
-        private readonly Part part;
-        private readonly Vector3 origCoLOffset;
-        private readonly Vector3 newCoLOffset;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's CoLOffset";
-
-        public PartCoLOffsetModifier(Part part, Vector3 origCoLOffset, Vector3 newCoLOffset)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCoLOffset = origCoLOffset;
-            this.newCoLOffset = newCoLOffset;
-        }
-
-        public void Activate()
-        {
-            part.CoLOffset = newCoLOffset;
-        }
-
-        public void Deactivate()
-        {
-            part.CoLOffset = origCoLOffset;
-        }
-    }
-
-    public class PartCenterOfDisplacementModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "CenterOfDisplacement";
-
-        private readonly Part part;
-        private readonly Vector3 origCenterOfDisplacement;
-        private readonly Vector3 newCenterOfDisplacement;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's CenterOfDisplacement";
-
-        public PartCenterOfDisplacementModifier(Part part, Vector3 origCenterOfDisplacement, Vector3 newCenterOfDisplacement)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCenterOfDisplacement = origCenterOfDisplacement;
-            this.newCenterOfDisplacement = newCenterOfDisplacement;
-        }
-
-        public void Activate()
-        {
-            part.CenterOfDisplacement = newCenterOfDisplacement;
-        }
-
-        public void Deactivate()
-        {
-            part.CenterOfDisplacement = origCenterOfDisplacement;
-        }
-    }
-
-    public class PartCenterOfBuoyancyModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "CenterOfBuoyancy";
-
-        private readonly Part part;
-        private readonly Vector3 origCenterOfBuoyancy;
-        private readonly Vector3 newCenterOfBuoyancy;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's CenterOfBuoyancy";
-
-        public PartCenterOfBuoyancyModifier(Part part, Vector3 origCenterOfBuoyancy, Vector3 newCenterOfBuoyancy)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origCenterOfBuoyancy = origCenterOfBuoyancy;
-            this.newCenterOfBuoyancy = newCenterOfBuoyancy;
-        }
-
-        public void Activate()
-        {
-            part.CenterOfBuoyancy = newCenterOfBuoyancy;
-        }
-
-        public void Deactivate()
-        {
-            part.CenterOfBuoyancy = origCenterOfBuoyancy;
-        }
-    }
-
-    public class PartStackSymmetryModifier : IPartModifier
-    {
-        public const string PART_ASPECT_LOCK = "stackSymmetry";
-
-        private readonly Part part;
-        private readonly int origStackSymmetry;
-        private readonly int newStackSymmetry;
-
-        public object PartAspectLock => PART_ASPECT_LOCK;
-        public string Description => "a part's stackSymmetry";
-
-        public PartStackSymmetryModifier(Part part, int origStackSymmetry, int newStackSymmetry)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-
-            this.part = part;
-            this.origStackSymmetry = origStackSymmetry;
-            this.newStackSymmetry = newStackSymmetry;
-        }
-
-        public void Activate()
-        {
-            part.stackSymmetry = newStackSymmetry;
-        }
-
-        public void Deactivate()
-        {
-            part.stackSymmetry = origStackSymmetry;
-        }
     }
 }
