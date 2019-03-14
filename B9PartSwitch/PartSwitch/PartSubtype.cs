@@ -95,7 +95,6 @@ namespace B9PartSwitch
         private ModuleB9PartSwitch parent;
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
-        private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
         private List<IPartModifier> partModifiers = new List<IPartModifier>();
         private List<object> aspectLocks = new List<object>();
 
@@ -113,7 +112,6 @@ namespace B9PartSwitch
         public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
-        public IEnumerable<Material> Materials => textureReplacements.Select(repl => repl.material);
 
         public float TotalVolume
         {
@@ -208,9 +206,11 @@ namespace B9PartSwitch
 
             FindObjects();
             FindNodes();
-            FindTextureReplacements();
 
             Part partPrefab = Part.GetPrefab() ?? Part;
+
+            partModifiers.ForEach(modifier => modifier.OnBeforeReinitialize());
+            partModifiers.Clear();
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
@@ -262,6 +262,14 @@ namespace B9PartSwitch
             {
                 MaybeAddModifier(info.CreateAttachNodeModifier(Part, parent));
             }
+
+            foreach (TextureSwitchInfo info in textureSwitches)
+            {
+                foreach(TextureReplacement replacement in info.CreateTextureReplacements(Part))
+                {
+                    MaybeAddModifier(replacement);
+                }
+            }
         }
 
         #endregion
@@ -288,7 +296,6 @@ namespace B9PartSwitch
         {
             ActivateObjects();
             ActivateNodes();
-            ActivateTextures();
             AddResources(false);
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -311,7 +318,6 @@ namespace B9PartSwitch
             else
                 ActivateNodes();
 
-            DeactivateTextures();
             RemoveResources();
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -324,7 +330,6 @@ namespace B9PartSwitch
         {
             ActivateObjects();
             ActivateNodes();
-            ActivateTextures();
             AddResources(true);
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -343,7 +348,6 @@ namespace B9PartSwitch
         public void ActivateForIcon()
         {
             ActivateObjects();
-            ActivateTextures();
 
             partModifiers.ForEach(modifier => modifier.OnIconCreateActiveSubtype());
         }
@@ -360,8 +364,6 @@ namespace B9PartSwitch
 
         public void OnWillBeCopiedActiveSubtype()
         {
-            DeactivateTextures();
-
             partModifiers.ForEach(modifier => modifier.OnWillBeCopiedActiveSubtype());
         }
 
@@ -374,7 +376,6 @@ namespace B9PartSwitch
 
         public void OnWasCopiedActiveSubtype()
         {
-            ActivateTextures();
             ActivateNodes();
 
             partModifiers.ForEach(modifier => modifier.OnWasCopiedActiveSubtype());
@@ -390,7 +391,6 @@ namespace B9PartSwitch
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
         public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
-        public bool MaterialIsManaged(Material material) => textureReplacements.Any(repl => repl.material == material);
 
         public void AssignStructuralTankType()
         {
@@ -484,39 +484,10 @@ namespace B9PartSwitch
             }
         }
 
-        private void FindTextureReplacements()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            // Ensure that textures are reset before doing this
-            foreach(TextureReplacement tr in textureReplacements)
-            {
-                tr.Deactivate();
-            }
-
-            textureReplacements.Clear();
-
-            foreach (TextureSwitchInfo info in textureSwitches)
-            {
-                try
-                {
-                    textureReplacements.AddRange(info.CreateTextureReplacements(Part));
-                }
-                catch(Exception e)
-                {
-                    LogError("Exception while initializing a texture replacment:");
-                    Debug.LogException(e);
-                }
-            }
-        }
-
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
-        private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
         private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
-        private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
 
         private void AddResources(bool fillTanks)
         {

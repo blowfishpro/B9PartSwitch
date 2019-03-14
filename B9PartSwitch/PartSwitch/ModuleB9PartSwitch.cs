@@ -110,7 +110,6 @@ namespace B9PartSwitch
         public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
         public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
-        public IEnumerable<Material> ManagedMaterials => subtypes.SelectMany(subtype => subtype.Materials);
 
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
@@ -295,8 +294,6 @@ namespace B9PartSwitch
 
             return true;
         }
-
-        public bool IsManagedMaterial(Material material) => ManagedMaterials.Contains(material);
 
         public void AddChild(ModuleB9PartSwitch child)
         {
@@ -526,14 +523,6 @@ namespace B9PartSwitch
                     if (otherModule.IsManagedResource(resourceName))
                     {
                         error += $"\n  Two modules cannot manage the same resource: {resourceName}";
-                    }
-                }
-
-                foreach (Material material in ManagedMaterials)
-                {
-                    if (otherModule.IsManagedMaterial(material))
-                    {
-                        error += $"\n  Two modules cannot manage the same material: {material.name}";
                     }
                 }
 

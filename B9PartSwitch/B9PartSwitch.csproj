@@ -115,7 +115,7 @@
     <Compile Include="PartSwitch\PartModifiers\PartSkinMaxTempModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartStackSymmetryModifier.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
-    <Compile Include="PartSwitch\TextureReplacement.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />
