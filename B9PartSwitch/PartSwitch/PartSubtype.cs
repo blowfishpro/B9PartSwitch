@@ -96,7 +96,6 @@ namespace B9PartSwitch
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
-        private List<AttachNodeMover> attachNodeMovers = new List<AttachNodeMover>();
         private List<IPartModifier> partModifiers = new List<IPartModifier>();
         private List<object> aspectLocks = new List<object>();
 
@@ -115,7 +114,6 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
         public IEnumerable<Material> Materials => textureReplacements.Select(repl => repl.material);
-        public IEnumerable<AttachNode> AttachNodesWithManagedPosition => attachNodeMovers.Select(mover => mover.attachNode);
 
         public float TotalVolume
         {
@@ -211,7 +209,6 @@ namespace B9PartSwitch
             FindObjects();
             FindNodes();
             FindTextureReplacements();
-            FindAttachNodeMovers();
 
             Part partPrefab = Part.GetPrefab() ?? Part;
 
@@ -219,6 +216,7 @@ namespace B9PartSwitch
 
             void MaybeAddModifier(IPartModifier modifier)
             {
+                if (modifier == null) return;
                 if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
                 {
                     LogError($"More than one module can't manage {modifier.Description}");
@@ -259,6 +257,11 @@ namespace B9PartSwitch
 
             if (stackSymmetry >= 0)
                 MaybeAddModifier(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
+
+            foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
+            {
+                MaybeAddModifier(info.CreateAttachNodeModifier(Part, parent));
+            }
         }
 
         #endregion
@@ -287,7 +290,6 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(false);
-            attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnStartEditor());
@@ -297,8 +299,6 @@ namespace B9PartSwitch
 
         public void ActivateAfterStart()
         {
-            attachNodeMovers.ForEach(nm => nm.ActivateAfterStart());
-
             partModifiers.ForEach(modifier => modifier.ActivateAfterStart());
         }
 
@@ -313,7 +313,6 @@ namespace B9PartSwitch
 
             DeactivateTextures();
             RemoveResources();
-            attachNodeMovers.ForEach(nm => nm.DeactivateOnSwitch());
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchEditor());
@@ -327,7 +326,6 @@ namespace B9PartSwitch
             ActivateNodes();
             ActivateTextures();
             AddResources(true);
-            attachNodeMovers.ForEach(nm => nm.ActivateOnSwitch());
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnSwitchEditor());
@@ -508,23 +506,6 @@ namespace B9PartSwitch
                 catch(Exception e)
                 {
                     LogError("Exception while initializing a texture replacment:");
-                    Debug.LogException(e);
-                }
-            }
-        }
-
-        private void FindAttachNodeMovers()
-        {
-            foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
-            {
-                try
-                {
-                    AttachNodeMover mover = info.CreateAttachNodeModifier(Part, parent);
-                    if (mover != null) attachNodeMovers.Add(mover);
-                }
-                catch (Exception e)
-                {
-                    LogError("Exception while initializing a node mover:");
                     Debug.LogException(e);
                 }
             }

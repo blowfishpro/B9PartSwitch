@@ -111,7 +111,6 @@ namespace B9PartSwitch
         public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
         public IEnumerable<Material> ManagedMaterials => subtypes.SelectMany(subtype => subtype.Materials);
-        public IEnumerable<AttachNode> AttachNodesWithManagedPosition => subtypes.SelectMany(subtype => subtype.AttachNodesWithManagedPosition);
 
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
@@ -298,8 +297,6 @@ namespace B9PartSwitch
         }
 
         public bool IsManagedMaterial(Material material) => ManagedMaterials.Contains(material);
-
-        public bool IsAttachNodePositionManaged(AttachNode attachNode) => AttachNodesWithManagedPosition.Contains(attachNode);
 
         public void AddChild(ModuleB9PartSwitch child)
         {
@@ -537,14 +534,6 @@ namespace B9PartSwitch
                     if (otherModule.IsManagedMaterial(material))
                     {
                         error += $"\n  Two modules cannot manage the same material: {material.name}";
-                    }
-                }
-
-                foreach (AttachNode attachNode in AttachNodesWithManagedPosition)
-                {
-                    if (otherModule.IsAttachNodePositionManaged(attachNode))
-                    {
-                        error += $"\n  Two modules cannot manage the same attach node's postition: {attachNode.id}";
                     }
                 }
 

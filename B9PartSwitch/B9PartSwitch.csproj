@@ -99,7 +99,7 @@
     <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModuleB9DisableTransform.cs" />
-    <Compile Include="PartSwitch\AttachNodeMover.cs" />
+    <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />

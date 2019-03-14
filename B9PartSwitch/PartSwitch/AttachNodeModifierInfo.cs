@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
+using B9PartSwitch.PartSwitch.PartModifiers;
 
 namespace B9PartSwitch
 {
