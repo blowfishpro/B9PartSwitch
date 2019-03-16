@@ -237,8 +237,20 @@ namespace B9PartSwitch
             if (crashTolerance > 0)
                 MaybeAddModifier(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
 
-            if (Part.attachRules.allowSrfAttach && Part.srfAttachNode.IsNull() && attachNode != null)
-                MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+            if (attachNode.IsNotNull())
+            {
+                if (Part.attachRules.allowSrfAttach)
+                {
+                    if (Part.srfAttachNode.IsNotNull())
+                        MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+                    else
+                        LogError("attachNode specified but part does not have a surface attach node");
+                }
+                else
+                {
+                    LogError("attachNode specified but part does not allow surface attach");
+                }
+            }
 
             if (CoMOffset.IsFinite())
                 MaybeAddModifier(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
@@ -396,11 +408,6 @@ namespace B9PartSwitch
         {
             if (!tankType.IsStructuralTankType)
                 tankType = B9TankSettings.StructuralTankType;
-        }
-
-        public void ClearAttachNode()
-        {
-            attachNode = null;
         }
 
         public override string ToString()

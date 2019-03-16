@@ -395,12 +395,6 @@ namespace B9PartSwitch
                     subtype.AssignStructuralTankType();
                 }
             }
-
-            if (subtypes.Any(subtype => subtype.attachNode.IsNotNull()) && !part.attachRules.allowSrfAttach || part.srfAttachNode.IsNull())
-            {
-                LogError($"Error: One or more subtypes have an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                subtypes.ForEach(subtype => subtype.ClearAttachNode());
-            }
         }
 
         private void FindBestSubtype(ConfigNode node = null)
