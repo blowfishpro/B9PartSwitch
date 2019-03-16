@@ -242,7 +242,7 @@ namespace B9PartSwitch
                 if (Part.attachRules.allowSrfAttach)
                 {
                     if (Part.srfAttachNode.IsNotNull())
-                        MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode));
+                        MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
                     else
                         LogError("attachNode specified but part does not have a surface attach node");
                 }

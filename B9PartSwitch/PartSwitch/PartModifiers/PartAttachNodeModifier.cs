@@ -9,17 +9,20 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly AttachNode partAttachNode;
         private readonly AttachNode referenceAttachNode;
         private readonly AttachNode newAttachNode;
+        private readonly ILinearScaleProvider linearScaleProvider;
 
         public override object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's surface attach node";
 
-        public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode)
+        public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode, ILinearScaleProvider linearScaleProvider)
         {
             partAttachNode.ThrowIfNullArgument(nameof(partAttachNode));
+            linearScaleProvider.ThrowIfNullArgument(nameof(linearScaleProvider));
 
             this.partAttachNode = partAttachNode;
             this.referenceAttachNode = referenceAttachNode;
             this.newAttachNode = newAttachNode;
+            this.linearScaleProvider = linearScaleProvider;
         }
 
         public override void ActivateOnStartEditor() => Activate();
@@ -33,13 +36,13 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         private void Activate()
         {
-            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.position = referenceAttachNode.position * linearScaleProvider.LinearScale;
             partAttachNode.orientation = referenceAttachNode.orientation;
         }
 
         private void Deactivate()
         {
-            partAttachNode.position = referenceAttachNode.position;
+            partAttachNode.position = referenceAttachNode.position * linearScaleProvider.LinearScale;
             partAttachNode.orientation = referenceAttachNode.orientation;
         }
     }
