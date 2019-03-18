@@ -102,6 +102,7 @@
     <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
+    <Compile Include="PartSwitch\PartModifiers\AttachNodeToggler.cs" />
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartAttachNodeModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfBuoyancyModifier.cs" />

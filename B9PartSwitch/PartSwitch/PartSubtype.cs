@@ -205,7 +205,6 @@ namespace B9PartSwitch
             aspectLocks.Clear();
 
             FindObjects();
-            FindNodes();
 
             Part partPrefab = Part.GetPrefab() ?? Part;
 
@@ -282,6 +281,28 @@ namespace B9PartSwitch
                     MaybeAddModifier(replacement);
                 }
             }
+
+            nodes = new List<AttachNode>();
+            foreach (string nodeName in nodeNames)
+            {
+                bool foundNode = false;
+
+                foreach (AttachNode node in Part.attachNodes.Where(node => node.id == nodeName))
+                {
+                    foundNode = true;
+
+                    if (node.nodeType != AttachNode.NodeType.Stack)
+                    {
+                        LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
+                        continue;
+                    }
+
+                    nodes.Add(node);
+                    partModifiers.Add(new AttachNodeToggler(node));
+                }
+
+                if (!foundNode) LogError($"No attach nodes matching '{nodeName}' found");
+            }
         }
 
         #endregion
@@ -293,21 +314,14 @@ namespace B9PartSwitch
             DeactivateObjects();
 
             if (HighLogic.LoadedSceneIsEditor)
-            {
-                DeactivateNodes();
                 partModifiers.ForEach(modifier => modifier.DeactivateOnStartEditor());
-            }
             else
-            {
-                ActivateNodes();
                 partModifiers.ForEach(modifier => modifier.DeactivateOnStartFlight());
-            }
         }
 
         public void ActivateOnStart()
         {
             ActivateObjects();
-            ActivateNodes();
             AddResources(false);
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -324,12 +338,6 @@ namespace B9PartSwitch
         public void DeactivateOnSwitch()
         {
             DeactivateObjects();
-
-            if (HighLogic.LoadedSceneIsEditor)
-                DeactivateNodes();
-            else
-                ActivateNodes();
-
             RemoveResources();
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -341,7 +349,6 @@ namespace B9PartSwitch
         public void ActivateOnSwitch()
         {
             ActivateObjects();
-            ActivateNodes();
             AddResources(true);
 
             if (HighLogic.LoadedSceneIsEditor)
@@ -381,22 +388,16 @@ namespace B9PartSwitch
 
         public void OnWillBeCopiedInactiveSubtype()
         {
-            ActivateNodes();
-
             partModifiers.ForEach(modifier => modifier.OnWillBeCopiedInactiveSubtype());
         }
 
         public void OnWasCopiedActiveSubtype()
         {
-            ActivateNodes();
-
             partModifiers.ForEach(modifier => modifier.OnWasCopiedActiveSubtype());
         }
 
         public void OnWasCopiedInactiveSubtype()
         {
-            DeactivateNodes();
-
             partModifiers.ForEach(modifier => modifier.OnWasCopiedInactiveSubtype());
         }
 
@@ -465,36 +466,8 @@ namespace B9PartSwitch
             }
         }
 
-        private void FindNodes()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            nodes = new List<AttachNode>();
-            foreach (var nodeName in nodeNames)
-            {
-                bool foundNode = false;
-
-                foreach (AttachNode node in Part.attachNodes.Where(node => node.id == nodeName))
-                {
-                    foundNode = true;
-
-                    // If a node has been deactivated then it will be a docking node
-                    // Alternative: activate all nodes on serialization
-                    if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
-                        nodes.Add(node);
-                    else
-                        LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
-                }
-
-                if (!foundNode) LogError($"No attach nodes matching {nodeName} found");
-            }
-        }
-
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
-        private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
-        private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
 
         private void AddResources(bool fillTanks)
         {
