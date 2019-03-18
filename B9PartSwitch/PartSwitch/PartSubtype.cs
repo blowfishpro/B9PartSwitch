@@ -120,12 +120,12 @@ namespace B9PartSwitch
                 if (parent.IsNull()) throw new InvalidOperationException("Cannot get volume before parent has been linked!");
 
                 if (!HasTank) return 0f;
-                return parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren;
+                return (parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren) * parent.VolumeScale;
             }
         }
 
-        public float TotalMass => TotalVolume * tankType.tankMass + addedMass;
-        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost;
+        public float TotalMass => TotalVolume * tankType.tankMass + addedMass * parent.VolumeScale;
+        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost * parent.VolumeScale;
 
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
@@ -473,7 +473,7 @@ namespace B9PartSwitch
         {
             foreach (TankResource resource in tankType.resources)
             {
-                float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
+                float amount = TotalVolume * resource.unitsPerVolume;
                 float filledProportion;
                 if (HighLogic.LoadedSceneIsFlight && fillTanks)
                     filledProportion = 0;
