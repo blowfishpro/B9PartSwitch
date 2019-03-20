@@ -116,6 +116,7 @@
     <Compile Include="PartSwitch\PartModifiers\PartSkinMaxTempModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartStackSymmetryModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ResourceModifier.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TransformToggler.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
     <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />

@@ -195,8 +195,6 @@ namespace B9PartSwitch
 
             aspectLocks.Clear();
 
-            FindObjects();
-
             Part partPrefab = Part.GetPrefab() ?? Part;
 
             partModifiers.ForEach(modifier => modifier.OnBeforeReinitialize());
@@ -306,6 +304,22 @@ namespace B9PartSwitch
                     MaybeAddModifier(resourceModifier);
                 }
             }
+
+            transforms.Clear();
+            foreach (var transformName in transformNames)
+            {
+                bool foundTransform = false;
+
+                foreach (Transform transform in Part.GetModelTransforms(transformName))
+                {
+                    foundTransform = true;
+                    partModifiers.Add(new TransformToggler(transform, Part));
+                    transforms.Add(transform);
+                }
+
+                if (!foundTransform)
+                    LogError($"No transforms named '{transformName}' found");
+            }
         }
 
         #endregion
@@ -314,8 +328,6 @@ namespace B9PartSwitch
 
         public void DeactivateOnStart()
         {
-            DeactivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.DeactivateOnStartEditor());
             else
@@ -324,8 +336,6 @@ namespace B9PartSwitch
 
         public void ActivateOnStart()
         {
-            ActivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnStartEditor());
             else
@@ -339,8 +349,6 @@ namespace B9PartSwitch
 
         public void DeactivateOnSwitch()
         {
-            DeactivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchEditor());
             else
@@ -349,8 +357,6 @@ namespace B9PartSwitch
 
         public void ActivateOnSwitch()
         {
-            ActivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnSwitchEditor());
             else
@@ -359,15 +365,11 @@ namespace B9PartSwitch
 
         public void DeactivateForIcon()
         {
-            DeactivateObjects();
-
             partModifiers.ForEach(modifier => modifier.OnIconCreateInactiveSubtype());
         }
 
         public void ActivateForIcon()
         {
-            ActivateObjects();
-
             partModifiers.ForEach(modifier => modifier.OnIconCreateActiveSubtype());
         }
 
@@ -446,25 +448,6 @@ namespace B9PartSwitch
                 resource.Load(resourceNode, newContext);
             }
         }
-
-        private void FindObjects()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            transforms.Clear();
-            foreach (var transformName in transformNames)
-            {
-                Transform[] tempTransforms = Part.FindModelTransforms(transformName);
-                if (tempTransforms == null || tempTransforms.Length == 0)
-                    LogError($"No transforms named {transformName} found");
-                else
-                    transforms.AddRange(tempTransforms);
-            }
-        }
-
-        private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
-        private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
 
         #region Logging
 
