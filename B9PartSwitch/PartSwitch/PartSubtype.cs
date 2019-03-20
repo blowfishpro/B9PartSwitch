@@ -105,8 +105,6 @@ namespace B9PartSwitch
 
         public string Name => subtypeName;
 
-        public Part Part => parent.part;
-
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
         public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
@@ -195,7 +193,8 @@ namespace B9PartSwitch
 
             aspectLocks.Clear();
 
-            Part partPrefab = Part.GetPrefab() ?? Part;
+            Part part = parent.part;
+            Part partPrefab = part.GetPrefab() ?? part;
 
             partModifiers.ForEach(modifier => modifier.OnBeforeReinitialize());
             partModifiers.Clear();
@@ -217,20 +216,20 @@ namespace B9PartSwitch
             }
 
             if (maxTemp > 0)
-                MaybeAddModifier(new PartMaxTempModifier(Part, partPrefab.maxTemp, maxTemp));
+                MaybeAddModifier(new PartMaxTempModifier(part, partPrefab.maxTemp, maxTemp));
 
             if (skinMaxTemp > 0)
-                MaybeAddModifier(new PartSkinMaxTempModifier(Part, partPrefab.skinMaxTemp, skinMaxTemp));
+                MaybeAddModifier(new PartSkinMaxTempModifier(part, partPrefab.skinMaxTemp, skinMaxTemp));
 
             if (crashTolerance > 0)
-                MaybeAddModifier(new PartCrashToleranceModifier(Part, partPrefab.crashTolerance, crashTolerance));
+                MaybeAddModifier(new PartCrashToleranceModifier(part, partPrefab.crashTolerance, crashTolerance));
 
             if (attachNode.IsNotNull())
             {
-                if (Part.attachRules.allowSrfAttach)
+                if (part.attachRules.allowSrfAttach)
                 {
-                    if (Part.srfAttachNode.IsNotNull())
-                        MaybeAddModifier(new PartAttachNodeModifier(Part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
+                    if (part.srfAttachNode.IsNotNull())
+                        MaybeAddModifier(new PartAttachNodeModifier(part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
                     else
                         LogError("attachNode specified but part does not have a surface attach node");
                 }
@@ -241,31 +240,31 @@ namespace B9PartSwitch
             }
 
             if (CoMOffset.IsFinite())
-                MaybeAddModifier(new PartCoMOffsetModifier(Part, partPrefab.CoMOffset, CoMOffset));
+                MaybeAddModifier(new PartCoMOffsetModifier(part, partPrefab.CoMOffset, CoMOffset));
 
             if (CoPOffset.IsFinite())
-                MaybeAddModifier(new PartCoPOffsetModifier(Part, partPrefab.CoPOffset, CoPOffset));
+                MaybeAddModifier(new PartCoPOffsetModifier(part, partPrefab.CoPOffset, CoPOffset));
 
             if (CoLOffset.IsFinite())
-                MaybeAddModifier(new PartCoLOffsetModifier(Part, partPrefab.CoLOffset, CoLOffset));
+                MaybeAddModifier(new PartCoLOffsetModifier(part, partPrefab.CoLOffset, CoLOffset));
 
             if (CenterOfBuoyancy.IsFinite())
-                MaybeAddModifier(new PartCenterOfBuoyancyModifier(Part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
+                MaybeAddModifier(new PartCenterOfBuoyancyModifier(part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
 
             if (CenterOfDisplacement.IsFinite())
-                MaybeAddModifier(new PartCenterOfDisplacementModifier(Part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
+                MaybeAddModifier(new PartCenterOfDisplacementModifier(part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
 
             if (stackSymmetry >= 0)
-                MaybeAddModifier(new PartStackSymmetryModifier(Part, partPrefab.stackSymmetry, stackSymmetry));
+                MaybeAddModifier(new PartStackSymmetryModifier(part, partPrefab.stackSymmetry, stackSymmetry));
 
             foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
             {
-                MaybeAddModifier(info.CreateAttachNodeModifier(Part, parent));
+                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent));
             }
 
             foreach (TextureSwitchInfo info in textureSwitches)
             {
-                foreach(TextureReplacement replacement in info.CreateTextureReplacements(Part))
+                foreach(TextureReplacement replacement in info.CreateTextureReplacements(part))
                 {
                     MaybeAddModifier(replacement);
                 }
@@ -276,7 +275,7 @@ namespace B9PartSwitch
             {
                 bool foundNode = false;
 
-                foreach (AttachNode node in Part.attachNodes.Where(node => node.id == nodeName))
+                foreach (AttachNode node in part.attachNodes.Where(node => node.id == nodeName))
                 {
                     foundNode = true;
 
@@ -300,7 +299,7 @@ namespace B9PartSwitch
                 {
                     float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
                     bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, parent.part, filledProportion, tweakable);
+                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, part, filledProportion, tweakable);
                     MaybeAddModifier(resourceModifier);
                 }
             }
@@ -310,10 +309,10 @@ namespace B9PartSwitch
             {
                 bool foundTransform = false;
 
-                foreach (Transform transform in Part.GetModelTransforms(transformName))
+                foreach (Transform transform in part.GetModelTransforms(transformName))
                 {
                     foundTransform = true;
-                    partModifiers.Add(new TransformToggler(transform, Part));
+                    partModifiers.Add(new TransformToggler(transform, part));
                     transforms.Add(transform);
                 }
 
