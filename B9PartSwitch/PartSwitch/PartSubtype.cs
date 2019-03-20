@@ -97,6 +97,7 @@ namespace B9PartSwitch
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<IPartModifier> partModifiers = new List<IPartModifier>();
         private List<object> aspectLocks = new List<object>();
+        private IVolumeProvider volumeProvider = new ZeroVolumeProvider();
 
         #endregion
 
@@ -113,19 +114,9 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume
-        {
-            get
-            {
-                if (parent.IsNull()) throw new InvalidOperationException("Cannot get volume before parent has been linked!");
-
-                if (!HasTank) return 0f;
-                return (parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren) * parent.VolumeScale;
-            }
-        }
-
-        public float TotalMass => TotalVolume * tankType.tankMass + addedMass * parent.VolumeScale;
-        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost * parent.VolumeScale;
+        public float TotalVolume => volumeProvider.Volume;
+        public float TotalMass => volumeProvider.Volume * tankType.tankMass + addedMass * parent.VolumeScale;
+        public float TotalCost => volumeProvider.Volume * tankType.TotalUnitCost + addedCost * parent.VolumeScale;
 
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
@@ -303,6 +294,18 @@ namespace B9PartSwitch
 
                 if (!foundNode) LogError($"No attach nodes matching '{nodeName}' found");
             }
+
+            if (HasTank)
+            {
+                volumeProvider = new SubtypeVolumeProvider(parent, volumeMultiplier, volumeAdded);
+                foreach (TankResource resource in tankType)
+                {
+                    float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                    bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
+                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, parent.part, filledProportion, tweakable);
+                    MaybeAddModifier(resourceModifier);
+                }
+            }
         }
 
         #endregion
@@ -322,7 +325,6 @@ namespace B9PartSwitch
         public void ActivateOnStart()
         {
             ActivateObjects();
-            AddResources(false);
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnStartEditor());
@@ -338,7 +340,6 @@ namespace B9PartSwitch
         public void DeactivateOnSwitch()
         {
             DeactivateObjects();
-            RemoveResources();
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchEditor());
@@ -349,7 +350,6 @@ namespace B9PartSwitch
         public void ActivateOnSwitch()
         {
             ActivateObjects();
-            AddResources(true);
 
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.ActivateOnSwitchEditor());
@@ -373,8 +373,6 @@ namespace B9PartSwitch
 
         public void UpdateVolume()
         {
-            AddResources(true);
-
             if (HighLogic.LoadedSceneIsEditor)
                 partModifiers.ForEach(modifier => modifier.UpdateVolumeEditor());
             else
@@ -403,7 +401,6 @@ namespace B9PartSwitch
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
-        public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
 
         public void AssignStructuralTankType()
         {
@@ -468,33 +465,6 @@ namespace B9PartSwitch
 
         private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
         private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
-
-        private void AddResources(bool fillTanks)
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                float amount = TotalVolume * resource.unitsPerVolume;
-                float filledProportion;
-                if (HighLogic.LoadedSceneIsFlight && fillTanks)
-                    filledProportion = 0;
-                else
-                    filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
-                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
-
-                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-
-                if (tweakable.HasValue)
-                    partResource.isTweakable = tweakable.Value;
-            }
-        }
-
-        private void RemoveResources()
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                Part.RemoveResource(resource.ResourceName);
-            }
-        }
 
         #region Logging
 

@@ -128,13 +128,6 @@ namespace B9PartSwitch
 
         #region Setup
 
-        public override void OnAwake()
-        {
-            base.OnAwake();
-
-            InitializeSubtypes();
-        }
-
         protected override void OnLoadPrefab(ConfigNode node)
         {
             base.OnLoadPrefab(node);
@@ -182,7 +175,6 @@ namespace B9PartSwitch
             FindParent();
 
             InitializeSubtypes();
-            SetupSubtypes();
 
             FindBestSubtype();
 
@@ -200,7 +192,6 @@ namespace B9PartSwitch
         // This runs after OnStart() so everything should be initalized
         public void Start()
         {
-            CheckOtherSwitchers();
             CheckOtherModules();
 
             if (affectDragCubes) part.FixModuleJettison();
@@ -382,21 +373,6 @@ namespace B9PartSwitch
             CurrentSubtype.ActivateForIcon();
         }
 
-        private void SetupSubtypes()
-        {
-            foreach (var subtype in subtypes)
-            {
-                if (subtype.tankType == null)
-                    LogError($"Tank is null on subtype {subtype.Name}");
-
-                if (subtype.tankType.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
-                {
-                    LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
-                    subtype.AssignStructuralTankType();
-                }
-            }
-        }
-
         private void FindBestSubtype(ConfigNode node = null)
         {
             if (node?.GetValue("currentSubtypeName") is string name)
@@ -502,29 +478,6 @@ namespace B9PartSwitch
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
                     part.Resources.Remove(resource);
-                }
-            }
-        }
-
-        private void CheckOtherSwitchers()
-        {
-            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
-            {
-                if (otherModule == this) continue;
-                string error = "";
-                foreach (string resourceName in ManagedResourceNames)
-                {
-                    if (otherModule.IsManagedResource(resourceName))
-                    {
-                        error += $"\n  Two modules cannot manage the same resource: {resourceName}";
-                    }
-                }
-
-                if (error != "")
-                {
-                    Exception ex = new Exception($"Conflict found between {this} and {otherModule}:" + error);
-                    FatalErrorHandler.HandleFatalError(ex);
-                    throw ex;
                 }
             }
         }
