@@ -201,12 +201,18 @@ namespace B9PartSwitch
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
+            void OnInitializationError(string message)
+            {
+                LogError(message);
+                SeriousWarningHandler.DisplaySeriousWarning(message);
+            }
+
             void MaybeAddModifier(IPartModifier modifier)
             {
                 if (modifier == null) return;
                 if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
                 {
-                    LogError($"More than one module can't manage {modifier.Description}");
+                    OnInitializationError($"More than one module can't manage {modifier.Description}");
                 }
                 else
                 {
@@ -231,11 +237,11 @@ namespace B9PartSwitch
                     if (part.srfAttachNode.IsNotNull())
                         MaybeAddModifier(new PartAttachNodeModifier(part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
                     else
-                        LogError("attachNode specified but part does not have a surface attach node");
+                        OnInitializationError("attachNode specified but part does not have a surface attach node");
                 }
                 else
                 {
-                    LogError("attachNode specified but part does not allow surface attach");
+                    OnInitializationError("attachNode specified but part does not allow surface attach");
                 }
             }
 
@@ -281,7 +287,7 @@ namespace B9PartSwitch
 
                     if (node.nodeType != AttachNode.NodeType.Stack)
                     {
-                        LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
+                        OnInitializationError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
                         continue;
                     }
 
@@ -289,7 +295,7 @@ namespace B9PartSwitch
                     partModifiers.Add(new AttachNodeToggler(node));
                 }
 
-                if (!foundNode) LogError($"No attach nodes matching '{nodeName}' found");
+                if (!foundNode) OnInitializationError($"No attach nodes matching '{nodeName}' found");
             }
 
             if (HasTank)
@@ -317,7 +323,7 @@ namespace B9PartSwitch
                 }
 
                 if (!foundTransform)
-                    LogError($"No transforms named '{transformName}' found");
+                    OnInitializationError($"No transforms named '{transformName}' found");
             }
         }
 
