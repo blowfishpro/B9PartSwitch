@@ -36,7 +36,7 @@ namespace B9PartSwitch
             {
                 Debug.LogError("[SeriousWarningHandler] Not displaying serious warning because too many warnings have already been added:");
                 Debug.LogError(message);
-                allMessages.Add("(too many warnings messages to display)");
+                allMessages.Add("(too many warning messages to display)");
             }
             else
             {
