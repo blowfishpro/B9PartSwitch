@@ -2,16 +2,19 @@ language: csharp
 mono:
   - 5.12.0
 solution: B9PartSwitch.sln
+before_install:
+  - sudo apt-get install python3-pip
 install:
   - rvm install $(cat .ruby-version)
   - bundle install
-  - build_script/install/install_ksp_dlls.sh
+  - pip3 install awscli --upgrade --user
+  - install-ksp-dlls
   - nuget restore ${TRAVIS_SOLUTION}
 script:
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
   - build_script/script/make_release.sh
-  - bin/fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
+  - fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
   - bundle exec rake spec
   - build_script/script/make_zip.sh
 after_success:
@@ -51,7 +54,8 @@ env:
     - PROJECT_NAME='B9PartSwitch'
     - PROJECT_DIR='B9PartSwitch'
     - KSP_VERSION="$(cat KSP_VERSION)"
-    - KSP_DLL_PATH="${TRAVIS_BUILD_DIR}/KSP_DLLs/${KSP_VERSION}"
+    - KSP_DLL_PATH="/opt/ksp/assembly/${KSP_VERSION}"
+    - PATH="${PATH}:${TRAVIS_BUILD_DIR}/bin"
 notifications:
   email: false
 git:
