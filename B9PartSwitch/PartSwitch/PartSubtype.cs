@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
@@ -279,10 +280,15 @@ namespace B9PartSwitch
             nodes = new List<AttachNode>();
             foreach (string nodeName in nodeNames)
             {
+                string pattern = '^' + Regex.Escape(nodeName).Replace(@"\*", ".*").Replace(@"\?", ".") + '$';
+                Regex nodeIdRegex = new Regex(pattern);
+
                 bool foundNode = false;
 
-                foreach (AttachNode node in part.attachNodes.Where(node => node.id == nodeName))
+                foreach (AttachNode node in part.attachNodes)
                 {
+                    if (!nodeIdRegex.IsMatch(node.id)) continue;
+
                     foundNode = true;
 
                     if (node.nodeType != AttachNode.NodeType.Stack)
