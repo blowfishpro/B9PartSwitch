@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -e
+
+export AWS_ACCESS_KEY_ID="${DLL_S3_ACCESS_KEY_ID}"
+export AWS_SECRET_ACCESS_KEY="${DLL_S3_SECRET_ACCESS_KEY}"
+aws s3 cp "s3://blowfish-ksp-dlls/ksp-${KSP_VERSION}.zip" '/var/tmp/KSP_DLLs.zip'
+mkdir -p "/opt/ksp/assembly/${KSP_VERSION}"
+unzip -P ${DLL_PACKAGE_ZIP_PASSPHRASE} '/var/tmp/KSP_DLLs.zip' -d "/opt/ksp/assembly/${KSP_VERSION}"
+rm '/var/tmp/KSP_DLLs.zip'
