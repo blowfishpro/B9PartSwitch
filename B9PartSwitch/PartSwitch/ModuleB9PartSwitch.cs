@@ -110,8 +110,6 @@ namespace B9PartSwitch
         public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
         public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
-        public IEnumerable<Material> ManagedMaterials => subtypes.SelectMany(subtype => subtype.Materials);
-        public IEnumerable<AttachNode> AttachNodesWithManagedPosition => subtypes.SelectMany(subtype => subtype.AttachNodesWithManagedPosition);
 
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
@@ -123,16 +121,12 @@ namespace B9PartSwitch
         public float LinearScale => scale;
         public float VolumeScale => scale * scale * scale;
 
+        public IEnumerable<object> PartAspectLocks => subtypes.SelectMany(subtype => subtype.PartAspectLocks);
+        public IEnumerable<object> PartAspectLocksOnOtherModules => part.Modules.OfType<ModuleB9PartSwitch>().Where(module => module != this).SelectMany(module => module.PartAspectLocks);
+
         #endregion
 
         #region Setup
-
-        public override void OnAwake()
-        {
-            base.OnAwake();
-
-            InitializeSubtypes();
-        }
 
         protected override void OnLoadPrefab(ConfigNode node)
         {
@@ -181,7 +175,6 @@ namespace B9PartSwitch
             FindParent();
 
             InitializeSubtypes();
-            SetupSubtypes();
 
             FindBestSubtype();
 
@@ -199,7 +192,6 @@ namespace B9PartSwitch
         // This runs after OnStart() so everything should be initalized
         public void Start()
         {
-            CheckOtherSwitchers();
             CheckOtherModules();
 
             if (affectDragCubes) part.FixModuleJettison();
@@ -211,11 +203,11 @@ namespace B9PartSwitch
 
         #region Interface Methods
 
-        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => CurrentSubtype.TotalMass * VolumeScale;
+        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => CurrentSubtype.TotalMass;
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
 
-        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) => CurrentSubtype.TotalCost * VolumeScale;
+        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) => CurrentSubtype.TotalCost;
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
 
@@ -294,12 +286,6 @@ namespace B9PartSwitch
             return true;
         }
 
-        public bool IsManagedMaterial(Material material) => ManagedMaterials.Contains(material);
-
-        public bool IsAttachNodePositionManaged(AttachNode attachNode) => AttachNodesWithManagedPosition.Contains(attachNode);
-
-        public bool PartFieldManaged(ISubtypePartField field) => subtypes.Any(subtype => field.ShouldUseOnSubtype(subtype.Context));
-
         public void AddChild(ModuleB9PartSwitch child)
         {
             child.ThrowIfNullArgument(nameof(child));
@@ -343,6 +329,8 @@ namespace B9PartSwitch
             CurrentSubtype.OnWasCopiedActiveSubtype();
         }
 
+        public bool HasPartAspectLock(object partAspectLock) => PartAspectLocks.Contains(partAspectLock);
+
         #endregion
 
         #region Private Methods
@@ -383,27 +371,6 @@ namespace B9PartSwitch
             }
 
             CurrentSubtype.ActivateForIcon();
-        }
-
-        private void SetupSubtypes()
-        {
-            foreach (var subtype in subtypes)
-            {
-                if (subtype.tankType == null)
-                    LogError($"Tank is null on subtype {subtype.Name}");
-
-                if (subtype.tankType.ResourcesCount > 0 && (subtype.TotalVolume <= 0f))
-                {
-                    LogError($"Subtype {subtype.Name} has a tank type with resources, but no volume is specifified");
-                    subtype.AssignStructuralTankType();
-                }
-            }
-
-            if (PartFieldManaged(SubtypePartFields.SrfAttachNode) && !part.attachRules.allowSrfAttach || part.srfAttachNode.IsNull())
-            {
-                LogError($"Error: One or more subtypes have an attach node defined, but part does not allow surface attachment (or the surface attach node could not be found)");
-                subtypes.ForEach(subtype => subtype.ClearAttachNode());
-            }
         }
 
         private void FindBestSubtype(ConfigNode node = null)
@@ -511,53 +478,6 @@ namespace B9PartSwitch
                 if (IsManagedResource(resource.resourceName) && !CurrentTankType.ContainsResource(resource.resourceName))
                 {
                     part.Resources.Remove(resource);
-                }
-            }
-        }
-
-        private void CheckOtherSwitchers()
-        {
-            foreach (var otherModule in part.Modules.OfType<ModuleB9PartSwitch>())
-            {
-                if (otherModule == this) continue;
-                string error = "";
-                foreach (string resourceName in ManagedResourceNames)
-                {
-                    if (otherModule.IsManagedResource(resourceName))
-                    {
-                        error += $"\n  Two modules cannot manage the same resource: {resourceName}";
-                    }
-                }
-
-                foreach (Material material in ManagedMaterials)
-                {
-                    if (otherModule.IsManagedMaterial(material))
-                    {
-                        error += $"\n  Two modules cannot manage the same material: {material.name}";
-                    }
-                }
-
-                foreach (AttachNode attachNode in AttachNodesWithManagedPosition)
-                {
-                    if (otherModule.IsAttachNodePositionManaged(attachNode))
-                    {
-                        error += $"\n  Two modules cannot manage the same attach node's postition: {attachNode.id}";
-                    }
-                }
-
-                foreach (ISubtypePartField field in SubtypePartFields.All)
-                {
-                    if (PartFieldManaged(field) && otherModule.PartFieldManaged(field))
-                    {
-                        error += $"\n  Two modules cannot both manage the part's {field.Name}";
-                    }
-                }
-
-                if (error != "")
-                {
-                    Exception ex = new Exception($"Conflict found between {this} and {otherModule}:" + error);
-                    FatalErrorHandler.HandleFatalError(ex);
-                    throw ex;
                 }
             }
         }

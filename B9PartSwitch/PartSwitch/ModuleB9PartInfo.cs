@@ -1,5 +1,6 @@
 ﻿using UniLinq;
 using System.Collections.Generic;
+using B9PartSwitch.PartSwitch.PartModifiers;
 
 namespace B9PartSwitch
 {
@@ -70,9 +71,9 @@ namespace B9PartSwitch
             dryCostField.guiName = hasResources ? DryCostGUIString : CostGUIString;
             Fields[nameof(wetCost)].guiActiveEditor = showInfo && showCost && hasResources;
 
-            Fields[nameof(maxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.PartFieldManaged(SubtypePartFields.MaxTemp));
-            Fields[nameof(skinMaxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.PartFieldManaged(SubtypePartFields.SkinMaxTemp));
-            Fields[nameof(crashTolerance)].guiActiveEditor = showInfo && switcherModules.Any(module => module.PartFieldManaged(SubtypePartFields.CrashTolerance));
+            Fields[nameof(maxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("maxTemp"));
+            Fields[nameof(skinMaxTemp)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("skinMaxTemp"));
+            Fields[nameof(crashTolerance)].guiActiveEditor = showInfo && switcherModules.Any(module => module.HasPartAspectLock("crashTolerance"));
         }
 
         private void UpdateFields()
@@ -95,9 +96,9 @@ namespace B9PartSwitch
             return
                 switcher.ChangesMass ||
                 switcher.ChangesCost ||
-                switcher.PartFieldManaged(SubtypePartFields.MaxTemp) ||
-                switcher.PartFieldManaged(SubtypePartFields.SkinMaxTemp) ||
-                switcher.PartFieldManaged(SubtypePartFields.CrashTolerance);
+                switcher.HasPartAspectLock(PartMaxTempModifier.PART_ASPECT_LOCK) ||
+                switcher.HasPartAspectLock(PartSkinMaxTempModifier.PART_ASPECT_LOCK) ||
+                switcher.HasPartAspectLock(PartCrashToleranceModifier.PART_ASPECT_LOCK);
         }
     }
 }

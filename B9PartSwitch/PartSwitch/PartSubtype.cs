@@ -4,6 +4,7 @@ using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
+using B9PartSwitch.PartSwitch.PartModifiers;
 
 namespace B9PartSwitch
 {
@@ -94,8 +95,9 @@ namespace B9PartSwitch
         private ModuleB9PartSwitch parent;
         private List<Transform> transforms = new List<Transform>();
         private List<AttachNode> nodes = new List<AttachNode>();
-        private List<TextureReplacement> textureReplacements = new List<TextureReplacement>();
-        private List<AttachNodeMover> attachNodeMovers = new List<AttachNodeMover>();
+        private List<IPartModifier> partModifiers = new List<IPartModifier>();
+        private List<object> aspectLocks = new List<object>();
+        private IVolumeProvider volumeProvider = new ZeroVolumeProvider();
 
         #endregion
 
@@ -103,35 +105,21 @@ namespace B9PartSwitch
 
         public string Name => subtypeName;
 
-        public Part Part => parent.part;
-
-        public PartSubtypeContext Context => new PartSubtypeContext(Part, parent, this);
-
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
         public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
         public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
-        public IEnumerable<Material> Materials => textureReplacements.Select(repl => repl.material);
-        public IEnumerable<AttachNode> AttachNodesWithManagedPosition => attachNodeMovers.Select(mover => mover.attachNode);
 
-        public float TotalVolume
-        {
-            get
-            {
-                if (parent.IsNull()) throw new InvalidOperationException("Cannot get volume before parent has been linked!");
-
-                if (!HasTank) return 0f;
-                return parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren;
-            }
-        }
-
-        public float TotalMass => TotalVolume * tankType.tankMass + addedMass;
-        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost;
+        public float TotalVolume => volumeProvider.Volume;
+        public float TotalMass => volumeProvider.Volume * tankType.tankMass + addedMass * parent.VolumeScale;
+        public float TotalCost => volumeProvider.Volume * tankType.TotalUnitCost + addedCost * parent.VolumeScale;
 
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
+
+        public IEnumerable<object> PartAspectLocks => aspectLocks.All();
 
         #endregion
 
@@ -203,10 +191,140 @@ namespace B9PartSwitch
 
             this.parent = parent;
 
-            FindObjects();
-            FindNodes();
-            FindTextureReplacements();
-            FindAttachNodeMovers();
+            aspectLocks.Clear();
+
+            Part part = parent.part;
+            Part partPrefab = part.GetPrefab() ?? part;
+
+            partModifiers.ForEach(modifier => modifier.OnBeforeReinitialize());
+            partModifiers.Clear();
+
+            IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
+
+            void OnInitializationError(string message)
+            {
+                LogError(message);
+                SeriousWarningHandler.DisplaySeriousWarning(message);
+            }
+
+            void MaybeAddModifier(IPartModifier modifier)
+            {
+                if (modifier == null) return;
+                if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
+                {
+                    OnInitializationError($"More than one module can't manage {modifier.Description}");
+                }
+                else
+                {
+                    partModifiers.Add(modifier);
+                    aspectLocks.Add(modifier.PartAspectLock);
+                }
+            }
+
+            if (maxTemp > 0)
+                MaybeAddModifier(new PartMaxTempModifier(part, partPrefab.maxTemp, maxTemp));
+
+            if (skinMaxTemp > 0)
+                MaybeAddModifier(new PartSkinMaxTempModifier(part, partPrefab.skinMaxTemp, skinMaxTemp));
+
+            if (crashTolerance > 0)
+                MaybeAddModifier(new PartCrashToleranceModifier(part, partPrefab.crashTolerance, crashTolerance));
+
+            if (attachNode.IsNotNull())
+            {
+                if (part.attachRules.allowSrfAttach)
+                {
+                    if (part.srfAttachNode.IsNotNull())
+                        MaybeAddModifier(new PartAttachNodeModifier(part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
+                    else
+                        OnInitializationError("attachNode specified but part does not have a surface attach node");
+                }
+                else
+                {
+                    OnInitializationError("attachNode specified but part does not allow surface attach");
+                }
+            }
+
+            if (CoMOffset.IsFinite())
+                MaybeAddModifier(new PartCoMOffsetModifier(part, partPrefab.CoMOffset, CoMOffset));
+
+            if (CoPOffset.IsFinite())
+                MaybeAddModifier(new PartCoPOffsetModifier(part, partPrefab.CoPOffset, CoPOffset));
+
+            if (CoLOffset.IsFinite())
+                MaybeAddModifier(new PartCoLOffsetModifier(part, partPrefab.CoLOffset, CoLOffset));
+
+            if (CenterOfBuoyancy.IsFinite())
+                MaybeAddModifier(new PartCenterOfBuoyancyModifier(part, partPrefab.CenterOfBuoyancy, CenterOfBuoyancy));
+
+            if (CenterOfDisplacement.IsFinite())
+                MaybeAddModifier(new PartCenterOfDisplacementModifier(part, partPrefab.CenterOfDisplacement, CenterOfDisplacement));
+
+            if (stackSymmetry >= 0)
+                MaybeAddModifier(new PartStackSymmetryModifier(part, partPrefab.stackSymmetry, stackSymmetry));
+
+            foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
+            {
+                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent));
+            }
+
+            foreach (TextureSwitchInfo info in textureSwitches)
+            {
+                foreach(TextureReplacement replacement in info.CreateTextureReplacements(part))
+                {
+                    MaybeAddModifier(replacement);
+                }
+            }
+
+            nodes = new List<AttachNode>();
+            foreach (string nodeName in nodeNames)
+            {
+                bool foundNode = false;
+
+                foreach (AttachNode node in part.attachNodes.Where(node => node.id == nodeName))
+                {
+                    foundNode = true;
+
+                    if (node.nodeType != AttachNode.NodeType.Stack)
+                    {
+                        OnInitializationError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
+                        continue;
+                    }
+
+                    nodes.Add(node);
+                    partModifiers.Add(new AttachNodeToggler(node));
+                }
+
+                if (!foundNode) OnInitializationError($"No attach nodes matching '{nodeName}' found");
+            }
+
+            if (HasTank)
+            {
+                volumeProvider = new SubtypeVolumeProvider(parent, volumeMultiplier, volumeAdded);
+                foreach (TankResource resource in tankType)
+                {
+                    float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
+                    bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
+                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, part, filledProportion, tweakable);
+                    MaybeAddModifier(resourceModifier);
+                }
+            }
+
+            transforms.Clear();
+            foreach (var transformName in transformNames)
+            {
+                bool foundTransform = false;
+
+                foreach (Transform transform in part.GetModelTransforms(transformName))
+                {
+                    foundTransform = true;
+                    partModifiers.Add(new TransformToggler(transform, part));
+                    transforms.Add(transform);
+                }
+
+                if (!foundTransform)
+                    OnInitializationError($"No transforms named '{transformName}' found");
+            }
         }
 
         #endregion
@@ -215,104 +333,86 @@ namespace B9PartSwitch
 
         public void DeactivateOnStart()
         {
-            DeactivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
-                DeactivateNodes();
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartEditor());
             else
-                ActivateNodes();
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFlight());
         }
 
         public void ActivateOnStart()
         {
-            ActivateObjects();
-            ActivateNodes();
-            ActivateTextures();
-            AddResources(false);
-            UpdatePartParams();
-            attachNodeMovers.ForEach(nm => nm.ActivateOnStart());
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFlight());
         }
 
         public void ActivateAfterStart()
         {
-            attachNodeMovers.ForEach(nm => nm.ActivateAfterStart());
+            partModifiers.ForEach(modifier => modifier.ActivateAfterStart());
         }
 
         public void DeactivateOnSwitch()
         {
-            DeactivateObjects();
-
             if (HighLogic.LoadedSceneIsEditor)
-                DeactivateNodes();
+                partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchEditor());
             else
-                ActivateNodes();
-
-            DeactivateTextures();
-            RemoveResources();
-            attachNodeMovers.ForEach(nm => nm.DeactivateOnSwitch());
+                partModifiers.ForEach(modifier => modifier.DeactivateOnSwitchFlight());
         }
 
         public void ActivateOnSwitch()
         {
-            ActivateObjects();
-            ActivateNodes();
-            ActivateTextures();
-            AddResources(true);
-            UpdatePartParams();
-            attachNodeMovers.ForEach(nm => nm.ActivateOnSwitch());
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnSwitchEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnSwitchFlight());
         }
 
         public void DeactivateForIcon()
         {
-            DeactivateObjects();
+            partModifiers.ForEach(modifier => modifier.OnIconCreateInactiveSubtype());
         }
 
         public void ActivateForIcon()
         {
-            ActivateObjects();
-            ActivateTextures();
+            partModifiers.ForEach(modifier => modifier.OnIconCreateActiveSubtype());
         }
 
         public void UpdateVolume()
         {
-            AddResources(true);
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.UpdateVolumeEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.UpdateVolumeFlight());
         }
 
         public void OnWillBeCopiedActiveSubtype()
         {
-            DeactivateTextures();
+            partModifiers.ForEach(modifier => modifier.OnWillBeCopiedActiveSubtype());
         }
 
         public void OnWillBeCopiedInactiveSubtype()
         {
-            ActivateNodes();
+            partModifiers.ForEach(modifier => modifier.OnWillBeCopiedInactiveSubtype());
         }
 
         public void OnWasCopiedActiveSubtype()
         {
-            ActivateTextures();
-            ActivateNodes();
+            partModifiers.ForEach(modifier => modifier.OnWasCopiedActiveSubtype());
         }
 
         public void OnWasCopiedInactiveSubtype()
         {
-            DeactivateNodes();
+            partModifiers.ForEach(modifier => modifier.OnWasCopiedInactiveSubtype());
         }
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
-        public bool ResourceManaged(String resourceName) => ResourceNames.Contains(resourceName);
-        public bool MaterialIsManaged(Material material) => textureReplacements.Any(repl => repl.material == material);
 
         public void AssignStructuralTankType()
         {
             if (!tankType.IsStructuralTankType)
                 tankType = B9TankSettings.StructuralTankType;
-        }
-
-        public void ClearAttachNode()
-        {
-            attachNode = null;
         }
 
         public override string ToString()
@@ -351,134 +451,6 @@ namespace B9PartSwitch
                 }
 
                 resource.Load(resourceNode, newContext);
-            }
-        }
-
-        private void FindObjects()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            transforms.Clear();
-            foreach (var transformName in transformNames)
-            {
-                Transform[] tempTransforms = Part.FindModelTransforms(transformName);
-                if (tempTransforms == null || tempTransforms.Length == 0)
-                    LogError($"No transforms named {transformName} found");
-                else
-                    transforms.AddRange(tempTransforms);
-            }
-        }
-
-        private void FindNodes()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            nodes = new List<AttachNode>();
-            foreach (var nodeName in nodeNames)
-            {
-                bool foundNode = false;
-
-                foreach (AttachNode node in Part.attachNodes.Where(node => node.id == nodeName))
-                {
-                    foundNode = true;
-
-                    // If a node has been deactivated then it will be a docking node
-                    // Alternative: activate all nodes on serialization
-                    if (node.nodeType == AttachNode.NodeType.Stack || node.nodeType == AttachNode.NodeType.Dock)
-                        nodes.Add(node);
-                    else
-                        LogError($"Node {node.id} is not a stack node, and thus cannot be managed by ModuleB9PartSwitch");
-                }
-
-                if (!foundNode) LogError($"No attach nodes matching {nodeName} found");
-            }
-        }
-
-        private void FindTextureReplacements()
-        {
-            if (parent == null)
-                throw new InvalidOperationException("Parent has not been set");
-
-            // Ensure that textures are reset before doing this
-            foreach(TextureReplacement tr in textureReplacements)
-            {
-                tr.Deactivate();
-            }
-
-            textureReplacements.Clear();
-
-            foreach (TextureSwitchInfo info in textureSwitches)
-            {
-                try
-                {
-                    textureReplacements.AddRange(info.CreateTextureReplacements(Part));
-                }
-                catch(Exception e)
-                {
-                    LogError("Exception while initializing a texture replacment:");
-                    Debug.LogException(e);
-                }
-            }
-        }
-
-        private void FindAttachNodeMovers()
-        {
-            foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
-            {
-                try
-                {
-                    AttachNodeMover mover = info.CreateAttachNodeModifier(Part, parent);
-                    if (mover != null) attachNodeMovers.Add(mover);
-                }
-                catch (Exception e)
-                {
-                    LogError("Exception while initializing a node mover:");
-                    Debug.LogException(e);
-                }
-            }
-        }
-
-        private void UpdatePartParams()
-        {
-            foreach (ISubtypePartField field in SubtypePartFields.All.Where(field => parent.PartFieldManaged(field)))
-            {
-                field.AssignValueOnSubtype(Context);
-            }
-        }
-
-        private void ActivateObjects() => transforms.ForEach(t => Part.UpdateTransformEnabled(t));
-        private void ActivateNodes() => nodes.ForEach(n => Part.UpdateNodeEnabled(n));
-        private void ActivateTextures() => textureReplacements.ForEach(t => t.Activate());
-        private void DeactivateObjects() => transforms.ForEach(t => t.Disable());
-        private void DeactivateNodes() => nodes.ForEach(n => n.Hide());
-        private void DeactivateTextures() => textureReplacements.ForEach(t => t.Deactivate());
-
-        private void AddResources(bool fillTanks)
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                float amount = TotalVolume * resource.unitsPerVolume * parent.VolumeScale;
-                float filledProportion;
-                if (HighLogic.LoadedSceneIsFlight && fillTanks)
-                    filledProportion = 0;
-                else
-                    filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
-                PartResource partResource = Part.AddOrCreateResource(resource.resourceDefinition, amount, amount * filledProportion, fillTanks);
-
-                bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-
-                if (tweakable.HasValue)
-                    partResource.isTweakable = tweakable.Value;
-            }
-        }
-
-        private void RemoveResources()
-        {
-            foreach (TankResource resource in tankType.resources)
-            {
-                Part.RemoveResource(resource.ResourceName);
             }
         }
 
