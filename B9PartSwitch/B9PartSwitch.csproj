@@ -116,10 +116,13 @@
     <Compile Include="PartSwitch\PartModifiers\PartSkinMaxTempModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartStackSymmetryModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ResourceModifier.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TransformMover.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TransformRotator.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformToggler.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
     <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
+    <Compile Include="PartSwitch\TransformModifierInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />

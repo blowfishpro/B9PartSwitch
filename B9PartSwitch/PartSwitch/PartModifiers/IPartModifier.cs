@@ -24,6 +24,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         void OnWillBeCopiedInactiveSubtype();
         void OnWasCopiedActiveSubtype();
         void OnWasCopiedInactiveSubtype();
-        void OnBeforeReinitialize();
+        void OnBeforeReinitializeInactiveSubtype();
+        void OnBeforeReinitializeActiveSubtype();
     }
 }
