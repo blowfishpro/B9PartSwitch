@@ -31,6 +31,9 @@ namespace B9PartSwitch
         [NodeData(name = "NODE")]
         public List<AttachNodeModifierInfo> attachNodeModifierInfos = new List<AttachNodeModifierInfo>();
 
+        [NodeData(name = "TRANSFORM")]
+        public List<TransformModifierInfo> transformModifierInfos = new List<TransformModifierInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -344,6 +347,14 @@ namespace B9PartSwitch
 
                 if (!foundTransform)
                     OnInitializationError($"No transforms named '{transformName}' found");
+            }
+
+            foreach (TransformModifierInfo transformModifierInfo in transformModifierInfos)
+            {
+                foreach (IPartModifier partModifier in transformModifierInfo.CreatePartModifiers(part, OnInitializationError))
+                {
+                    MaybeAddModifier(partModifier);
+                }
             }
         }
 
