@@ -38,7 +38,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnIconCreateActiveSubtype() => Activate();
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
-        public override void OnBeforeReinitialize() => Deactivate();
+        public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
         private void Activate() => material.SetTexture(shaderProperty, newTexture);
         private void Deactivate() => material.SetTexture(shaderProperty, oldTexture);

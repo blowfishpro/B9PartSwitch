@@ -113,9 +113,9 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => volumeProvider.Volume;
-        public float TotalMass => volumeProvider.Volume * tankType.tankMass + addedMass * parent.VolumeScale;
-        public float TotalCost => volumeProvider.Volume * tankType.TotalUnitCost + addedCost * parent.VolumeScale;
+        public float TotalVolume => volumeProvider?.Volume ?? 0f;
+        public float TotalMass => TotalVolume * tankType.tankMass + addedMass * (parent?.VolumeScale ?? 1f);
+        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost * (parent?.VolumeScale ?? 1f);
 
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
@@ -183,6 +183,22 @@ namespace B9PartSwitch
             }
         }
 
+        public void OnBeforeReinitializeInactiveSubtype()
+        {
+            foreach(IPartModifier modifier in partModifiers)
+            {
+                modifier.OnBeforeReinitializeInactiveSubtype();
+            }
+        }
+
+        public void OnBeforeReinitializeActiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnBeforeReinitializeActiveSubtype();
+            }
+        }
+
         public void Setup(ModuleB9PartSwitch parent)
         {
             if (parent == null)
@@ -196,8 +212,6 @@ namespace B9PartSwitch
 
             Part part = parent.part;
             Part partPrefab = part.GetPrefab() ?? part;
-
-            partModifiers.ForEach(modifier => modifier.OnBeforeReinitialize());
             partModifiers.Clear();
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;

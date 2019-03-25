@@ -151,15 +151,6 @@ namespace B9PartSwitch
             InitializeSubtypes();
         }
 
-        protected override void OnLoadInstance(ConfigNode node)
-        {
-            base.OnLoadInstance(node);
-
-            InitializeSubtypes();
-            FindBestSubtype(node);
-            UpdateOnLoad();
-        }
-
         public override void OnIconCreate()
         {
             base.OnIconCreate();
@@ -355,6 +346,15 @@ namespace B9PartSwitch
 
         private void InitializeSubtypes()
         {
+            if (subtypes.Count == 0) return;
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnBeforeReinitializeInactiveSubtype();
+            }
+
+            CurrentSubtype.OnBeforeReinitializeActiveSubtype();
+
             foreach (PartSubtype subtype in subtypes)
             {
                 subtype.Setup(this);

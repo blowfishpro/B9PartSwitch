@@ -22,7 +22,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnWillBeCopiedInactiveSubtype() => Activate();
         public override void OnWasCopiedInactiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => MaybeActivate();
-        public override void OnBeforeReinitialize() => Activate();
+        public override void OnBeforeReinitializeInactiveSubtype() => Activate();
 
         private void MaybeActivate() => node.owner.UpdateNodeEnabled(node);
         private void Activate() => node.Unhide();
