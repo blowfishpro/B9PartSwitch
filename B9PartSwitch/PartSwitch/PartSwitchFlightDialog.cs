@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using KSP.Localization;
 
 namespace B9PartSwitch
 {
@@ -29,7 +28,7 @@ namespace B9PartSwitch
             PopupDialog.SpawnPopupDialog(
                 new MultiOptionDialog(
                     "B9PartSwitch_SwitchInFlightWarning",
-                    Localizer.Format(Localization.PartSwitchFlightDialog_ResourcesWillBeDumpedWarning, module.part.partInfo.title, module.switcherDescription), // <<1>> has resources that will be dumped by switching the <<2>>
+                    Localization.PartSwitchFlightDialog_ResourcesWillBeDumpedWarning(module.part.partInfo.title, module.switcherDescription), // <<1>> has resources that will be dumped by switching the <<2>>
                     Localization.PartSwitchFlightDialog_ConfirmResourceRemovalDialogTitle, // Confirm Resource Removal
                     HighLogic.UISkin,
                     new DialogGUIButton(Localization.PartSwitchFlightDialog_AcceptString, () => onConfirm()),
@@ -45,7 +44,7 @@ namespace B9PartSwitch
             PopupDialog.SpawnPopupDialog(
                 new MultiOptionDialog(
                     "B9PartSwitch_SwitchInFlight",
-                    Localizer.Format(Localization.PartSwitchFlightDialog_SelectNewSubtypeDialogTitle, module.switcherDescription), // Select <<1>>
+                    Localization.PartSwitchFlightDialog_SelectNewSubtypeDialogTitle(module.switcherDescription), // Select <<1>>
                     module.part.partInfo.title,
                     HighLogic.UISkin,
                     CreateOptions(module)
@@ -63,7 +62,7 @@ namespace B9PartSwitch
             {
                 if (subtype == module.CurrentSubtype)
                 {
-                    options.Add(new DialogGUILabel(Localizer.Format(Localization.PartSwitchFlightDialog_CurrentSubtypeLabel, subtype.title), HighLogic.UISkin.button)); // <<1>> (Current)
+                    options.Add(new DialogGUILabel(Localization.PartSwitchFlightDialog_CurrentSubtypeLabel(subtype.title), HighLogic.UISkin.button)); // <<1>> (Current)
                 }
                 else if (HighLogic.LoadedSceneIsEditor || subtype.allowSwitchInFlight)
                 {
