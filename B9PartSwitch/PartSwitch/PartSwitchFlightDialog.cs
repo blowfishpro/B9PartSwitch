@@ -8,6 +8,7 @@ namespace B9PartSwitch
     {
         public static void Spawn(ModuleB9PartSwitch module)
         {
+            if (!module.subtypes.Any(subtype => subtype != module.CurrentSubtype && subtype.allowSwitchInFlight)) return;
             MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
         }
 

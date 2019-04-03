@@ -50,6 +50,12 @@ namespace B9PartSwitch
         [NodeData]
         public bool advancedTweakablesOnly = false;
 
+        [NodeData]
+        public bool showNextSubtypeAction = false;
+
+        [NodeData]
+        public bool showPreviousSubtypeAction = false;
+
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
@@ -76,6 +82,65 @@ namespace B9PartSwitch
 
         [KSPEvent(guiActiveEditor = true)]
         public void ShowSubtypesWindow() => PartSwitchFlightDialog.Spawn(this);
+
+        #endregion
+
+        #region Actions
+
+        [KSPAction]
+        public void ShowSubtypesWindowAction(KSPActionParam param) => PartSwitchFlightDialog.Spawn(this);
+
+        [KSPAction]
+        public void NextSubtypeAction(KSPActionParam param)
+        {
+            if (!switchInFlight) return;
+
+            PartSubtype FindNextSubtype()
+            {
+                for (int i = currentSubtypeIndex + 1; i < subtypes.Count; i++)
+                {
+                    if (subtypes[i].allowSwitchInFlight) return subtypes[i];
+                }
+                for (int i = 0; i < currentSubtypeIndex; i++)
+                {
+                    if (subtypes[i].allowSwitchInFlight) return subtypes[i];
+                }
+
+                return null;
+            }
+
+            PartSubtype nextSubtype = FindNextSubtype();
+
+            if (nextSubtype.IsNull()) return;
+
+            PartSwitchFlightDialog.MaybeCreateResourceRemovalWarning(this, () => SwitchSubtype(nextSubtype.Name));
+        }
+
+        [KSPAction]
+        public void PreviousSubtypeAction(KSPActionParam param)
+        {
+            if (!switchInFlight) return;
+
+            PartSubtype FindPreviousSubtype()
+            {
+                for (int i = currentSubtypeIndex - 1; i >= 0; i--)
+                {
+                    if (subtypes[i].allowSwitchInFlight) return subtypes[i];
+                }
+                for (int i = SubtypesCount - 1; i > currentSubtypeIndex; i--)
+                {
+                    if (subtypes[i].allowSwitchInFlight) return subtypes[i];
+                }
+
+                return null;
+            }
+
+            PartSubtype nextSubtype = FindPreviousSubtype();
+
+            if (nextSubtype.IsNull()) return;
+
+            PartSwitchFlightDialog.MaybeCreateResourceRemovalWarning(this, () => SwitchSubtype(nextSubtype.Name));
+        }
 
         #endregion
 
@@ -430,6 +495,20 @@ namespace B9PartSwitch
             subtypeTitleField.guiName = switcherDescription;
             subtypeTitleField.advancedTweakable = advancedTweakablesOnly;
             subtypeTitleField.guiActiveEditor = subtypes.Count == 1;
+            
+            bool switchInFlightEnabled = switchInFlight && subtypes.Any(s => s.allowSwitchInFlight);
+
+            BaseAction showSubtypesWindowAction = Actions[nameof(ShowSubtypesWindowAction)];
+            showSubtypesWindowAction.guiName = Localization.ModuleB9PartSwitch_SelectSubtype(switcherDescription); // Select <<1>>
+            showSubtypesWindowAction.active = switchInFlightEnabled;
+
+            BaseAction nextSubtypeAction = Actions[nameof(NextSubtypeAction)];
+            nextSubtypeAction.guiName = Localization.ModuleB9PartSwitch_NextSubtype(switcherDescription); // Next <<1>>
+            nextSubtypeAction.active = showNextSubtypeAction && switchInFlightEnabled;
+
+            BaseAction previousSubtypeAction = Actions[nameof(PreviousSubtypeAction)];
+            previousSubtypeAction.guiName = Localization.ModuleB9PartSwitch_PreviousSubtype(switcherDescription); // Previous <<1>>
+            previousSubtypeAction.active = showPreviousSubtypeAction && switchInFlightEnabled;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
