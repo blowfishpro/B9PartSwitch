@@ -487,7 +487,7 @@ namespace B9PartSwitch
             chooseOption.onFieldChanged = OnSliderUpdate;
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
-            switchSubtypeEvent.guiName = $"Switch {switcherDescription}";
+            switchSubtypeEvent.guiName = Localization.ModuleB9PartSwitch_SelectSubtype(switcherDescription); // Select <<1>>
             switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
             switchSubtypeEvent.guiActiveEditor = subtypes.Count > 1;
 
