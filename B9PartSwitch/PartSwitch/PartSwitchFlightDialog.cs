@@ -9,19 +9,22 @@ namespace B9PartSwitch
     {
         public static void Spawn(ModuleB9PartSwitch module)
         {
-            bool showWarning = HighLogic.LoadedSceneIsFlight && module.CurrentTankType.ResourceNames.Any(name => module.part.Resources[name].amount > 0);
+            MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
+        }
 
-            if (showWarning)
+        public static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
+        {
+            if (HighLogic.LoadedSceneIsFlight && module.CurrentTankType.ResourceNames.Any(name => module.part.Resources[name].amount > 0))
             {
-                CreateWarning(module);
+                CreateWarning(module, onConfirm);
             }
             else
             {
-                CreateDialogue(module);
+                onConfirm();
             }
         }
 
-        private static void CreateWarning(ModuleB9PartSwitch module)
+        private static void CreateWarning(ModuleB9PartSwitch module, Action onConfirm)
         {
             PopupDialog.SpawnPopupDialog(
                 new MultiOptionDialog(
@@ -29,8 +32,8 @@ namespace B9PartSwitch
                     Localizer.Format(Localization.PartSwitchFlightDialog_ResourcesWillBeDumpedWarning, module.part.partInfo.title, module.switcherDescription), // <<1>> has resources that will be dumped by switching the <<2>>
                     Localization.PartSwitchFlightDialog_ConfirmResourceRemovalDialogTitle, // Confirm Resource Removal
                     HighLogic.UISkin,
-                    new DialogGUIButton(Localization.PartSwitchFlightDialog_AcceptString, () => CreateDialogue(module)),
-                    new DialogGUIButton(Localization.PartSwitchFlightDialog_CancelString, delegate { } )
+                    new DialogGUIButton(Localization.PartSwitchFlightDialog_AcceptString, () => onConfirm()),
+                    new DialogGUIButton(Localization.PartSwitchFlightDialog_CancelString, delegate { })
                 ),
                 false,
                 HighLogic.UISkin
