@@ -34,7 +34,6 @@ namespace B9PartSwitch
 
         static Localization()
         {
-            GameEvents.onLanguageSwitched.debugEvent = true;
             GameEvents.onLanguageSwitched.Add(() => RefreshLocalization());
             RefreshLocalization();
         }
