@@ -53,6 +53,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnStartEditor() => UpsertResource(false, false);
         public override void ActivateOnStartFlight() => UpsertResource(false, false);
         public override void DeactivateOnSwitchEditor() => RemoveResource();
+        public override void DeactivateOnSwitchFlight() => RemoveResource();
         public override void ActivateOnSwitchEditor() => UpsertResource(true, false);
         public override void ActivateOnSwitchFlight() => UpsertResource(true, true);
         public override void UpdateVolumeEditor() => UpsertResource(true, false);
