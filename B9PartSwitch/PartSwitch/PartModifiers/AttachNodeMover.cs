@@ -51,7 +51,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         private void UnsetAttachNodePositionAndMoveParts()
         {
-            Vector3 offset = attachNode.position - (position * linearScaleProvider.LinearScale);
+            Vector3 offset = (attachNode.originalPosition * linearScaleProvider.LinearScale) - attachNode.position;
             UnsetAttachNodePosition();
 
             if (!HighLogic.LoadedSceneIsEditor) return;
