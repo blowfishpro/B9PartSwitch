@@ -38,15 +38,23 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public IEnumerable<TextureReplacement> CreateTextureReplacements(Part part)
+        public IEnumerable<TextureReplacement> CreateTextureReplacements(Part part, Action<string> onError)
         {
             part.ThrowIfNullArgument(nameof(part));
 
-            if (string.IsNullOrEmpty(newTexturePath)) throw new InvalidOperationException("texture name is empty");
+            if (string.IsNullOrEmpty(newTexturePath))
+            {
+                onError("texture name is empty");
+                yield break;
+            }
 
             Texture newTexture = GameDatabase.Instance.GetTexture(newTexturePath, isNormalMap);
 
-            if (newTexture == null) throw new InvalidOperationException($"Texture {currentTextureName} not found!");
+            if (newTexture == null)
+            {
+                onError($"Texture {currentTextureName} not found!");
+                yield break;
+            }
 
             string shaderProperty = shaderPropName;
             if (string.IsNullOrEmpty(shaderProperty))
@@ -62,8 +70,8 @@ namespace B9PartSwitch
             }
             else
             {
-                renderers = GetBaseTransformRenderers(part);
-                renderers = renderers.Concat(GetTransformRenderers(part));
+                renderers = GetBaseTransformRenderers(part, onError);
+                renderers = renderers.Concat(GetTransformRenderers(part, onError));
 
                 renderers = renderers.Distinct();
             }
@@ -86,7 +94,7 @@ namespace B9PartSwitch
             }
         }
 
-        private IEnumerable<Renderer> GetBaseTransformRenderers(Part part)
+        private IEnumerable<Renderer> GetBaseTransformRenderers(Part part, Action<string> onError)
         {
             IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
             if (baseTransformNames == null) return result;
@@ -103,20 +111,20 @@ namespace B9PartSwitch
 
                     if (transformRenderers.Length == 0)
                     {
-                        Debug.LogError($"No renderers found on transform {baseTransformName}");
+                        onError($"No renderers found on transform '{baseTransformName}'");
                         continue;
                     }
 
                     result = result.Concat(transformRenderers);
                 }
 
-                if (!foundTransform) Debug.LogError($"No transforms named {baseTransformName} found");
+                if (!foundTransform) onError($"No transforms named '{baseTransformName}' found");
             }
 
             return result;
         }
 
-        private IEnumerable<Renderer> GetTransformRenderers(Part part)
+        private IEnumerable<Renderer> GetTransformRenderers(Part part, Action<string> onError)
         {
             IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
             if (transformNames == null) return result;
@@ -132,14 +140,14 @@ namespace B9PartSwitch
 
                     if (transformRenderers.Length == 0)
                     {
-                        Debug.LogError($"No renderers found on transform {transformName}");
+                        onError($"No renderers found on transform '{transformName}'");
                         continue;
                     }
 
                     result = result.Concat(transformRenderers);
                 }
 
-                if (!foundTransform) Debug.LogError($"No transforms named {transformName} found");
+                if (!foundTransform) onError($"No transforms named '{transformName}' found");
             }
 
             return result;

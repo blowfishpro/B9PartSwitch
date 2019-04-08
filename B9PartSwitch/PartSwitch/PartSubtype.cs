@@ -283,12 +283,12 @@ namespace B9PartSwitch
 
             foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
             {
-                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent));
+                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent, OnInitializationError));
             }
 
             foreach (TextureSwitchInfo info in textureSwitches)
             {
-                foreach(TextureReplacement replacement in info.CreateTextureReplacements(part))
+                foreach(TextureReplacement replacement in info.CreateTextureReplacements(part, OnInitializationError))
                 {
                     MaybeAddModifier(replacement);
                 }

@@ -25,14 +25,14 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public AttachNodeMover CreateAttachNodeModifier(Part part, ILinearScaleProvider linearScaleProvider)
+        public AttachNodeMover CreateAttachNodeModifier(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
         {
             if (position == null) return null;
             AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && n.id == nodeID);
 
             if (node == null)
             {
-                part.LogError($"Attach node with id '{nodeID}' not found for attach node modifier");
+                onError($"Attach node with id '{nodeID}' not found for attach node modifier");
                 return null;
             }
 
