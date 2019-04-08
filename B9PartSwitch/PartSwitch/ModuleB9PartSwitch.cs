@@ -42,6 +42,9 @@ namespace B9PartSwitch
         public bool affectFARVoxels = true;
 
         [NodeData]
+        public bool updateSymmetry = true;
+
+        [NodeData]
         public string parentID = null;
 
         [NodeData]
@@ -587,9 +590,11 @@ namespace B9PartSwitch
 
             if (HighLogic.LoadedSceneIsEditor)
             {
-                foreach (var counterpart in this.FindSymmetryCounterparts())
-                    counterpart.UpdateFromSymmetry(currentSubtypeIndex);
-
+                if (updateSymmetry)
+                {
+                    foreach (var counterpart in this.FindSymmetryCounterparts())
+                        counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+                }
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
                 GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
             }
