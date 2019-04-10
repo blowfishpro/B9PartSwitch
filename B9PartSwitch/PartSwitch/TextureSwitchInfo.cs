@@ -52,7 +52,7 @@ namespace B9PartSwitch
 
             if (newTexture == null)
             {
-                onError($"Texture {currentTextureName} not found!");
+                onError($"Texture '{newTexturePath}' not found!");
                 yield break;
             }
 
