@@ -92,6 +92,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool allowSwitchInFlight = true;
 
+        [NodeData]
+        public string mirrorSymmetrySubtype;
+
         #endregion
 
         #region Private Fields
@@ -171,6 +174,9 @@ namespace B9PartSwitch
 
             if (tankType == null)
                 tankType = B9TankSettings.StructuralTankType;
+
+            if (mirrorSymmetrySubtype == null)
+                mirrorSymmetrySubtype = Name;
 
             if (context.Operation == Operation.LoadPrefab)
             {
@@ -355,6 +361,12 @@ namespace B9PartSwitch
                 {
                     MaybeAddModifier(partModifier);
                 }
+            }
+
+            if (!parent.subtypes.Any(subtype => subtype.Name == mirrorSymmetrySubtype))
+            {
+                OnInitializationError($"Cannot find subtype '{mirrorSymmetrySubtype}' for mirror symmetry subtype");
+                mirrorSymmetrySubtype = Name;
             }
         }
 
