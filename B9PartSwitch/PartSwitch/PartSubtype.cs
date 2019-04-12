@@ -294,7 +294,7 @@ namespace B9PartSwitch
                 }
             }
 
-            nodes = new List<AttachNode>();
+            nodes.Clear();
             foreach (string nodeName in nodeNames)
             {
                 string pattern = '^' + Regex.Escape(nodeName).Replace(@"\*", ".*").Replace(@"\?", ".") + '$';
