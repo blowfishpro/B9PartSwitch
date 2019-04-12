@@ -17,8 +17,6 @@ namespace B9PartSwitch
         public static string ModuleB9PartSwitch_DefaultSwitcherDescription { get; private set; }
         public static string ModuleB9PartSwitch_DefaultSwitcherDescriptionPlural { get; private set; }
         private static string moduleB9PartSwitch_SelectSubtype;
-        private static string moduleB9PartSwitch_NextSubtype;
-        private static string moduleB9PartSwitch_PreviousSubtype;
 
         public static string PartSwitchFlightDialog_ResourcesWillBeDumpedWarning(string partName, string switcherDescription)
         {
@@ -38,16 +36,6 @@ namespace B9PartSwitch
         public static string ModuleB9PartSwitch_SelectSubtype(string switcherDescription)
         {
             return Localizer.Format(moduleB9PartSwitch_SelectSubtype, switcherDescription);
-        }
-
-        public static string ModuleB9PartSwitch_NextSubtype(string switcherDescription)
-        {
-            return Localizer.Format(moduleB9PartSwitch_NextSubtype, switcherDescription);
-        }
-
-        public static string ModuleB9PartSwitch_PreviousSubtype(string switcherDescription)
-        {
-            return Localizer.Format(moduleB9PartSwitch_PreviousSubtype, switcherDescription);
         }
 
         static Localization()
@@ -70,8 +58,6 @@ namespace B9PartSwitch
             ModuleB9PartSwitch_DefaultSwitcherDescription = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description");
             ModuleB9PartSwitch_DefaultSwitcherDescriptionPlural = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_default_switcher_description_plural");
             moduleB9PartSwitch_SelectSubtype = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_select_subtype");
-            moduleB9PartSwitch_NextSubtype = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_next_subtype");
-            moduleB9PartSwitch_PreviousSubtype = Localizer.GetStringByTag("#LOC_B9PartSwitch_ModuleB9PartSwitch_previous_subtype");
         }
     }
 }
