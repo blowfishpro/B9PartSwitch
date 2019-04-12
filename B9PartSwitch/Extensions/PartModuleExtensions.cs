@@ -15,8 +15,7 @@
         {
             string info = module.GetType().Name;
 
-            CustomPartModule utilModule = module as CustomPartModule;
-            if (utilModule.IsNotNull() && !utilModule.moduleID.IsNullOrEmpty())
+            if (module is CustomPartModule utilModule && !utilModule.moduleID.IsNullOrEmpty())
                 info += $" '{utilModule.moduleID}'";
 
             return $"[{info}]";
