@@ -202,7 +202,7 @@ namespace B9PartSwitch
             }
         }
 
-        public void Setup(ModuleB9PartSwitch parent)
+        public void Setup(ModuleB9PartSwitch parent, bool displayWarnings = true)
         {
             if (parent == null)
                 throw new ArgumentNullException("parent cannot be null");
@@ -222,7 +222,7 @@ namespace B9PartSwitch
             void OnInitializationError(string message)
             {
                 LogError(message);
-                SeriousWarningHandler.DisplaySeriousWarning(message);
+                if (displayWarnings) SeriousWarningHandler.DisplaySeriousWarning(message);
             }
 
             void MaybeAddModifier(IPartModifier modifier)

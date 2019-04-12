@@ -220,7 +220,7 @@ namespace B9PartSwitch
         {
             base.OnIconCreate();
 
-            InitializeSubtypes();
+            InitializeSubtypes(displayWarnings: false);
             SetupForIcon();
         }
 
@@ -409,7 +409,7 @@ namespace B9PartSwitch
             parent.AddChild(this);
         }
 
-        private void InitializeSubtypes()
+        private void InitializeSubtypes(bool displayWarnings = true)
         {
             if (subtypes.Count == 0) return;
 
@@ -422,7 +422,7 @@ namespace B9PartSwitch
 
             foreach (PartSubtype subtype in subtypes)
             {
-                subtype.Setup(this);
+                subtype.Setup(this, displayWarnings: displayWarnings);
             }
         }
 
