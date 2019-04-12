@@ -151,7 +151,7 @@ namespace B9PartSwitch
             if (!moduleID.IsNullOrEmpty())
                 log += " (moduleID='" + moduleID + "')";
             if (part != null)
-                log += " on part " + part.name;
+                log += " on part " + part.partInfo?.name ?? part.name;
             return log;
         }
         #endregion
