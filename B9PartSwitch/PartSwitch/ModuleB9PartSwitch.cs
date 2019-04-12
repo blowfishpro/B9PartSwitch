@@ -382,6 +382,9 @@ namespace B9PartSwitch
             }
 
             CurrentSubtype.OnWasCopiedActiveSubtype();
+
+            if (asSymCounterpart && part.symMethod == SymmetryMethod.Mirror && CurrentSubtype.mirrorSymmetrySubtype != CurrentSubtypeName)
+                ((ModuleB9PartSwitch)copyPartModule).UpdateFromSymmetry(CurrentSubtype.mirrorSymmetrySubtype);
         }
 
         public bool HasPartAspectLock(object partAspectLock) => PartAspectLocks.Contains(partAspectLock);
@@ -586,8 +589,15 @@ namespace B9PartSwitch
 
             if (HighLogic.LoadedSceneIsEditor)
             {
+                string symmetrySubtypeName;
+
+                if (part.symMethod == SymmetryMethod.Mirror)
+                    symmetrySubtypeName = CurrentSubtype.mirrorSymmetrySubtype;
+                else
+                    symmetrySubtypeName = CurrentSubtypeName;
+
                 foreach (var counterpart in this.FindSymmetryCounterparts())
-                    counterpart.UpdateFromSymmetry(currentSubtypeIndex);
+                    counterpart.UpdateFromSymmetry(symmetrySubtypeName);
 
                 GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
                 GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
@@ -602,11 +612,11 @@ namespace B9PartSwitch
             UpdatePartActionWindow();
         }
 
-        private void UpdateFromSymmetry(int newIndex)
+        private void UpdateFromSymmetry(string newSubtypeName)
         {
             CurrentSubtype.DeactivateOnSwitch();
 
-            currentSubtypeIndex = newIndex;
+            CurrentSubtypeName = newSubtypeName;
 
             UpdateSubtype();
         }
