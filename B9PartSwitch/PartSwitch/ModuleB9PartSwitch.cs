@@ -212,8 +212,6 @@ namespace B9PartSwitch
                 SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesString}");
                 LogError($"Duplicate subtype names detected: {duplicatedNamesString}");
             }
-
-            InitializeSubtypes();
         }
 
         public override void OnIconCreate()
@@ -269,6 +267,7 @@ namespace B9PartSwitch
 
         public override string GetInfo()
         {
+            InitializeSubtypes();
             string outStr = $"<b><color=#7fdfffff>{SubtypesCount} {switcherDescriptionPlural}</color></b>";
             foreach (var subtype in subtypes)
             {
