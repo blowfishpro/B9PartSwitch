@@ -29,6 +29,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+### v2.7.1
+
+* Fix part into button being shown when there's no info to display
+* Provide more context for subtype initialization errors in the warning dialog
+
 ### v2.7.0
 
 * Compile for KSP 1.7.0
