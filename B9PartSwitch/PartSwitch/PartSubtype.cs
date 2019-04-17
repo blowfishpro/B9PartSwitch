@@ -225,10 +225,18 @@ namespace B9PartSwitch
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
+            string errorString = null;
+
             void OnInitializationError(string message)
             {
                 LogError(message);
-                if (displayWarnings) SeriousWarningHandler.DisplaySeriousWarning(message);
+
+                if (displayWarnings)
+                {
+                    if (errorString == null) errorString = $"Initialization errors on {parent} subtype '{Name}'";
+
+                    errorString += "\n  " + message;
+                }
             }
 
             void MaybeAddModifier(IPartModifier modifier)
@@ -368,6 +376,9 @@ namespace B9PartSwitch
                 OnInitializationError($"Cannot find subtype '{mirrorSymmetrySubtype}' for mirror symmetry subtype");
                 mirrorSymmetrySubtype = Name;
             }
+
+            if (errorString.IsNotNull())
+                SeriousWarningHandler.DisplaySeriousWarning(errorString);
         }
 
         #endregion
