@@ -40,7 +40,11 @@ namespace B9PartSwitch
         private void Start()
         {
             if (HighLogic.LoadedSceneIsFlight || !part.Modules.OfType<ModuleB9PartSwitch>().Any(m => DisplayInfoOnSwitcher(m)))
+            {
+                enabled = false;
+                isEnabled = false;
                 return;
+            }
 
             SetupGUI();
             UpdateFields();
