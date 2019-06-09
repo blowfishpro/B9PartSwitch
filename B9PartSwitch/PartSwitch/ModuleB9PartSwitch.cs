@@ -599,9 +599,12 @@ namespace B9PartSwitch
 
         private void UpdatePartActionWindow()
         {
-            var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
-            if (window.IsNotNull())
+            foreach (UIPartActionWindow window in FindObjectsOfType<UIPartActionWindow>())
+            {
+                if (window.part != part) continue;
+                window.ClearList();
                 window.displayDirty = true;
+            }
         }
 
         private bool IsLastModuleAffectingDragCubes()
