@@ -29,9 +29,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
-# vNEXT
+# v2.8.0
 
 * Recompile against KSP 1.7.1
+* Fix part action window showing removed resources in KSP 1.7.1
+* Add Russian localization
 
 ### v2.7.1
 
