@@ -8,7 +8,15 @@ namespace B9PartSwitch
     {
         public static void Spawn(ModuleB9PartSwitch module)
         {
-            MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
+            try
+            {
+                MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogException(ex);
+                FatalErrorHandler.HandleFatalError(ex);
+            }
         }
 
         private static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
