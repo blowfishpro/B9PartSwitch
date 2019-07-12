@@ -76,8 +76,8 @@ namespace B9PartSwitch
         public float ResourceUnitCost => resources.Sum(r => r.unitsPerVolume * r.resourceDefinition.unitCost);
         public float TotalUnitCost => ResourceUnitCost + tankCost;
 
-        public bool ChangesMass => (tankMass != 0f) || (resources.Any(r => r.resourceDefinition.density != 0f));
-        public bool ChangesCost => (tankCost != 0f) || (resources.Any(r => r.resourceDefinition.unitCost != 0f));
+        public bool ChangesMass => (tankMass != 0f) || resources.Any(r => r.resourceDefinition.density != 0);
+        public bool ChangesCost => (tankCost != 0f) || resources.Any(r => r.resourceDefinition.unitCost != 0);
 
         #endregion
 
