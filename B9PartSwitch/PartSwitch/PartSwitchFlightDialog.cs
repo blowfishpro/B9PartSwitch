@@ -11,7 +11,7 @@ namespace B9PartSwitch
             MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
         }
 
-        public static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
+        private static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
         {
             if (HighLogic.LoadedSceneIsFlight && module.CurrentTankType.ResourceNames.Any(name => module.part.Resources[name].amount > 0))
             {
