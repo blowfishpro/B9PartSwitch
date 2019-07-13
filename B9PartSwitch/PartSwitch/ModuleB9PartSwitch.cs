@@ -192,11 +192,11 @@ namespace B9PartSwitch
 
         #region Interface Methods
 
-        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => CurrentSubtype.TotalMass;
+        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => GetDryMass(CurrentSubtype);
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
 
-        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) => CurrentSubtype.TotalCost;
+        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) =>  GetWetCost(CurrentSubtype);
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
 
@@ -208,7 +208,7 @@ namespace B9PartSwitch
             {
                 outStr += $"\n<b>- {subtype.title}</b>";
                 foreach (var resource in subtype.tankType)
-                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
+                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * GetTotalVolume(subtype) :F1}";
             }
             return outStr;
         }
@@ -323,6 +323,24 @@ namespace B9PartSwitch
         }
 
         public bool HasPartAspectLock(object partAspectLock) => PartAspectLocks.Contains(partAspectLock);
+
+        public float GetTotalVolume(PartSubtype subtype) => (baseVolume * subtype.volumeMultiplier + subtype.volumeAdded + VolumeFromChildren) * VolumeScale;
+
+        public float GetDryMass(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.tankMass + subtype.addedMass * VolumeScale;
+
+        public float GetWetMass(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.TotalUnitMass + subtype.addedMass * VolumeScale;
+
+        public float GetDryCost(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.tankCost + subtype.addedCost * VolumeScale;
+
+        public float GetWetCost(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.TotalUnitCost + subtype.addedCost * VolumeScale;
+
+        public float GetParentDryMass(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.tankMass * VolumeScale;
+
+        public float GetParentWetMass(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.TotalUnitMass * VolumeScale;
+
+        public float GetParentDryCost(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.tankCost * VolumeScale;
+
+        public float GetParentWetCost(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.TotalUnitCost * VolumeScale;
 
         #endregion
 
