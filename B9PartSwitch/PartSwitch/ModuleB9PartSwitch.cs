@@ -82,7 +82,7 @@ namespace B9PartSwitch
         #region Private Fields
 
         // Tweakscale integration (set via reflection, readonly is ok)
-        [SuppressMessage("Style", "IDE0044:Add readonly modifier")]
+        [SuppressMessage("Style", "IDE0032", Justification = "Set by Tweakscale")]
         private readonly float scale = 1f;
 
         private ModuleB9PartSwitch parent;
