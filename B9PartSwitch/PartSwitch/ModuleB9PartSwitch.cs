@@ -64,7 +64,7 @@ namespace B9PartSwitch
 
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
         [KSPField(guiActiveEditor = true, guiName = "Subtype")]
-        [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
+        [UI.UI_SubtypeSelector(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int currentSubtypeIndex = -1;
 
         [KSPField]
@@ -85,7 +85,6 @@ namespace B9PartSwitch
         [SuppressMessage("Style", "IDE0032", Justification = "Set by Tweakscale")]
         private readonly float scale = 1f;
 
-        private ModuleB9PartSwitch parent;
         private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
         #endregion
@@ -114,7 +113,13 @@ namespace B9PartSwitch
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
+
+        public bool ChangesDryMass => subtypes.Any(s => s.ChangesDryMass);
+        public bool ChangesResourceMass => subtypes.Any(s => s.tankType.ChangesResourceMass);
         public bool ChangesMass => subtypes.Any(s => s.ChangesMass);
+
+        public bool ChangesDryCost => subtypes.Any(s => s.ChangesDryCost);
+        public bool ChangesResourceCost => subtypes.Any(s => s.tankType.ChangesResourceCost);
         public bool ChangesCost => subtypes.Any(s => s.ChangesCost);
 
         public float Scale => scale;
@@ -123,6 +128,8 @@ namespace B9PartSwitch
 
         public IEnumerable<object> PartAspectLocks => subtypes.SelectMany(subtype => subtype.PartAspectLocks);
         public IEnumerable<object> PartAspectLocksOnOtherModules => part.Modules.OfType<ModuleB9PartSwitch>().Where(module => module != this).SelectMany(module => module.PartAspectLocks);
+
+        public ModuleB9PartSwitch Parent { get; private set; }
 
         #endregion
 
@@ -208,7 +215,7 @@ namespace B9PartSwitch
             {
                 outStr += $"\n<b>- {subtype.title}</b>";
                 foreach (var resource in subtype.tankType)
-                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * GetTotalVolume(subtype) :F1}";
+                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * GetTotalVolume(subtype) :0.#}";
             }
             return outStr;
         }
@@ -334,13 +341,13 @@ namespace B9PartSwitch
 
         public float GetWetCost(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.TotalUnitCost + subtype.addedCost * VolumeScale;
 
-        public float GetParentDryMass(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.tankMass * VolumeScale;
+        public float GetParentDryMass(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.tankMass * VolumeScale;
 
-        public float GetParentWetMass(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.TotalUnitMass * VolumeScale;
+        public float GetParentWetMass(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.TotalUnitMass * VolumeScale;
 
-        public float GetParentDryCost(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.tankCost * VolumeScale;
+        public float GetParentDryCost(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.tankCost * VolumeScale;
 
-        public float GetParentWetCost(PartSubtype subtype) => parent.IsNull() ? 0 : subtype.volumeAddedToParent * parent.CurrentSubtype.tankType.TotalUnitCost * VolumeScale;
+        public float GetParentWetCost(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.TotalUnitCost * VolumeScale;
 
         #endregion
 
@@ -350,18 +357,18 @@ namespace B9PartSwitch
 
         private void FindParent()
         {
-            parent = null;
+            Parent = null;
             if (parentID.IsNullOrEmpty()) return;
 
-            parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
+            Parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
 
-            if (parent.IsNull())
+            if (Parent.IsNull())
             {
                 LogError($"Cannot find parent module with id '{parentID}'");
                 return;
             }
 
-            parent.AddChild(this);
+            Parent.AddChild(this);
         }
 
         private void InitializeSubtypes(bool displayWarnings = true)
@@ -437,9 +444,7 @@ namespace B9PartSwitch
             chooseField.advancedTweakable = advancedTweakablesOnly;
             chooseField.guiActiveEditor = subtypes.Count > 1;
 
-            UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
-            chooseOption.options = subtypes.Select(s => s.title).ToArray();
-            chooseOption.onFieldChanged = OnSliderUpdate;
+            chooseField.uiControlEditor.onFieldChanged = OnSliderUpdate;
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = Localization.ModuleB9PartSwitch_SelectSubtype(switcherDescription); // Select <<1>>
@@ -564,7 +569,7 @@ namespace B9PartSwitch
         {
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry(false);
-            parent?.UpdateVolume();
+            Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }

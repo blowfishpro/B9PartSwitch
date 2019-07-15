@@ -67,6 +67,8 @@ namespace B9PartSwitch
             return resource;
         }
 
+        public static float GetResourceMassMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.density);
+
         public static float GetResourceCostMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
 

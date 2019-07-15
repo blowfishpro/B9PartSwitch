@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UniLinq;
+using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 
@@ -43,6 +44,12 @@ namespace B9PartSwitch
         public string tankName;
 
         [NodeData]
+        public Color? primaryColor;
+
+        [NodeData]
+        public Color? secondaryColor;
+
+        [NodeData]
         public float tankMass = 0f;
 
         [NodeData]
@@ -78,8 +85,10 @@ namespace B9PartSwitch
         public float TotalUnitMass => ResourceUnitMass + tankMass;
         public float TotalUnitCost => ResourceUnitCost + tankCost;
 
-        public bool ChangesMass => (tankMass != 0f) || resources.Any(r => r.resourceDefinition.density != 0);
-        public bool ChangesCost => (tankCost != 0f) || resources.Any(r => r.resourceDefinition.unitCost != 0);
+        public bool ChangesResourceMass => resources.Any(r => r.resourceDefinition.density != 0);
+        public bool ChangesMass => (tankMass != 0f) || ChangesResourceMass;
+        public bool ChangesResourceCost => resources.Any(r => r.resourceDefinition.unitCost != 0);
+        public bool ChangesCost => (tankCost != 0f) || ChangesResourceCost;
 
         #endregion
 

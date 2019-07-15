@@ -122,6 +122,7 @@
     <Compile Include="TestUtils\TestConfigNode.cs" />
     <Compile Include="TestUtils\TestConfigNodeTest.cs" />
     <Compile Include="Utils\ColorParserTest.cs" />
+    <Compile Include="Utils\GroupedStringBuilderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

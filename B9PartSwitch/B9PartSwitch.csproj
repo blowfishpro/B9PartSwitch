@@ -140,7 +140,14 @@
     <Compile Include="TankSettings\TankTypeValueParser.cs" />
     <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
     <Compile Include="Test\PartModuleTest.cs" />
+    <Compile Include="UI\PrefabManager.cs" />
+    <Compile Include="UI\SwitcherSubtypeDescriptionGenerator.cs" />
+    <Compile Include="UI\TooltipHelper.cs" />
+    <Compile Include="UI\UIPartActionSubtypeButton.cs" />
+    <Compile Include="UI\UIPartActionSubtypeSelector.cs" />
+    <Compile Include="UI\UI_SubtypeSelector.cs" />
     <Compile Include="Utils\ColorParser.cs" />
+    <Compile Include="Utils\GroupedStringBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
