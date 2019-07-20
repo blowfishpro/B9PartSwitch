@@ -148,6 +148,7 @@
     <Compile Include="UI\UI_SubtypeSelector.cs" />
     <Compile Include="Utils\ColorParser.cs" />
     <Compile Include="Utils\GroupedStringBuilder.cs" />
+    <Compile Include="Utils\ResourceColors.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

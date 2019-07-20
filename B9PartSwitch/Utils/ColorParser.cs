@@ -18,7 +18,7 @@ namespace B9PartSwitch.Utils
             {
                 if (!propertyInfo.CanRead) continue;
                 if (propertyInfo.PropertyType != typeof(Color)) continue;
-                
+
                 namedColors.Add(propertyInfo.Name, (Color)propertyInfo.GetValue(null, null));
             }
 
@@ -31,6 +31,16 @@ namespace B9PartSwitch.Utils
 
                 namedColors.Add(propertyInfo.Name, (Color)propertyInfo.GetValue(null, null));
             }
+
+            namedColors.Add("ResourceColorLiquidFuel", ResourceColors.LiquidFuel);
+            namedColors.Add("ResourceColorLqdHydrogen", ResourceColors.LqdHydrogen);
+            namedColors.Add("ResourceColorLqdMethane", ResourceColors.LqdMethane);
+            namedColors.Add("ResourceColorOxidizer", ResourceColors.Oxidizer);
+            namedColors.Add("ResourceColorMonoPropellant", ResourceColors.MonoPropellant);
+            namedColors.Add("ResourceColorXenonGas", ResourceColors.XenonGas);
+            namedColors.Add("ResourceColorElectricChargePrimary", ResourceColors.ElectricChargePrimary);
+            namedColors.Add("ResourceColorElectricChargeSecondary", ResourceColors.ElectricChargeSecondary);
+            namedColors.Add("ResourceColorOre", ResourceColors.Ore);
         }
 
         public static Color Parse(string colorStr)

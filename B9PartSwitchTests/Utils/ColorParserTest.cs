@@ -160,6 +160,20 @@ namespace B9PartSwitchTests.Utils
         }
 
         [Fact]
+        public void TestParseColor__ResourceColors()
+        {
+            Assert.Equal(ResourceColors.LiquidFuel, ColorParser.Parse("ResourceColorLiquidFuel"));
+            Assert.Equal(ResourceColors.LqdHydrogen, ColorParser.Parse("ResourceColorLqdHydrogen"));
+            Assert.Equal(ResourceColors.LqdMethane, ColorParser.Parse("ResourceColorLqdMethane"));
+            Assert.Equal(ResourceColors.Oxidizer, ColorParser.Parse("ResourceColorOxidizer"));
+            Assert.Equal(ResourceColors.MonoPropellant, ColorParser.Parse("ResourceColorMonoPropellant"));
+            Assert.Equal(ResourceColors.XenonGas, ColorParser.Parse("ResourceColorXenonGas"));
+            Assert.Equal(ResourceColors.ElectricChargePrimary, ColorParser.Parse("ResourceColorElectricChargePrimary"));
+            Assert.Equal(ResourceColors.ElectricChargeSecondary, ColorParser.Parse("ResourceColorElectricChargeSecondary"));
+            Assert.Equal(ResourceColors.Ore, ColorParser.Parse("ResourceColorOre"));
+        }
+
+        [Fact]
         public void TestParseColor__FloatList__RGB()
         {
             Color color = ColorParser.Parse("0, 0.5, 1");
