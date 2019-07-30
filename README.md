@@ -29,6 +29,49 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.9.0
+
+* Implement new switching UI based on the stock variant switcher
+* Have subtype switching buttons show some info about the subtype being switched to in a tooltip
+  * By default shows resources (including parent), mass, cost, max temperature, max skin temperature, crash tolerance
+  * Also shows `descriptionSummary` and `descriptionDetail` from subtype, before and after auto-generated info respectively, if present
+* 4 new fieds on `SUBTYPE`
+  * `descriptionSummary` - any info here will be put in the subtype switching tooltip before the auto-generated info - make it brief
+  * `descriptionDetail` - any info here will be put in the subtype switching tooltip after the auto-generated info - go nuts
+  * `primaryColor` - color to use in the left part of the switching button
+    * if not specified, use the tank type's primaryColor
+    * if that's not specified, use white
+  * `secondaryColor` - color to use in the right part of the switching button
+    * if not specified, use the tank's secondaryColor
+    * if that's not specified, use the subtype's primaryColor
+    * if that's not specified, use the tank's primaryColor
+    * if that's not specified, use gray
+* 2 new fields on `B9_TANK_TYPE`
+  * `primaryColor` - color to use in the left part of the switching button i they subtype does not specify one.  If not specified, common resource combinations will be used.
+  * `secondaryColor` - color to use in the right part of the switching button i they subtype does not specify one.  If not specified, common resource combinations will be used.
+* add default colors for common resources
+  * `ResourceColorLiquidFuel`
+  * `ResourceColorLqdHydrogen`
+  * `ResourceColorLqdMethane`
+  * `ResourceColorOxidizer`
+  * `ResourceColorMonoPropellant`
+  * `ResourceColorXenonGas`
+  * `ResourceColorElectricChargePrimary`
+  * `ResourceColorElectricChareSecondary`
+  * `ResourceColorOre`
+* Automatically apply resource colors to common resource combinations in tanks (if colors are not specified by the tank or subtype):
+  * LiquidFuel
+  * LiquidFuel/Oxidizer
+  * LqdHydrogen
+  * LqdHydrogen/Oxidizer
+  * LqdMethane
+  * LqdMethane/Oxidizer
+  * Oxidizer
+  * MonoPropellant
+  * XenonGas
+  * Ore
+  * ElectricCharge
+
 # v2.8.1
 
 * Recompile against KSP 1.7.3
