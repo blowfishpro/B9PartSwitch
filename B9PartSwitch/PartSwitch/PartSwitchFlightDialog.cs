@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using B9PartSwitch.UI;
 
 namespace B9PartSwitch
 {
@@ -8,10 +10,18 @@ namespace B9PartSwitch
     {
         public static void Spawn(ModuleB9PartSwitch module)
         {
-            MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
+            try
+            {
+                MaybeCreateResourceRemovalWarning(module, () => CreateDialogue(module));
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogException(ex);
+                FatalErrorHandler.HandleFatalError(ex);
+            }
         }
 
-        public static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
+        private static void MaybeCreateResourceRemovalWarning(ModuleB9PartSwitch module, Action onConfirm)
         {
             if (HighLogic.LoadedSceneIsFlight && module.CurrentTankType.ResourceNames.Any(name => module.part.Resources[name].amount > 0))
             {
@@ -41,32 +51,52 @@ namespace B9PartSwitch
 
         private static void CreateDialogue(ModuleB9PartSwitch module)
         {
+            List<Callback> afterCreateCallbacks = new List<Callback>();
             PopupDialog.SpawnPopupDialog(
                 new MultiOptionDialog(
                     "B9PartSwitch_SwitchInFlight",
                     Localization.PartSwitchFlightDialog_SelectNewSubtypeDialogTitle(module.switcherDescription), // Select <<1>>
                     module.part.partInfo.title,
                     HighLogic.UISkin,
-                    CreateOptions(module)
+                    CreateOptions(module, afterCreateCallbacks)
                 ),
                 false,
                 HighLogic.UISkin
             );
+
+            foreach (Callback callback in afterCreateCallbacks)
+            {
+                callback();
+            }
         }
 
-        private static DialogGUIBase[] CreateOptions(ModuleB9PartSwitch module)
+        private static DialogGUIBase[] CreateOptions(ModuleB9PartSwitch module, IList<Callback> afterCreateCallbacks)
         {
             List<DialogGUIBase> options = new List<DialogGUIBase>();
+
+            SwitcherSubtypeDescriptionGenerator subtypeDescriptionGenerator = new SwitcherSubtypeDescriptionGenerator(module);
 
             foreach (PartSubtype subtype in module.subtypes)
             {
                 if (subtype == module.CurrentSubtype)
                 {
-                    options.Add(new DialogGUILabel(Localization.PartSwitchFlightDialog_CurrentSubtypeLabel(subtype.title), HighLogic.UISkin.button)); // <<1>> (Current)
+                    string currentSubtypeText = Localization.PartSwitchFlightDialog_CurrentSubtypeLabel(subtype.title);  // <<1>> (Current)
+                    DialogGUILabel label = new DialogGUILabel(currentSubtypeText, HighLogic.UISkin.button);
+                    afterCreateCallbacks.Add(delegate
+                    {
+                        if (!(label.uiItem.GetComponent<TextMeshProUGUI>() is TextMeshProUGUI textUI))
+                            throw new Exception("Could not find TextMeshProUGUI");
+                        else
+                            textUI.raycastTarget = true;
+                    });
+                    afterCreateCallbacks.Add(() => TooltipHelper.SetupSubtypeInfoTooltip(label.uiItem, subtype.title, subtypeDescriptionGenerator.GetFullSubtypeDescription(subtype)));
+                    options.Add(label);
                 }
                 else if (HighLogic.LoadedSceneIsEditor || subtype.allowSwitchInFlight)
                 {
-                    options.Add(new DialogGUIButton(subtype.title, () => module.SwitchSubtype(subtype.Name)));
+                    DialogGUIButton button = new DialogGUIButton(subtype.title, () => module.SwitchSubtype(subtype.Name));
+                    afterCreateCallbacks.Add(() => TooltipHelper.SetupSubtypeInfoTooltip(button.uiItem, subtype.title, subtypeDescriptionGenerator.GetFullSubtypeDescription(subtype)));
+                    options.Add(button);
                 }
             }
 

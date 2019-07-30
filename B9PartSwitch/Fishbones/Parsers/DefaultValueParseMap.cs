@@ -28,7 +28,7 @@ namespace B9PartSwitch.Fishbones.Parsers
         public static readonly IValueParser QuaternionDParser = new ValueParser<QuaternionD>(ConfigNode.ParseQuaternionD, ConfigNode.WriteQuaternion);
         public static readonly IValueParser Vector3dParser = new ValueParser<Vector3d>(ConfigNode.ParseVector3D, ConfigNode.WriteVector);
         public static readonly IValueParser Matrix4x4Parser = new ValueParser<Matrix4x4>(ConfigNode.ParseMatrix4x4, ConfigNode.WriteMatrix4x4);
-        public static readonly IValueParser ColorParser = new ValueParser<Color>(ConfigNode.ParseColor, ConfigNode.WriteColor);
+        public static readonly IValueParser ColorParser = new ValueParser<Color>(Utils.ColorParser.Parse, ConfigNode.WriteColor);
         public static readonly IValueParser Color32Parser = new ValueParser<Color32>(ConfigNode.ParseColor32, ConfigNode.WriteColor);
 
         public static readonly IValueParser AttachNodeParser = new AttachNodeValueParser();

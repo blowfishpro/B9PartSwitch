@@ -19,6 +19,18 @@ namespace B9PartSwitch
         [NodeData]
         public string title;
 
+        [NodeData]
+        public string descriptionSummary;
+
+        [NodeData]
+        public string descriptionDetail;
+
+        [NodeData]
+        public Color? primaryColor;
+
+        [NodeData]
+        public Color? secondaryColor;
+
         [NodeData(name = "transform")]
         public List<string> transformNames = new List<string>();
 
@@ -104,7 +116,6 @@ namespace B9PartSwitch
         private List<AttachNode> nodes = new List<AttachNode>();
         private List<IPartModifier> partModifiers = new List<IPartModifier>();
         private List<object> aspectLocks = new List<object>();
-        private IVolumeProvider volumeProvider = new ZeroVolumeProvider();
 
         #endregion
 
@@ -119,14 +130,15 @@ namespace B9PartSwitch
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => volumeProvider?.Volume ?? 0f;
-        public float TotalMass => TotalVolume * tankType.tankMass + addedMass * (parent?.VolumeScale ?? 1f);
-        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost * (parent?.VolumeScale ?? 1f);
-
+        public bool ChangesDryMass => addedMass != 0 || tankType.tankMass != 0;
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
+        public bool ChangesDryCost => addedCost != 0 || tankType.tankCost != 0;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
 
         public IEnumerable<object> PartAspectLocks => aspectLocks.All();
+
+        public Color PrimaryColor => primaryColor ?? tankType.primaryColor ?? Color.white;
+        public Color SecondaryColor => secondaryColor ?? tankType.secondaryColor ?? primaryColor ?? tankType.primaryColor ?? Color.gray;
 
         #endregion
 
@@ -337,12 +349,11 @@ namespace B9PartSwitch
 
             if (HasTank)
             {
-                volumeProvider = new SubtypeVolumeProvider(parent, volumeMultiplier, volumeAdded);
                 foreach (TankResource resource in tankType)
                 {
                     float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
                     bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, part, filledProportion, tweakable);
+                    ResourceModifier resourceModifier = new ResourceModifier(resource, () => parent.GetTotalVolume(this), part, filledProportion, tweakable);
                     MaybeAddModifier(resourceModifier);
                 }
             }
