@@ -169,15 +169,15 @@ namespace B9PartSwitch.UI
 
             if (showWetCost)
             {
-                stringBuilder.Append("<b>{0}:</b> {1:0.#} {2}", SwitcherSubtypeDescriptionGenerator_Cost, dryCost, SwitcherSubtypeDescriptionGenerator_TankEmpty);
+                stringBuilder.Append("<b>{0}:</b> <sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1> {1:0.#} {2}", SwitcherSubtypeDescriptionGenerator_Cost, dryCost, SwitcherSubtypeDescriptionGenerator_TankEmpty);
                 if (!ApproximatelyZero(dryCostDifference) && !ApproximatelyEqual(dryCostDifference, wetCostDifference)) stringBuilder.Append(FormatCostDifference(dryCostDifference));
-                stringBuilder.Append(" / {0:0.#} {1}", wetCost, SwitcherSubtypeDescriptionGenerator_TankFull);
+                stringBuilder.Append(" / <sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1> {0:0.#} {1}", wetCost, SwitcherSubtypeDescriptionGenerator_TankFull);
                 if (!ApproximatelyZero(wetCostDifference)) stringBuilder.Append(FormatCostDifference(wetCostDifference));
                 stringBuilder.AppendLine();
             }
             else if (showDryCost)
             {
-                stringBuilder.Append("<b>{0}:</b> {1:#.#}", SwitcherSubtypeDescriptionGenerator_Cost, dryCost);
+                stringBuilder.Append("<b>{0}:</b> <sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1> {1:#.#}", SwitcherSubtypeDescriptionGenerator_Cost, dryCost);
                 if (!ApproximatelyZero(dryCostDifference)) stringBuilder.Append(FormatCostDifference(dryCostDifference));
                 stringBuilder.AppendLine();
             }
