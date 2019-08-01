@@ -400,13 +400,8 @@ namespace B9PartSwitch
             CurrentSubtype.ActivateForIcon();
         }
 
-        private void FindBestSubtype(ConfigNode node = null)
+        private void FindBestSubtype()
         {
-            if (node?.GetValue("currentSubtypeName") is string name)
-            {
-                CurrentSubtypeName = name;
-            }
-
             if (subtypes.ValidIndex(currentSubtypeIndex)) return;
 
             if (ManagesResources)
@@ -414,10 +409,6 @@ namespace B9PartSwitch
                 // Now use resources
                 // This finds all the managed resources that currently exist on teh part
                 string[] resourcesOnPart = ManagedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
-
-#if DEBUG
-                LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
-#endif
 
                 // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
                 // Otherwise, look for a structural subtype (no resources)
