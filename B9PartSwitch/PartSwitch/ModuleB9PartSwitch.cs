@@ -404,28 +404,11 @@ namespace B9PartSwitch
         {
             if (subtypes.ValidIndex(currentSubtypeIndex)) return;
 
-            if (ManagesResources)
-            {
-                // Now use resources
-                // This finds all the managed resources that currently exist on teh part
-                string[] resourcesOnPart = ManagedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
+            BestSubtypeDeterminator determinator = new BestSubtypeDeterminator();
+            IEnumerable<string> resourceNamesOnPart = part.Resources.Select(resource => resource.resourceName);
+            PartSubtype bestSubtype = determinator.FindBestSubtype(subtypes, resourceNamesOnPart);
 
-                // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
-                // Otherwise, look for a structural subtype (no resources)
-                if (resourcesOnPart.Any())
-                {
-                    currentSubtypeIndex = subtypes.FindIndex(subtype => subtype.HasTank && subtype.ResourceNames.SameElementsAs(resourcesOnPart));
-                    LogInfo($"Inferred subtype based on part's resources: '{CurrentSubtype.Name}'");
-                }
-                else
-                {
-                    currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
-                }
-            }
-
-            // No useful way to determine correct subtype, just pick first
-            if (!subtypes.ValidIndex(currentSubtypeIndex))
-                currentSubtypeIndex = 0;
+            currentSubtypeIndex = subtypes.IndexOf(bestSubtype);
         }
 
         private void SetupGUI()
