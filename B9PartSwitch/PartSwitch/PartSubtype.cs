@@ -31,6 +31,9 @@ namespace B9PartSwitch
         [NodeData]
         public Color? secondaryColor;
 
+        [NodeData]
+        public float defaultSubtypePriority = 0;
+
         [NodeData(name = "transform")]
         public List<string> transformNames = new List<string>();
 
