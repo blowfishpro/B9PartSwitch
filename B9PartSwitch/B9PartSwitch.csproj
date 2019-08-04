@@ -108,6 +108,7 @@
     <Compile Include="ModuleB9PropagateCopyEvents.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
     <Compile Include="PartSwitch\BestSubtypeDeterminator.cs" />
+    <Compile Include="PartSwitch\LockedSubtypeWarningHandler.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />

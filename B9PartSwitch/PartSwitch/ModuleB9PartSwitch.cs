@@ -172,6 +172,8 @@ namespace B9PartSwitch
 
             InitializeSubtypes();
 
+            EnsureAtLeastOneUnrestrictedSubtype();
+
             FindBestSubtype();
 
             SetupGUI();
@@ -388,11 +390,19 @@ namespace B9PartSwitch
             }
         }
 
+        private void EnsureAtLeastOneUnrestrictedSubtype()
+        {
+            if (subtypes.Any(subtype => !subtype.HasUpgradeRequired)) return;
+            SeriousWarningHandler.DisplaySeriousWarning($"{this}: must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
+            LogError("must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
+            subtypes[0].upgradeRequired = null;
+        }
+
         private void SetupForIcon()
         {
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
 
-            PartSubtype defaultSubtype = subtypes.MaxBy(s => s.defaultSubtypePriority);
+            PartSubtype defaultSubtype = subtypes.Where(s => !s.HasUpgradeRequired).MaxBy(s => s.defaultSubtypePriority);
 
             foreach (PartSubtype subtype in subtypes)
             {
@@ -405,33 +415,43 @@ namespace B9PartSwitch
 
         private void FindBestSubtype()
         {
-            if (subtypes.ValidIndex(currentSubtypeIndex)) return;
+            PartSubtype lockedSubtype = null;
+            if (subtypes.ValidIndex(currentSubtypeIndex))
+            {
+                if (CurrentSubtype.IsUnlocked()) return;
+                else lockedSubtype = CurrentSubtype;
+            }
 
             BestSubtypeDeterminator determinator = new BestSubtypeDeterminator();
             IEnumerable<string> resourceNamesOnPart = part.Resources.Select(resource => resource.resourceName);
-            PartSubtype bestSubtype = determinator.FindBestSubtype(subtypes, resourceNamesOnPart);
+            PartSubtype bestSubtype = determinator.FindBestSubtype(subtypes.Where(s => s.IsUnlocked()), resourceNamesOnPart);
 
             currentSubtypeIndex = subtypes.IndexOf(bestSubtype);
+
+            if (lockedSubtype.IsNotNull())
+                LockedSubtypeWarningHandler.WarnSubtypeLocked($"{this}: locked subtype '{lockedSubtype.title}' replaced with '{CurrentSubtype.title}'");
         }
 
         private void SetupGUI()
         {
+            int unlockedSubtypesCount = subtypes.Count(subtype => subtype.IsUnlocked());
+
             BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
             chooseField.advancedTweakable = advancedTweakablesOnly;
-            chooseField.guiActiveEditor = subtypes.Count > 1;
+            chooseField.guiActiveEditor = unlockedSubtypesCount > 1;
 
             chooseField.uiControlEditor.onFieldChanged = OnSliderUpdate;
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = Localization.ModuleB9PartSwitch_SelectSubtype(switcherDescription); // Select <<1>>
             switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
-            switchSubtypeEvent.guiActiveEditor = subtypes.Count > 1;
+            switchSubtypeEvent.guiActiveEditor = unlockedSubtypesCount > 1;
 
             BaseField subtypeTitleField = Fields[nameof(currentSubtypeTitle)];
             subtypeTitleField.guiName = switcherDescription;
             subtypeTitleField.advancedTweakable = advancedTweakablesOnly;
-            subtypeTitleField.guiActiveEditor = subtypes.Count == 1;
+            subtypeTitleField.guiActiveEditor = unlockedSubtypesCount == 1;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
@@ -439,7 +459,7 @@ namespace B9PartSwitch
 
         private void UpdateSwitchEventFlightVisibility()
         {
-            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
+            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight && s.IsUnlocked());
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiActive = switchInFlight && switchInFlightEnabled;
 

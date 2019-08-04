@@ -78,6 +78,8 @@ namespace B9PartSwitch
 
             foreach (PartSubtype subtype in module.subtypes)
             {
+                if (!subtype.IsUnlocked()) continue;
+
                 if (subtype == module.CurrentSubtype)
                 {
                     string currentSubtypeText = Localization.PartSwitchFlightDialog_CurrentSubtypeLabel(subtype.title);  // <<1>> (Current)
