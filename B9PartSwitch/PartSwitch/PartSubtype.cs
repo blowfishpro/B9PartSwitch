@@ -31,6 +31,12 @@ namespace B9PartSwitch
         [NodeData]
         public Color? secondaryColor;
 
+        [NodeData]
+        public string upgradeRequired;
+
+        [NodeData]
+        public float defaultSubtypePriority = 0;
+
         [NodeData(name = "transform")]
         public List<string> transformNames = new List<string>();
 
@@ -125,6 +131,8 @@ namespace B9PartSwitch
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
+        public bool HasUpgradeRequired => !upgradeRequired.IsNullOrEmpty();
+
         public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
         public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
@@ -182,6 +190,13 @@ namespace B9PartSwitch
             {
                 SeriousWarningHandler.DisplaySeriousWarning($"Subtype has no name: {this}");
                 LogError("Subtype has no name");
+            }
+
+            if (HasUpgradeRequired && PartUpgradeManager.Handler.GetUpgrade(upgradeRequired).IsNull())
+            {
+                SeriousWarningHandler.DisplaySeriousWarning($"Upgrade does not exist: {upgradeRequired} on: {this}");
+                LogError("Upgrade does not exist: " + upgradeRequired);
+                upgradeRequired = null;
             }
 
             if (tankType == null)
@@ -478,6 +493,14 @@ namespace B9PartSwitch
         {
             if (!tankType.IsStructuralTankType)
                 tankType = B9TankSettings.StructuralTankType;
+        }
+
+        public bool IsUnlocked()
+        {
+            if (!HasUpgradeRequired) return true;
+            if (HighLogic.CurrentGame.IsNull()) return true;
+            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX) return true;
+            return PartUpgradeManager.Handler.IsUnlocked(upgradeRequired);
         }
 
         public override string ToString()

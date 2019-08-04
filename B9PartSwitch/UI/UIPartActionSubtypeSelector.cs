@@ -62,6 +62,7 @@ namespace B9PartSwitch.UI
             for (int i = 0; i < switcherModule.subtypes.Count; i++)
             {
                 PartSubtype subtype = switcherModule.subtypes[i];
+                if (!subtype.IsUnlocked()) continue;
                 GameObject buttonGameObject = Instantiate(prefabVariantButton, scrollMain.content);
                 UIPartActionSubtypeButton subtypeButton = buttonGameObject.GetComponent<UIPartActionSubtypeButton>();
 

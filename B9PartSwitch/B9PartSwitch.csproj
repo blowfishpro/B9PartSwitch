@@ -107,6 +107,8 @@
     <Compile Include="ModuleB9DisableTransform.cs" />
     <Compile Include="ModuleB9PropagateCopyEvents.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
+    <Compile Include="PartSwitch\BestSubtypeDeterminator.cs" />
+    <Compile Include="PartSwitch\LockedSubtypeWarningHandler.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
     <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
@@ -138,8 +140,6 @@
     <Compile Include="TankSettings\B9TankSettings.cs" />
     <Compile Include="TankSettings\Tanks.cs" />
     <Compile Include="TankSettings\TankTypeValueParser.cs" />
-    <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
-    <Compile Include="Test\PartModuleTest.cs" />
     <Compile Include="UI\PrefabManager.cs" />
     <Compile Include="UI\SwitcherSubtypeDescriptionGenerator.cs" />
     <Compile Include="UI\TooltipHelper.cs" />
