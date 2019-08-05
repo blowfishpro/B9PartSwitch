@@ -52,6 +52,9 @@ namespace B9PartSwitch
         [NodeData(name = "TRANSFORM")]
         public List<TransformModifierInfo> transformModifierInfos = new List<TransformModifierInfo>();
 
+        [NodeData(name = "MODULE")]
+        public List<ModuleModifierInfo> moduleModifierInfos = new List<ModuleModifierInfo>();
+
         [NodeData]
         public float addedMass = 0f;
 
@@ -397,6 +400,26 @@ namespace B9PartSwitch
                 }
             }
 
+            // Icon setup doesn't set partInfo correctly, so it exists but as a copy without partConfig
+            if ((part.partInfo?.partConfig).IsNotNull())
+            {
+                foreach (ModuleModifierInfo moduleModifierInfo in moduleModifierInfos)
+                {
+                    try
+                    {
+                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent))
+                        {
+                            MaybeAddModifier(partModifier);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        OnInitializationError(ex.Message);
+                        Debug.LogException(ex);
+                    }
+                }
+            }
+
             if (!parent.subtypes.Any(subtype => subtype.Name == mirrorSymmetrySubtype))
             {
                 OnInitializationError($"Cannot find subtype '{mirrorSymmetrySubtype}' for mirror symmetry subtype");
@@ -488,6 +511,17 @@ namespace B9PartSwitch
 
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
+
+        public bool ModuleShouldBeEnabled(PartModule module)
+        {
+            foreach (IPartModifier partModifier in partModifiers)
+            {
+                if (!(partModifier is ModuleDeactivator moduleDeactivator)) continue;
+                if (moduleDeactivator.module == module) return false;
+            }
+
+            return true;
+        }
 
         public void AssignStructuralTankType()
         {
