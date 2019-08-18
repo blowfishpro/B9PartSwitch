@@ -86,6 +86,15 @@ namespace B9PartSwitch
             }
 
             t.gameObject.SetActive(shouldBeEnabled);
+
+            if (part.partRendererBoundsIgnore.Contains(t.name))
+            {
+                if (shouldBeEnabled) part.partRendererBoundsIgnore.Remove(t.name);
+            }
+            else
+            {
+                if (!shouldBeEnabled) part.partRendererBoundsIgnore.Add(t.name);
+            }
         }
 
         public static void UpdateNodeEnabled(this Part part, AttachNode node)

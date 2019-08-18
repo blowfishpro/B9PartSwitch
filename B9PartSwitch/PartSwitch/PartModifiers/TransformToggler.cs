@@ -36,6 +36,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private void Deactivate()
         {
             transform.Disable();
+
+            if (part.partRendererBoundsIgnore.Contains(transform.name)) part.partRendererBoundsIgnore.Add(transform.name);
         }
     }
 }
