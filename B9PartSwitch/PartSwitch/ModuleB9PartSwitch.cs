@@ -285,6 +285,11 @@ namespace B9PartSwitch
             return true;
         }
 
+        public bool ModuleShouldBeEnabled(PartModule module)
+        {
+            return CurrentSubtype.ModuleShouldBeEnabled(module);
+        }
+
         public void AddChild(ModuleB9PartSwitch child)
         {
             child.ThrowIfNullArgument(nameof(child));
