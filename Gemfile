@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 group :development, :test do
-  gem 'bundler', '~> 1.16'
+  gem 'bundler'
   gem 'rake', '~> 12.3'
   gem 'rest-client', '~> 2.0'
   gem 'rspec', '~> 3.8'
