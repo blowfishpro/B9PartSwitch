@@ -29,6 +29,45 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.10.0
+
+* Use funds symbol for cost in tooltips
+* Fix vessel size including disabled objects
+* add new `upgradeRequired` field to `SUBTYPE`s
+  * References the name of a `PARTUPGRADE` require do unlock the subtype
+  * At least one subtype on every switcher must have no tech restriction (i.e. unlocks with the part), otherwise it will complain and remove the restriction from the first subtype
+  * All subtypes are unlocked in sandbox regardless of whether upgrades are applied
+  * Warning if the upgrade doesn't exist
+  * If you attempt to load a craft with a locked subtype you get a warning that it was replaced with the highest priority unlocked subtype
+* Add `defaultSubtypePriority` to `SUBTYPE`s
+  * Number (float) that determines a subtype's priority as the "default" subtype (i.e. the one that is chosen when you freshly add the part).
+  * The subtype with the highest priority that is also unlocked will be chosen
+  * If two subtypes have the same priority and both are unlocked, it will choose the first
+  * The default value is zero.
+* Add basic implementation of module switching
+  * HIGHLY EXPERIMENTAL
+  * Subtypes now accept a `MODULE` node
+    * inside is an `IDENTIFIER` node which is used to identify the module
+    * it must have a `name` which is the same as the module
+      * it can have any other fields that are used to identify the module
+        * e.g. `engineID` on `ModuleEngines`
+      * Identifying the module by nodes is not currently supported
+    * It accepts a `DATA` node which provides new data to be loaded into the module
+    * It accepts a `moduleActive = false` value which causes the module to be disabled
+  * Not everything will work initially, custom handling will have to be added for some modules
+  * Some modules are blacklisted for loading new data and disabling.  This list is subject to change.
+    * `ModulePartVariants`
+    * `ModuleB9PartSwitch`
+    * `ModuleB9PartInfo`
+    * `ModuleB9DisableTransform`
+    * `FSfuelSwitch`
+    * `FSmeshSwitch`
+    * `FStextureSwitch`
+    * `FStextureSwitch2`
+    * `InterstellarFuelSwitch`
+    * `IntersteallarMeshSwitch`
+    * `InterstellarTextureSwitch`
+
 # v2.9.0
 
 * Implement new switching UI based on the stock variant switcher
