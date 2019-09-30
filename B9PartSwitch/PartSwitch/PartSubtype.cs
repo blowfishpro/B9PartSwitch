@@ -294,7 +294,7 @@ namespace B9PartSwitch
 
             if (attachNode.IsNotNull())
             {
-                if (part.attachRules.allowSrfAttach)
+                if (part.attachRules.srfAttach)
                 {
                     if (part.srfAttachNode.IsNotNull())
                         MaybeAddModifier(new PartAttachNodeModifier(part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
