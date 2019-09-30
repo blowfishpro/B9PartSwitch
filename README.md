@@ -29,6 +29,12 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.10.1
+
+* Add missing Russian localization keys
+* Fix surface attach node modifiers not actually doing anything
+* Fix surface attach node modifiers checking whether the part allows surface attach to it rather than to parent part
+
 # v2.10.0
 
 * Use funds symbol for cost in tooltips
