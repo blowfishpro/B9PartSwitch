@@ -13,10 +13,12 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         private class DummyClass2 { }
         private class DummyClass3 { }
         private class DummyClass4 { }
+        private struct DummyStruct { }
 
-        private IValueParseMap innerParseMap = Substitute.For<IValueParseMap>();
-        private IValueParser parser1 = Substitute.For<IValueParser>();
-        private IValueParser parser2 = Substitute.For<IValueParser>();
+        private readonly IValueParseMap innerParseMap = Substitute.For<IValueParseMap>();
+        private readonly IValueParser parser1 = Substitute.For<IValueParser>();
+        private readonly IValueParser parser2 = Substitute.For<IValueParser>();
+        private readonly IValueParser parserStruct = Substitute.For<IValueParser>();
 
         private OverrideValueParseMap parseMap;
 
@@ -24,8 +26,9 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         {
             parser1.ParseType.Returns(typeof(DummyClass1));
             parser2.ParseType.Returns(typeof(DummyClass2));
+            parserStruct.ParseType.Returns(typeof(DummyStruct));
 
-            parseMap = new OverrideValueParseMap(innerParseMap, parser1, parser2);
+            parseMap = new OverrideValueParseMap(innerParseMap, parser1, parser2, parserStruct);
         }
 
         #region Constructor
@@ -75,6 +78,15 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         }
 
         [Fact]
+        public void TestCanParse__Override__Nullable()
+        {
+            innerParseMap.CanParse(typeof(DummyStruct)).Returns(false);
+
+            Assert.True(parseMap.CanParse(typeof(DummyStruct)));
+            Assert.True(parseMap.CanParse(typeof(DummyStruct?)));
+        }
+
+        [Fact]
         public void TestCanParse__NullArgument()
         {
             Assert.Throws<ArgumentNullException>(() => parseMap.CanParse(null));
@@ -109,6 +121,26 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             innerParseMap.CanParse(typeof(DummyClass2)).Returns(true);
 
             Assert.Same(parser2, parseMap.GetParser(typeof(DummyClass2)));
+
+            innerParseMap.DidNotReceiveWithAnyArgs().GetParser(null);
+        }
+
+        [Fact]
+        public void TestGetParser__Override__Nullable__InnerMapCantParese()
+        {
+            innerParseMap.CanParse(typeof(DummyStruct)).Returns(false);
+
+            Assert.Same(parserStruct, parseMap.GetParser(typeof(DummyStruct?)));
+
+            innerParseMap.DidNotReceiveWithAnyArgs().GetParser(null);
+        }
+
+        [Fact]
+        public void TestGetParser__Override__Nullable__InnerMapCanParse()
+        {
+            innerParseMap.CanParse(typeof(DummyStruct)).Returns(true);
+
+            Assert.Same(parserStruct, parseMap.GetParser(typeof(DummyStruct?)));
 
             innerParseMap.DidNotReceiveWithAnyArgs().GetParser(null);
         }

@@ -103,6 +103,7 @@
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperIContextualNodeTest.cs" />
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\OverrideValueParseMapTest.cs" />
+    <Compile Include="Fishbones\Parsers\ScaleParserTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapperTest.cs" />
     <Compile Include="Fishbones\Parsers\ValueParserTest.cs" />

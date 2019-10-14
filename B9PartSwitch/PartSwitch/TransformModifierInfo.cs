@@ -18,6 +18,10 @@ namespace B9PartSwitch
         [NodeData]
         public Vector3? rotationOffset;
 
+        [NodeData]
+        [UseParser(typeof(Fishbones.Parsers.ScaleParser))]
+        public Vector3? scaleOffset;
+
         public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
@@ -45,6 +49,10 @@ namespace B9PartSwitch
                 if (rotationOffset.HasValue)
                 {
                     yield return new TransformRotator(transform, Quaternion.Euler(rotationOffset.Value));
+                }
+                if (scaleOffset.HasValue)
+                {
+                    yield return new TransformScaleModifier(transform, scaleOffset.Value);
                 }
             }
 

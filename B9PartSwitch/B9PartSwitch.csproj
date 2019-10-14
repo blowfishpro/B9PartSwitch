@@ -93,6 +93,7 @@
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperIContextualNode.cs" />
     <Compile Include="Fishbones\Parsers\OverrideValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\PartResourceDefinitionValueParser.cs" />
+    <Compile Include="Fishbones\Parsers\ScaleParser.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformMover.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformRotator.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TransformScaleModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformToggler.cs" />
     <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
