@@ -88,9 +88,7 @@ namespace B9PartSwitch
                     if (baseTextureName != currentTextureName) continue;
                 }
 
-                // Instantiate material here rather than using sharedMaterial (which might be used by many things)
-                // Tried sharing a material accross all renderers that used it here, but it lead to weirdness
-                yield return new TextureReplacement(renderer.material, shaderProperty, newTexture);
+                yield return new TextureReplacement(renderer, shaderProperty, newTexture);
             }
         }
 
