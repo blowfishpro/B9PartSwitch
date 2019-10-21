@@ -20,7 +20,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             dataNode.ThrowIfNullArgument(nameof(dataNode));
 
             this.module = module;
-            
+
             flameoutEffectName = dataNode.GetValue("flameoutEffectName");
             runningEffectName = dataNode.GetValue("runningEffectName");
             powerEffectName = dataNode.GetValue("powerEffectName");
