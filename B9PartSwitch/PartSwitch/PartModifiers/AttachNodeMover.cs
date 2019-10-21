@@ -26,7 +26,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnStartFlight() => SetAttachNodePosition();
 
         // TweakScale resets node positions, therefore we need to wait a frame and fix them
-        public override void ActivateAfterStart() => SetAttachNodePosition();
+        public override void ActivateOnStartFinishedEditor() => SetAttachNodePosition();
+        public override void ActivateOnStartFinishedFlight() => SetAttachNodePosition();
 
         public override void ActivateOnSwitchEditor() => SetAttachNodePositionAndMoveParts();
         public override void ActivateOnSwitchFlight() => SetAttachNodePosition();

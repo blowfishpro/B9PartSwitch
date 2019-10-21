@@ -180,14 +180,6 @@ namespace B9PartSwitch
             FindBestSubtype();
 
             SetupGUI();
-
-            IEnumerator InvokeUpdateAfterStart()
-            {
-                yield return null;
-                UpdateAfterStart();
-            }
-
-            StartCoroutine(InvokeUpdateAfterStart());
         }
 
         // This runs after OnStart() so everything should be initalized
@@ -198,6 +190,13 @@ namespace B9PartSwitch
             if (affectDragCubes) part.FixModuleJettison();
 
             UpdateOnStart();
+        }
+
+        public override void OnStartFinished(StartState state)
+        {
+            base.OnStartFinished(state);
+
+            UpdateOnStartFinished();
         }
 
         #endregion
@@ -487,9 +486,14 @@ namespace B9PartSwitch
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
-        private void UpdateAfterStart()
+        private void UpdateOnStartFinished()
         {
-            CurrentSubtype.ActivateAfterStart();
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.DeactivateOnStartFinished();
+            }
+
+            CurrentSubtype.ActivateOnStartFinished();
         }
 
         private void RemoveUnusedResources()
