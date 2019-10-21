@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class ModuleDataHandlerBasic : IModuleDataHandler
+    public class ModuleDataHandlerBasic : PartModifierBase
     {
         protected readonly PartModule module;
         protected readonly ConfigNode originalNode;
@@ -19,7 +19,19 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.dataNode = dataNode;
         }
 
-        public void Activate() => module.Load(dataNode);
-        public void Deactivate() => module.Load(originalNode);
+        public override string Description => $"data on module {module}";
+
+        public override void ActivateOnStartEditor() => Activate();
+        public override void ActivateOnStartFlight() => Activate();
+        public override void DeactivateOnSwitchEditor() => Deactivate();
+        public override void DeactivateOnSwitchFlight() => Deactivate();
+        public override void ActivateOnSwitchEditor() => Activate();
+        public override void ActivateOnSwitchFlight() => Activate();
+        public override void OnWillBeCopiedActiveSubtype() => Deactivate();
+        public override void OnWasCopiedActiveSubtype() => Activate();
+        public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
+
+        private void Activate() => module.Load(dataNode);
+        private void Deactivate() => module.Load(originalNode);
     }
 }

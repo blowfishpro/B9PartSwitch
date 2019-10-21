@@ -2,7 +2,7 @@ using System;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class ModuleDataHandlerrModuleEnginesFX : IModuleDataHandler
+    public class ModuleDataHandlerrModuleEnginesFX : PartModifierBase
     {
         private readonly ModuleEnginesFX module;
 
@@ -30,7 +30,14 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             spoolEffectName = dataNode.GetValue("spoolEffectName");
         }
 
-        public void Activate()
+        public override string Description => $"data on ModuleEnginesFX {module}";
+
+        public override void ActivateOnStartFinishedFlight() => Activate();
+        public override void DeactivateOnStartFinishedFlight() => Deactivate();
+        public override void DeactivateOnSwitchFlight() => Deactivate();
+        public override void ActivateOnSwitchFlight() => Activate();
+
+        private void Activate()
         {
             if (flameoutEffectName.IsNotNull())
                 module.part.Effect(module.flameoutEffectName, 0);
@@ -54,7 +61,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
                 module.part.Effect(module.spoolEffectName, 0);
         }
 
-        public void Deactivate()
+        private void Deactivate()
         {
             if (flameoutEffectName.IsNotNull())
                 module.part.Effect(flameoutEffectName, 0);

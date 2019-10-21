@@ -110,13 +110,12 @@ namespace B9PartSwitch
                 else if (INVALID_MODULES_NAMES_FOR_DATA_LOADING.Any(moduleTypeName => module.GetType().Name == moduleTypeName))
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
                 else if (module is ModuleEnginesFX moduleEnginesFX)
-                    yield return new ModuleDataLoader(
-                        module.ToString(),
-                        new ModuleDataHandlerBasic(module, originalNode, dataNode),
-                        new ModuleDataHandlerrModuleEnginesFX(moduleEnginesFX, dataNode)
-                    );
+                {
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerrModuleEnginesFX(moduleEnginesFX, dataNode);
+                }
                 else
-                    yield return new ModuleDataLoader(module.ToString(), new ModuleDataHandlerBasic(module, originalNode, dataNode));
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
             }
 
             if (!moduleActive)

@@ -114,11 +114,9 @@
     <Compile Include="PartSwitch\ModuleModifierInfo.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeToggler.cs" />
-    <Compile Include="PartSwitch\PartModifiers\IModuleDataHandler.cs" />
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDataHandlerBasic.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDataHandlerModuleEnginesFX.cs" />
-    <Compile Include="PartSwitch\PartModifiers\ModuleDataLoader.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDeactivator.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartAttachNodeModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfBuoyancyModifier.cs" />
