@@ -5,21 +5,25 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public class TextureReplacement : PartModifierBase
     {
-        public readonly Material material;
-        public readonly string shaderProperty;
-        public readonly Texture oldTexture;
-        public readonly Texture newTexture;
+        private readonly Renderer renderer;
+        private Material material;
+        private readonly string shaderProperty;
+        private readonly Texture oldTexture;
+        private readonly Texture newTexture;
 
-        public TextureReplacement(Material material, string shaderProperty, Texture newTexture)
+        public TextureReplacement(Renderer renderer, string shaderProperty, Texture newTexture)
         {
-            material.ThrowIfNullArgument(nameof(material));
+            renderer.ThrowIfNullArgument(nameof(renderer));
             shaderProperty.ThrowIfNullOrEmpty(nameof(shaderProperty));
             newTexture.ThrowIfNullArgument(nameof(newTexture));
 
-            this.material = material;
+            this.renderer = renderer;
             this.shaderProperty = shaderProperty;
             this.newTexture = newTexture;
 
+            // Instantiate material here rather than using sharedMaterial (which might be used by many things)
+            // Tried sharing a material accross all renderers that used it here, but it lead to weirdness
+            material = renderer.material;
             oldTexture = material.GetTexture(shaderProperty);
 
             if (oldTexture == null)
@@ -37,7 +41,15 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void DeactivateOnSwitchFlight() => Deactivate();
         public override void OnIconCreateActiveSubtype() => Activate();
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
-        public override void OnWasCopiedActiveSubtype() => Activate();
+        public override void OnWasCopiedActiveSubtype()
+        {
+            // At this point, the copy hasn't been initialized yet, so it still shares a material with this
+            // So make a copy of the material and assign it to avoid affecting the copy too
+            renderer.material = new Material(renderer.material);
+            material = renderer.material;
+            Activate();
+        }
+
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
         private void Activate() => material.SetTexture(shaderProperty, newTexture);
