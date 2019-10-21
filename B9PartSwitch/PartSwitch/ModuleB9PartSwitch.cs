@@ -50,6 +50,9 @@ namespace B9PartSwitch
         [NodeData]
         public bool advancedTweakablesOnly = false;
 
+        [NodeData]
+        public bool bottomOfWindow = true;
+
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {

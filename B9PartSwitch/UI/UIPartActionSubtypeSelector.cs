@@ -39,6 +39,8 @@ namespace B9PartSwitch.UI
 
         private List<UIPartActionSubtypeButton> subtypeButtons;
 
+        private bool bottomOfWindow;
+
         public static void EnsurePrefab()
         {
             if (UIPartActionController.Instance.IsNull()) throw new InvalidOperationException("UIPartActionController.Instance is null");
@@ -103,11 +105,13 @@ namespace B9PartSwitch.UI
             subtypeTitleText.text = switcherModule.CurrentSubtype.title;
 
             subtypeButtons[switcherModule.currentSubtypeIndex].Activate();
+
+            bottomOfWindow = switcherModule.bottomOfWindow;
         }
 
         public override void UpdateItem()
         {
-            transform.SetAsLastSibling();
+            if (bottomOfWindow) transform.SetAsLastSibling();
         }
 
         private void PreviousSubtype()
