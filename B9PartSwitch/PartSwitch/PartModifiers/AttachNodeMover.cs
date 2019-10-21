@@ -41,6 +41,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             if (!HighLogic.LoadedSceneIsEditor) return;
             if (attachNode.owner.parent != null && attachNode.owner.parent == attachNode.attachedPart)
             {
+                offset = attachNode.owner.transform.localRotation * offset;
                 attachNode.owner.transform.localPosition -= offset;
             }
             else if (attachNode.attachedPart != null)
@@ -57,6 +58,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             if (!HighLogic.LoadedSceneIsEditor) return;
             if (attachNode.owner.parent != null && attachNode.owner.parent == attachNode.attachedPart)
             {
+                offset = attachNode.owner.transform.localRotation * offset;
                 attachNode.owner.transform.localPosition -= offset;
             }
             else if (attachNode.attachedPart != null)
