@@ -450,9 +450,20 @@ namespace B9PartSwitch
                 partModifiers.ForEach(modifier => modifier.ActivateOnStartFlight());
         }
 
-        public void ActivateAfterStart()
+        public void ActivateOnStartFinished()
         {
-            partModifiers.ForEach(modifier => modifier.ActivateAfterStart());
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFinishedEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFinishedFlight());
+        }
+
+        public void DeactivateOnStartFinished()
+        {
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFinishedEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFinishedFlight());
         }
 
         public void DeactivateOnSwitch()

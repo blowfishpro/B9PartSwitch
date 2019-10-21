@@ -11,7 +11,10 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public virtual void DeactivateOnStartFlight() { }
         public virtual void ActivateOnStartEditor() { }
         public virtual void ActivateOnStartFlight() { }
-        public virtual void ActivateAfterStart() { }
+        public virtual void ActivateOnStartFinishedEditor() { }
+        public virtual void ActivateOnStartFinishedFlight() { }
+        public virtual void DeactivateOnStartFinishedEditor() { }
+        public virtual void DeactivateOnStartFinishedFlight() { }
         public virtual void DeactivateOnSwitchEditor() { }
         public virtual void DeactivateOnSwitchFlight() { }
         public virtual void ActivateOnSwitchEditor() { }
