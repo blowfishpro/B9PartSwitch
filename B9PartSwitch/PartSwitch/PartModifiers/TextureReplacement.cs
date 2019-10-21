@@ -5,10 +5,10 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public class TextureReplacement : PartModifierBase
     {
-        public readonly Material material;
-        public readonly string shaderProperty;
-        public readonly Texture oldTexture;
-        public readonly Texture newTexture;
+        private readonly Material material;
+        private readonly string shaderProperty;
+        private readonly Texture oldTexture;
+        private readonly Texture newTexture;
 
         public TextureReplacement(Material material, string shaderProperty, Texture newTexture)
         {
