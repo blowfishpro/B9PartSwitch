@@ -112,7 +112,20 @@ namespace B9PartSwitch
                 else if (module is ModuleEnginesFX moduleEnginesFX)
                 {
                     yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
-                    yield return new ModuleDataHandlerrModuleEnginesFX(moduleEnginesFX, dataNode);
+                    if (dataNode.GetValue("flameoutEffectName") is string flameoutEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.flameoutEffectName, flameoutEffectName);
+                    if (dataNode.GetValue("runningEffectName") is string runningEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.runningEffectName, runningEffectName);
+                    if (dataNode.GetValue("powerEffectName") is string powerEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.powerEffectName, powerEffectName);
+                    if (dataNode.GetValue("engageEffectName") is string engageEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.engageEffectName, engageEffectName);
+                    if (dataNode.GetValue("disengageEffectName") is string disengageEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.disengageEffectName, disengageEffectName);
+                    if (dataNode.GetValue("directThrottleEffectName") is string directThrottleEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.directThrottleEffectName, directThrottleEffectName);
+                    if (dataNode.GetValue("spoolEffectName") is string spoolEffectName)
+                        yield return new EffectDeactivator(part, moduleEnginesFX.spoolEffectName, spoolEffectName);
                 }
                 else
                     yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
