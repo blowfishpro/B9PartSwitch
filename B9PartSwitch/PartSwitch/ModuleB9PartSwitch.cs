@@ -472,14 +472,6 @@ namespace B9PartSwitch
             subtypeTitleField.guiActive = switchInFlight && !switchInFlightEnabled;
         }
 
-        private void UpdateOnLoad()
-        {
-            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
-            RemoveUnusedResources();
-            UpdateVolumeFromChildren();
-            CurrentSubtype.ActivateOnStart();
-        }
-
         private void UpdateOnStart()
         {
             subtypes.ForEach(subtype => subtype.DeactivateOnStart());
