@@ -29,6 +29,19 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.11.0
+
+* Allow switching UI to not be moved to the end of the part action window
+  * ModuleB9PartSwitch now accepts `bottomOfWindow = false` which will leave it in place
+  * Modules without this new parameter are unaffected
+* Allow transforms to be scaled
+  * `TRANSFORM {}` nodes now accept a `scaleOffset` which multiplies the transform's local scale
+  * `scaleOffset` either accepts a single number for all 3 axes or 3 numbers for x, y, z which can be separated by spaces, tabs, or commas
+* Fix plume switching for ModuleEnginesFX
+  * Still doesn't support switching in flight
+* Fix Texture switches getting stuck on copied parts
+* Fix node offsets not respecting part rotation when attempting to move the part with the switch
+
 # v2.10.1
 
 * Add missing Russian localization keys
