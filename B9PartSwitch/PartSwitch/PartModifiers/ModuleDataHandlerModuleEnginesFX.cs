@@ -56,49 +56,49 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private void Activate()
         {
             if (flameoutEffectName.IsNotNull())
-                module.part.Effect(originalFlameoutEffectName, 0);
+                module.part.Effect(originalFlameoutEffectName, effectPower: 0);
 
             if (runningEffectName.IsNotNull())
-                module.part.Effect(originalRunningEffectName, 0);
+                module.part.Effect(originalRunningEffectName, effectPower: 0);
 
             if (powerEffectName.IsNotNull())
-                module.part.Effect(originalPowerEffectName, 0);
+                module.part.Effect(originalPowerEffectName, effectPower: 0);
 
             if (engageEffectName.IsNotNull())
-                module.part.Effect(originalEngageEffectName, 0);
+                module.part.Effect(originalEngageEffectName, effectPower: 0);
 
             if (disengageEffectName.IsNotNull())
-                module.part.Effect(originalDisengageEffectName, 0);
+                module.part.Effect(originalDisengageEffectName, effectPower: 0);
 
             if (directThrottleEffectName.IsNotNull())
-                module.part.Effect(originalDirectThrottleEffectName, 0);
+                module.part.Effect(originalDirectThrottleEffectName, effectPower: 0);
 
             if (spoolEffectName.IsNotNull())
-                module.part.Effect(originalSpoolEffectName, 0);
+                module.part.Effect(originalSpoolEffectName, effectPower: 0);
         }
 
         private void Deactivate()
         {
             if (flameoutEffectName.IsNotNull())
-                module.part.Effect(flameoutEffectName, 0);
+                module.part.Effect(flameoutEffectName, effectPower: 0);
 
             if (runningEffectName.IsNotNull())
-                module.part.Effect(runningEffectName, 0);
+                module.part.Effect(runningEffectName, effectPower: 0);
 
             if (powerEffectName.IsNotNull())
-                module.part.Effect(powerEffectName, 0);
+                module.part.Effect(powerEffectName, effectPower: 0);
 
             if (engageEffectName.IsNotNull())
-                module.part.Effect(engageEffectName, 0);
+                module.part.Effect(engageEffectName, effectPower: 0);
 
             if (disengageEffectName.IsNotNull())
-                module.part.Effect(disengageEffectName, 0);
+                module.part.Effect(disengageEffectName, effectPower: 0);
 
             if (directThrottleEffectName.IsNotNull())
-                module.part.Effect(directThrottleEffectName, 0);
+                module.part.Effect(directThrottleEffectName, effectPower: 0);
 
             if (spoolEffectName.IsNotNull())
-                module.part.Effect(spoolEffectName, 0);
+                module.part.Effect(spoolEffectName, effectPower: 0);
         }
     }
 }
