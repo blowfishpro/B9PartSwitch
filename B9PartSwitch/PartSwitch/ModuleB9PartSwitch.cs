@@ -410,14 +410,14 @@ namespace B9PartSwitch
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
 
             PartSubtype defaultSubtype = subtypes.Where(s => !s.HasUpgradeRequired).MaxBy(s => s.defaultSubtypePriority);
+            currentSubtypeIndex = subtypes.IndexOf(defaultSubtype);
 
-            foreach (PartSubtype subtype in subtypes)
+            foreach (PartSubtype subtype in InactiveSubtypes)
             {
-                if (subtype == defaultSubtype) continue;
                 subtype.DeactivateForIcon();
             }
 
-            defaultSubtype.ActivateForIcon();
+            CurrentSubtype.ActivateForIcon();
         }
 
         private void FindBestSubtype()
