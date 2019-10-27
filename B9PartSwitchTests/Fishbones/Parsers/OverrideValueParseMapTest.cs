@@ -18,7 +18,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
         private readonly IValueParser parser2 = Substitute.For<IValueParser>();
         private readonly IValueParser parserStruct = Substitute.For<IValueParser>();
 
-        private OverrideValueParseMap parseMap;
+        private readonly OverrideValueParseMap parseMap;
 
         public OverrideValueParseMapTest()
         {

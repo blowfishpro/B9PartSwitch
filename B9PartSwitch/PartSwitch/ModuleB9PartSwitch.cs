@@ -88,7 +88,7 @@ namespace B9PartSwitch
         [SuppressMessage("Style", "IDE0032", Justification = "Set by Tweakscale")]
         private readonly float scale = 1f;
 
-        private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+        private readonly List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
         #endregion
 

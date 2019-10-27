@@ -6,7 +6,7 @@ namespace B9PartSwitch.Fishbones
 {
     public static class NodeDataListLibrary
     {
-        private static Dictionary<Type, NodeDataList> dict = new Dictionary<Type, NodeDataList>();
+        private static readonly Dictionary<Type, NodeDataList> dict = new Dictionary<Type, NodeDataList>();
 
         public static NodeDataList Get<T>() => Get(typeof(T));
 
