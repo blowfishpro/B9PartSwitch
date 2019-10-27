@@ -29,6 +29,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.11.1
+
+* Fix default subtype not activating on the icon
+
 # v2.11.0
 
 * Allow switching UI to not be moved to the end of the part action window
