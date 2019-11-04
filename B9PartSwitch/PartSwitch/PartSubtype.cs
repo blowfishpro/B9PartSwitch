@@ -121,10 +121,10 @@ namespace B9PartSwitch
         #region Private Fields
 
         private ModuleB9PartSwitch parent;
-        private List<Transform> transforms = new List<Transform>();
-        private List<AttachNode> nodes = new List<AttachNode>();
-        private List<IPartModifier> partModifiers = new List<IPartModifier>();
-        private List<object> aspectLocks = new List<object>();
+        private readonly List<Transform> transforms = new List<Transform>();
+        private readonly List<AttachNode> nodes = new List<AttachNode>();
+        private readonly List<IPartModifier> partModifiers = new List<IPartModifier>();
+        private readonly List<object> aspectLocks = new List<object>();
 
         #endregion
 

@@ -17,11 +17,11 @@ namespace B9PartSwitchTests.Fishbones
         private class DummyClass3 { }
         private class DummyClass4 { }
 
-        private NodeData nodeData = new NodeData();
-        private IValueParseMap parseMap = Substitute.For<IValueParseMap>();
-        private IFieldWrapper fieldWrapper = Substitute.For<IFieldWrapper>();
+        private readonly NodeData nodeData = new NodeData();
+        private readonly IValueParseMap parseMap = Substitute.For<IValueParseMap>();
+        private readonly IFieldWrapper fieldWrapper = Substitute.For<IFieldWrapper>();
 
-        private NodeDataBuilder builder;
+        private readonly NodeDataBuilder builder;
 
         public NodeDataBuilderTest()
         {

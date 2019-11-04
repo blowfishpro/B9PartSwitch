@@ -50,9 +50,6 @@ namespace B9PartSwitch
         [NodeData]
         public bool advancedTweakablesOnly = false;
 
-        [NodeData]
-        public bool bottomOfWindow = true;
-
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
@@ -88,7 +85,7 @@ namespace B9PartSwitch
         [SuppressMessage("Style", "IDE0032", Justification = "Set by Tweakscale")]
         private readonly float scale = 1f;
 
-        private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+        private readonly List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
         #endregion
 
