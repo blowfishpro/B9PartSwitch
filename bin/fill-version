@@ -52,11 +52,12 @@ class CommandFailure < StandardError; end
 def run(command)
   stdout, _stderr, status = Open3.capture3(command)
   raise CommandFailure, "Command `#{command}` exited with code #{status.exitstatus}" unless status.success?
+
   stdout
 end
 
 def usage
-  STDERR.puts <<~USAGE
+  warn <<~USAGE
     usage: #{File.basename(__FILE__)} [in_erb_file] [out_file] [options]
       -h, --help                       print help
       --version                        print the version
@@ -108,7 +109,7 @@ when 2
   in_file = ARGV[0]
   out_file = ARGV[1]
 else
-  STDERR.puts('Error: Too many arguments')
+  warn('Error: Too many arguments')
   usage
   exit 1
 end
@@ -130,7 +131,7 @@ ksp_version_max ||= ksp_version
 ksp_version ||= ksp_version_max
 
 if ksp_version.nil?
-  STDERR.puts 'ksp version not specified and no way to determine it'
+  warn 'ksp version not specified and no way to determine it'
   exit 1
 end
 
@@ -156,17 +157,17 @@ mod_version =
   elsif is_git_dir
     Version.new(git_version.match(/[0-9\.-]+/)[0].tr('-', '.'))
   else
-    STDERR.puts 'mod version not specified and no way to determine it'
+    warn 'mod version not specified and no way to determine it'
     exit 1
   end
 
 if verbose
-  STDERR.puts "#{__FILE__}: filling version info into ERB template"
-  STDERR.puts "#{__FILE__}: ksp version: #{ksp_version}"
-  STDERR.puts "#{__FILE__}: ksp version max: #{ksp_version_max}"
-  STDERR.puts "#{__FILE__}: ksp version min: #{ksp_version_min}"
-  STDERR.puts "#{__FILE__}: mod version: #{mod_version}"
-  STDERR.puts "#{__FILE__}: '#{in_file || 'STDIN'}' -> '#{out_file || 'STDOUT'}'"
+  warn "#{__FILE__}: filling version info into ERB template"
+  warn "#{__FILE__}: ksp version: #{ksp_version}"
+  warn "#{__FILE__}: ksp version max: #{ksp_version_max}"
+  warn "#{__FILE__}: ksp version min: #{ksp_version_min}"
+  warn "#{__FILE__}: mod version: #{mod_version}"
+  warn "#{__FILE__}: '#{in_file || 'STDIN'}' -> '#{out_file || 'STDOUT'}'"
 end
 
 template_contents =
@@ -175,7 +176,7 @@ template_contents =
   elsif File.file?(in_file)
     File.read(in_file)
   else
-    STDERR.puts "file does not exist: '#{in_file}'"
+    warn "file does not exist: '#{in_file}'"
     exit 1
   end
 
