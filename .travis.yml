@@ -11,6 +11,7 @@ install:
   - install-ksp-dlls
   - nuget restore ${TRAVIS_SOLUTION}
 script:
+  - bundle exec rubocop
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
   - build_script/script/make_release.sh
