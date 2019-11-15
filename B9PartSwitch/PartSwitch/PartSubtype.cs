@@ -46,6 +46,9 @@ namespace B9PartSwitch
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
 
+        [NodeData(name = "MATERIAL")]
+        public List<MaterialModifierInfo> materialModifierInfos = new List<MaterialModifierInfo>();
+
         [NodeData(name = "NODE")]
         public List<AttachNodeModifierInfo> attachNodeModifierInfos = new List<AttachNodeModifierInfo>();
 
@@ -342,6 +345,14 @@ namespace B9PartSwitch
                 foreach(TextureReplacement replacement in info.CreateTextureReplacements(part, OnInitializationError))
                 {
                     MaybeAddModifier(replacement);
+                }
+            }
+
+            foreach (MaterialModifierInfo materialModifierInfo in materialModifierInfos)
+            {
+                foreach (IPartModifier partModifier in materialModifierInfo.CreateModifiers(part.GetModelRoot(), OnInitializationError))
+                {
+                    MaybeAddModifier(partModifier);
                 }
             }
 
