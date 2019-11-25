@@ -122,6 +122,7 @@
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDataHandlerBasic.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDeactivator.cs" />
+    <Compile Include="PartSwitch\PartModifiers\ModuleOutputResourceResetter.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartAttachNodeModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfBuoyancyModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfDisplacementModifier.cs" />

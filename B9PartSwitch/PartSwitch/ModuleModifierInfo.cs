@@ -127,6 +127,14 @@ namespace B9PartSwitch
                     if (dataNode.GetValue("spoolEffectName") is string spoolEffectName)
                         yield return new EffectDeactivator(part, moduleEnginesFX.spoolEffectName, spoolEffectName);
                 }
+                else if (module is ModuleDeployableSolarPanel && dataNode.HasValue("chargeRate"))
+                {
+                    // if output resources are already initialized ModuleDeployableSolarPanel won't do it again
+                    // therefore, wipe all output resources before loading new data
+                    // order matters here since the output resources must be empty when new data is loaded
+                    yield return new ModuleOutputResourceResetter(module);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                }
                 else
                     yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
             }
