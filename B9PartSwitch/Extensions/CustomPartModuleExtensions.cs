@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace B9PartSwitch
 {
-    public static class CFGUtilPartModuleExtensions
+    public static class CustomPartModuleExtensions
     {
         public static IEnumerable<T> FindSymmetryCounterparts<T>(this T module) where T : CustomPartModule
         {

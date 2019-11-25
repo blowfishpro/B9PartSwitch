@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="CustomPartModule.cs" />
     <Compile Include="Extensions\AttachNodeExtensions.cs" />
-    <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
+    <Compile Include="Extensions\CustomPartModuleExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />

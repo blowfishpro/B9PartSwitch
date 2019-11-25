@@ -10,8 +10,6 @@ namespace B9PartSwitch.UI
         [SuppressMessage("Code Quality", "IDE0051", Justification = "Called by Unity")]
         private void Awake()
         {
-            Debug.Log("[B9PartSwitch.UI.PrefabManagerInstant] awake");
-
             try
             {
                 TooltipHelper.EnsurePrefabs();
@@ -33,8 +31,6 @@ namespace B9PartSwitch.UI
         [SuppressMessage("Code Quality", "IDE0051", Justification = "Called by Unity")]
         private void Start()
         {
-            Debug.Log("[B9PartSwitch.UI.PrefabManagerEditor] start");
-
             if (HighLogic.LoadedSceneIsEditor || HighLogic.LoadedSceneIsFlight)
             {
                 try
