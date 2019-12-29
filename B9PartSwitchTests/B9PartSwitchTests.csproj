@@ -116,6 +116,12 @@
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperBuilderTest.cs" />
     <Compile Include="Fishbones\OperationManagerTest.cs" />
     <Compile Include="Fishbones\UseParserTest.cs" />
+    <Compile Include="Logging\ExceptionMessageTest.cs" />
+    <Compile Include="Logging\ILoggerExtensionsTest.cs" />
+    <Compile Include="Logging\LogMessageTest.cs" />
+    <Compile Include="Logging\PrefixedMessageTest.cs" />
+    <Compile Include="Logging\PrefixLoggerTest.cs" />
+    <Compile Include="Logging\UnityLoggerTest.cs" />
     <Compile Include="PartSwitch\BestSubtypeDeterminatorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtils\AssertUtil.cs" />

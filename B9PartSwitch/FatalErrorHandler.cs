@@ -10,19 +10,28 @@ namespace B9PartSwitch
         private static PopupDialog dialog;
         private static List<string> allMessages = new List<string>();
 
-        public static void HandleFatalError(Exception exception)
+        public static void HandleFatalError(object message)
         {
             try
             {
-                string message = exception.Message;
-                Exception innerException = exception.InnerException;
-                while (innerException != null)
+                string messageStr;
+                if (message is Exception exception)
                 {
-                    message += "\n  ";
-                    message += innerException.Message;
-                    innerException = innerException.InnerException;
+                    messageStr = exception.Message;
+                    Exception innerException = exception.InnerException;
+                    while (innerException != null)
+                    {
+                        messageStr += "\n  ";
+                        messageStr += innerException.Message;
+                        innerException = innerException.InnerException;
+                    }
                 }
-                UpsertDialog(message);
+                else
+                {
+                    messageStr = message.ToString();
+                }
+
+                UpsertDialog(messageStr);
             }
             catch (Exception ex)
             {
