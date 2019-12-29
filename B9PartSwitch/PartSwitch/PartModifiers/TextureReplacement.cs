@@ -6,7 +6,6 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
     public class TextureReplacement : PartModifierBase
     {
         private readonly Renderer renderer;
-        private Material material;
         private readonly string shaderProperty;
         private readonly Texture oldTexture;
         private readonly Texture newTexture;
@@ -21,17 +20,14 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.shaderProperty = shaderProperty;
             this.newTexture = newTexture;
 
-            // Instantiate material here rather than using sharedMaterial (which might be used by many things)
-            // Tried sharing a material across all renderers that used it here, but it lead to weirdness
-            material = renderer.material;
-            oldTexture = material.GetTexture(shaderProperty);
+            oldTexture = renderer.sharedMaterial.GetTexture(shaderProperty);
 
             if (oldTexture == null)
-                throw new ArgumentException($"{material.name} has no texture on the property {shaderProperty}");
+                throw new ArgumentException($"{renderer.sharedMaterial.name} has no texture on the property {shaderProperty}");
         }
 
-        public override object PartAspectLock => material.GetInstanceID() + "---" + shaderProperty;
-        public override string Description => $"material {material.name} property {shaderProperty}";
+        public override object PartAspectLock => renderer.GetInstanceID() + "---" + shaderProperty;
+        public override string Description => $"object {renderer.name} shader property {shaderProperty}";
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();
@@ -46,13 +42,12 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             // At this point, the copy hasn't been initialized yet, so it still shares a material with this
             // So make a copy of the material and assign it to avoid affecting the copy too
             renderer.material = new Material(renderer.material);
-            material = renderer.material;
             Activate();
         }
 
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
-        private void Activate() => material.SetTexture(shaderProperty, newTexture);
-        private void Deactivate() => material.SetTexture(shaderProperty, oldTexture);
+        private void Activate() => renderer.material.SetTexture(shaderProperty, newTexture);
+        private void Deactivate() => renderer.material.SetTexture(shaderProperty, oldTexture);
     }
 }
