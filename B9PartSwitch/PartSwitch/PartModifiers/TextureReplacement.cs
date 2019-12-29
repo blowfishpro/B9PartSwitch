@@ -22,7 +22,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.newTexture = newTexture;
 
             // Instantiate material here rather than using sharedMaterial (which might be used by many things)
-            // Tried sharing a material accross all renderers that used it here, but it lead to weirdness
+            // Tried sharing a material across all renderers that used it here, but it lead to weirdness
             material = renderer.material;
             oldTexture = material.GetTexture(shaderProperty);
 
