@@ -39,6 +39,8 @@ namespace B9PartSwitch.UI
 
         private List<UIPartActionSubtypeButton> subtypeButtons;
 
+        private int currentButtonIndex = -1;
+
         public static void EnsurePrefab()
         {
             if (UIPartActionController.Instance.IsNull()) throw new InvalidOperationException("UIPartActionController.Instance is null");
@@ -59,6 +61,7 @@ namespace B9PartSwitch.UI
             SwitcherSubtypeDescriptionGenerator subtypeDescriptionGenerator = new SwitcherSubtypeDescriptionGenerator(switcherModule);
 
             subtypeButtons = new List<UIPartActionSubtypeButton>(switcherModule.subtypes.Count);
+            int buttonIndex = 0;
             for (int i = 0; i < switcherModule.subtypes.Count; i++)
             {
                 PartSubtype subtype = switcherModule.subtypes[i];
@@ -67,17 +70,22 @@ namespace B9PartSwitch.UI
                 UIPartActionSubtypeButton subtypeButton = buttonGameObject.GetComponent<UIPartActionSubtypeButton>();
 
                 // prevent capturing in closures
-                int index = i;
+                int subtypeIndex = i;
+                int theButtonIndex = buttonIndex;
 
                 subtypeButton.Setup(
                     subtype.title,
                     subtypeDescriptionGenerator.GetFullSubtypeDescription(subtype),
                     subtype.PrimaryColor,
                     subtype.SecondaryColor,
-                    () => SetSubtype(index)
+                    () => SetSubtype(subtypeIndex, theButtonIndex)
                 );
 
                 subtypeButtons.Add(subtypeButton);
+
+                if (subtype == switcherModule.CurrentSubtype) currentButtonIndex = buttonIndex;
+
+                buttonIndex++;
             }
 
             subtypeButtons[0].previousItem = subtypeButtons[subtypeButtons.Count - 1];
@@ -95,40 +103,38 @@ namespace B9PartSwitch.UI
             TooltipHelper.SetupSubtypeInfoTooltip(buttonPreviousTooltipController, "", "");
             TooltipHelper.SetupSubtypeInfoTooltip(buttonNextTooltipController, "", "");
 
-            SetTooltips(switcherModule.currentSubtypeIndex);
+            SetTooltips(currentButtonIndex);
 
             buttonPrevious.onClick.AddListener(PreviousSubtype);
             buttonNext.onClick.AddListener(NextSubtype);
 
             subtypeTitleText.text = switcherModule.CurrentSubtype.title;
 
-            subtypeButtons[switcherModule.currentSubtypeIndex].Activate();
+            subtypeButtons[currentButtonIndex].Activate();
         }
 
         private void PreviousSubtype()
         {
-            int currentIndex = field.GetValue<int>(field.host);
-            subtypeButtons[currentIndex].previousItem.SetSubtype();
+            subtypeButtons[currentButtonIndex].previousItem.SetSubtype();
         }
 
         private void NextSubtype()
         {
-            int currentIndex = field.GetValue<int>(field.host);
-            subtypeButtons[currentIndex].nextItem.SetSubtype();
+            subtypeButtons[currentButtonIndex].nextItem.SetSubtype();
         }
 
-        private void SetSubtype(int newIndex)
+        private void SetSubtype(int subtypeIndex, int buttonIndex)
         {
-            int currentIndex = field.GetValue<int>(field.host);
-            if (newIndex == currentIndex) return;
+            if (buttonIndex == currentButtonIndex) return;
 
-            subtypeButtons[currentIndex].Deactivate();
-            subtypeButtons[newIndex].Activate();
-            subtypeTitleText.text = subtypeButtons[newIndex].Title;
+            subtypeButtons[currentButtonIndex].Deactivate();
+            currentButtonIndex = buttonIndex;
+            subtypeButtons[currentButtonIndex].Activate();
+            subtypeTitleText.text = subtypeButtons[currentButtonIndex].Title;
 
-            SetTooltips(newIndex);
+            SetTooltips(currentButtonIndex);
 
-            SetFieldValue(newIndex);
+            SetFieldValue(subtypeIndex);
         }
 
         private void SetTooltips(int index)
