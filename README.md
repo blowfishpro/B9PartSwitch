@@ -29,6 +29,13 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.13.0
+
+* Support changing `ModuleDeployableSolarpanel` `chargeRate`
+* Get rid of some useless debug messages related to UI prefabs
+* Fix UI breaking on switchers with tech restrictions if subtypes are unlocked out of order
+* Fix texture switches breaking on inactive subtypes when a part is duplicated
+
 # v2.12.1
 
 * Recompile against KSP 1.8.1
