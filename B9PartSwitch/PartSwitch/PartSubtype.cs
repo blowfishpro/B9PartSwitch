@@ -6,6 +6,7 @@ using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using ILogger = B9PartSwitch.Logging.ILogger;
 
 namespace B9PartSwitch
 {
@@ -238,7 +239,7 @@ namespace B9PartSwitch
             }
         }
 
-        public void Setup(ModuleB9PartSwitch parent, bool displayWarnings = true)
+        public void Setup(ModuleB9PartSwitch parent, bool displayWarnings = true, ILogger logger = null)
         {
             if (parent == null)
                 throw new ArgumentNullException("parent cannot be null");

@@ -4,6 +4,7 @@ using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
+using B9PartSwitch.Logging;
 
 namespace B9PartSwitch
 {
@@ -19,9 +20,16 @@ namespace B9PartSwitch
         [SerializeField]
         private SerializedDataContainer serializedData;
 
+        protected Logging.ILogger logger;
+
         #endregion
 
         #region Setup
+
+        public override void OnAwake()
+        {
+            logger = CreateLogger();
+        }
 
         [SuppressMessage("Code Quality", "IDE0051", Justification = "Called by Unity")]
         private void Start()
@@ -30,7 +38,7 @@ namespace B9PartSwitch
             var otherModules = part.Modules.OfType<CustomPartModule>().Where(m => m != this && m.GetType() == GetType()).ToArray();
             if (otherModules.Length > 0 && moduleID.IsNullOrEmpty())
             {
-                LogError("Must have a moduleID defined if more than one " + this.GetType().Name + " is present on a part.  This module will be removed");
+                logger.Error("Must have a moduleID defined if more than one " + GetType().Name + " is present on a part.  This module will be removed");
                 part.Modules.Remove(this);
                 Destroy(this);
                 return;
@@ -40,7 +48,7 @@ namespace B9PartSwitch
             {
                 if (m.moduleID.IsNullOrEmpty() || m.moduleID == moduleID)
                 {
-                    LogError("Two " + GetType().Name + " modules on the same part must have different (and non-empty) moduleID identifiers.  The second " + GetType().Name + " will be removed");
+                    logger.Error("Two " + GetType().Name + " modules on the same part must have different (and non-empty) moduleID identifiers.  The second " + GetType().Name + " will be removed");
                     part.Modules.Remove(m);
                     Destroy(m);
                 }
@@ -63,12 +71,12 @@ namespace B9PartSwitch
                     var correctModule = part.Modules.OfType<CustomPartModule>().FirstOrDefault(m => m != this && m.GetType() == GetType() && m.moduleID == newID);
                     if (correctModule.IsNotNull())
                     {
-                        LogWarning("OnLoad was called with the wrong ModuleID ('" + newID + "'), but found the correct module to load");
+                        logger.Warning("OnLoad was called with the wrong ModuleID ('" + newID + "'), but found the correct module to load");
                         correctModule.Load(node);
                     }
                     else
                     {
-                        LogError("OnLoad was called with the wrong ModuleID and the correct module could not be found");
+                        logger.Error("OnLoad was called with the wrong ModuleID and the correct module could not be found");
                     }
                     return;
                 }
@@ -85,7 +93,7 @@ namespace B9PartSwitch
             catch (Exception ex)
             {
                 Exception ex2 = new Exception($"Fatal exception while loading fields on module {this}", ex);
-                FatalErrorHandler.HandleFatalError(ex2);
+                logger.FatalException(ex2);
                 throw ex2;
             }
 
@@ -115,7 +123,7 @@ namespace B9PartSwitch
             catch (Exception ex)
             {
                 Exception ex2 = new Exception($"Fatal exception while saving fields on module {this}", ex);
-                FatalErrorHandler.HandleFatalError(ex2);
+                logger.FatalException(ex2);
                 throw ex2;
             }
         }
@@ -141,11 +149,17 @@ namespace B9PartSwitch
 
         #region Logging
 
-        protected void LogInfo(object message) => ((PartModule)this).LogInfo(message);
-
-        protected void LogWarning(object message) => ((PartModule)this).LogWarning(message);
-
-        protected void LogError(object message) => ((PartModule)this).LogError(message);
+        protected Logging.ILogger CreateLogger()
+        {
+            string partName = part?.partInfo?.name ?? part?.name;
+            string moduleName = GetType().FullName;
+            string tagString;
+            if (moduleID.IsNullOrEmpty())
+                tagString = $"{partName} {moduleName}";
+            else
+                tagString = $"{partName} {moduleName} '{moduleID}'";
+            return new PrefixLogger(SystemLogger.Logger, tagString);
+        }
 
         public override string ToString()
         {

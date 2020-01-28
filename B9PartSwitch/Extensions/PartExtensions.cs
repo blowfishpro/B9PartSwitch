@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
+using B9PartSwitch.Logging;
 
 namespace B9PartSwitch
 {
@@ -37,15 +39,9 @@ namespace B9PartSwitch
         public static PartResource AddOrCreateResource(this Part part, PartResourceDefinition info, float maxAmount, float amount, bool modifyAmountIfPresent)
         {
             if (amount > maxAmount)
-            {
-                part.LogWarning($"Cannot add resource '{info.name}' with amount > maxAmount, will use maxAmount (amount = {amount}, maxAmount = {maxAmount})");
-                amount = maxAmount;
-            }
+                throw new ArgumentException($"Cannot add resource '{info.name}' with amount > maxAmount (amount = {amount}, maxAmount = {maxAmount})");
             else if (amount < 0f)
-            {
-                part.LogWarning($"Cannot add resource '{info.name}' with amount < 0, will use 0 (amount = {amount})");
-                amount = 0f;
-            }
+                throw new ArgumentException($"Cannot add resource '{info.name}' with amount < 0 (amount = {amount})", nameof(amount));
 
             PartResource resource = part.Resources[info.name];
 
@@ -145,14 +141,16 @@ namespace B9PartSwitch
                     module.jettisonTransform == null ||
                     module.jettisonTransform.root == part.gameObject.transform.root
                 ) continue;
-                Object.Instantiate(module.jettisonTransform, module.jettisonTransform.parent);
+                UnityEngine.Object.Instantiate(module.jettisonTransform, module.jettisonTransform.parent);
                 module.jettisonTransform.parent = part.GetModelRoot();
                 module.jettisonTransform.gameObject.SetActive(false);
             }
         }
 
-        public static void LogInfo(this Part part, object message) => Debug.Log($"[Part {part.name}] {message}");
-        public static void LogWarning(this Part part, object message) => Debug.LogWarning($"[WARNING] [Part {part.name}] {message}");
-        public static void LogError(this Part part, object message) => Debug.LogError($"[ERROR] [Part {part.name}] {message}");
+        public static Logging.ILogger CreateLogger(this Part part)
+        {
+            string partName = part.partInfo?.name ?? part.name;
+            return new PrefixLogger(SystemLogger.Logger, partName);
+        }
     }
 }

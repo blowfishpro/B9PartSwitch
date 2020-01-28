@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using B9PartSwitch.Logging;
 
 namespace B9PartSwitch
 {
@@ -9,13 +10,15 @@ namespace B9PartSwitch
         {
             base.OnLoad(node);
 
+            Logging.ILogger logger = this.CreateLogger();
+
             foreach (string transformName in node.GetValues("transform"))
             {
                 Transform[] transforms = part.FindModelTransforms(transformName);
 
                 if (transforms.Length == 0)
                 {
-                    this.LogError($"No transforms named '{transformName}' found in model");
+                    logger.AlertError($"No transforms named '{transformName}' found in model");
                     continue;
                 }
 

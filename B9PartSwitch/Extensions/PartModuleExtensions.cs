@@ -1,4 +1,6 @@
-﻿namespace B9PartSwitch
+﻿using B9PartSwitch.Logging;
+
+namespace B9PartSwitch
 {
     public static class PartModuleExtensions
     {
@@ -7,18 +9,11 @@
 
         #region Logging
 
-        public static void LogInfo(this PartModule module, object message) => module.part.LogInfo($"{module.LogTagString()} {message}");
-        public static void LogWarning(this PartModule module, object message) => module.part.LogWarning($"{module.LogTagString()} {message}");
-        public static void LogError(this PartModule module, object message) => module.part.LogError($"{module.LogTagString()} {message}");
-
-        public static string LogTagString(this PartModule module)
+        public static ILogger CreateLogger(this PartModule module)
         {
-            string info = module.GetType().Name;
-
-            if (module is CustomPartModule utilModule && !utilModule.moduleID.IsNullOrEmpty())
-                info += $" '{utilModule.moduleID}'";
-
-            return $"[{info}]";
+            string partName = module.part.partInfo?.name ?? module.part.name;
+            string moduleName = module.GetType().FullName;
+            return new PrefixLogger(SystemLogger.Logger, $"{partName} {moduleName}");
         }
 
         #endregion

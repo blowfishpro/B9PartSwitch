@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
+using B9PartSwitch.Logging;
 
 namespace B9PartSwitch
 {
@@ -57,7 +58,7 @@ namespace B9PartSwitch
             private set
             {
                 int index = subtypes.FindIndex(subtype => subtype.Name == value);
-                if (index == -1) LogError($"Cannot assign subtype because no subtype with name = '{value}' exists");
+                if (index == -1) logger.Error($"Cannot assign subtype because no subtype with name = '{value}' exists");
                 else currentSubtypeIndex = index;
             }
         }
@@ -151,8 +152,7 @@ namespace B9PartSwitch
             if (duplicatedNames.Length > 0)
             {
                 string duplicatedNamesString = string.Join(", ", duplicatedNames);
-                SeriousWarningHandler.DisplaySeriousWarning($"Duplicated subtype names found on {this}: {duplicatedNamesString}");
-                LogError($"Duplicate subtype names detected: {duplicatedNamesString}");
+                logger.AlertError($"Duplicate subtype names detected: {duplicatedNamesString}");
             }
         }
 
@@ -295,7 +295,7 @@ namespace B9PartSwitch
 
             if (children.Contains(child))
             {
-                LogError($"Child module with id '{child.moduleID}' has already been added!");
+                logger.Error($"Child module with id '{child.moduleID}' has already been added!");
                 return;
             }
 
@@ -370,7 +370,7 @@ namespace B9PartSwitch
 
             if (Parent.IsNull())
             {
-                LogError($"Cannot find parent module with id '{parentID}'");
+                logger.AlertError($"Cannot find parent module with id '{parentID}'");
                 return;
             }
 
@@ -397,8 +397,7 @@ namespace B9PartSwitch
         private void EnsureAtLeastOneUnrestrictedSubtype()
         {
             if (subtypes.Any(subtype => !subtype.HasUpgradeRequired)) return;
-            SeriousWarningHandler.DisplaySeriousWarning($"{this}: must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
-            LogError("must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
+            logger.AlertError("must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
             subtypes[0].upgradeRequired = null;
         }
 
@@ -480,7 +479,7 @@ namespace B9PartSwitch
             UpdateGeometry(true);
             currentSubtypeTitle = CurrentSubtype.title;
 
-            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+            logger.Info($"Switched subtype to {CurrentSubtype.Name}");
         }
 
         private void UpdateOnStartFinished()
@@ -569,7 +568,7 @@ namespace B9PartSwitch
             UpdateGeometry(false);
             Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
-            LogInfo($"Switched subtype to {CurrentSubtype.Name}");
+            logger.Info($"Switched subtype to {CurrentSubtype.Name}");
         }
 
         private void UpdateDragCubesOnAttach()
