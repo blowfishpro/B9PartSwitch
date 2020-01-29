@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UniLinq;
+using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -43,6 +45,12 @@ namespace B9PartSwitch
         public string tankName;
 
         [NodeData]
+        public Color? primaryColor;
+
+        [NodeData]
+        public Color? secondaryColor;
+
+        [NodeData]
         public float tankMass = 0f;
 
         [NodeData]
@@ -73,15 +81,24 @@ namespace B9PartSwitch
 
         public bool IsStructuralTankType => (tankName == B9TankSettings.structuralTankName) && (tankMass == 0f) && (tankCost == 0f) && (resources.Count == 0);
 
+        public float ResourceUnitMass => resources.Sum(r => r.unitsPerVolume * r.resourceDefinition.density);
         public float ResourceUnitCost => resources.Sum(r => r.unitsPerVolume * r.resourceDefinition.unitCost);
+        public float TotalUnitMass => ResourceUnitMass + tankMass;
         public float TotalUnitCost => ResourceUnitCost + tankCost;
 
-        public bool ChangesMass => (tankMass != 0f) || (resources.Any(r => r.resourceDefinition.density != 0f));
-        public bool ChangesCost => (tankCost != 0f) || (resources.Any(r => r.resourceDefinition.unitCost != 0f));
+        public bool ChangesResourceMass => resources.Any(r => r.resourceDefinition.density != 0);
+        public bool ChangesMass => (tankMass != 0f) || ChangesResourceMass;
+        public bool ChangesResourceCost => resources.Any(r => r.resourceDefinition.unitCost != 0);
+        public bool ChangesCost => (tankCost != 0f) || ChangesResourceCost;
 
         #endregion
 
-        public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
+        public void Load(ConfigNode node, OperationContext context)
+        {
+            this.LoadFields(node, context);
+            OnLoad();
+        }
+
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
         public List<TankResource>.Enumerator GetEnumerator() => resources.GetEnumerator();
@@ -100,6 +117,65 @@ namespace B9PartSwitch
                     outStr += "Null Tank Resource";
             }
             return outStr;
+        }
+
+        private void OnLoad()
+        {
+            SetDefaultColors();
+        }
+
+        private void SetDefaultColors()
+        {
+            if (primaryColor.IsNotNull() || secondaryColor.IsNotNull()) return;
+
+            if (resources.Count == 1 && resources[0].ResourceName == "LiquidFuel")
+            {
+                primaryColor = ResourceColors.LiquidFuel;
+            }
+            else if (resources.Count == 2 && resources[0].ResourceName == "LiquidFuel" && resources[1].ResourceName == "Oxidizer")
+            {
+                primaryColor = ResourceColors.LiquidFuel;
+                secondaryColor = ResourceColors.Oxidizer;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "MonoPropellant")
+            {
+                primaryColor = ResourceColors.MonoPropellant;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "ElectricCharge")
+            {
+                primaryColor = ResourceColors.ElectricChargePrimary;
+                secondaryColor = ResourceColors.ElectricChargeSecondary;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "LqdHydrogen")
+            {
+                primaryColor = ResourceColors.LqdHydrogen;
+            }
+            else if (resources.Count == 2 && resources[0].ResourceName == "LqdHydrogen" && resources[1].ResourceName == "Oxidizer")
+            {
+                primaryColor = ResourceColors.LqdHydrogen;
+                secondaryColor = ResourceColors.Oxidizer;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "LqdMethane")
+            {
+                primaryColor = ResourceColors.LqdMethane;
+            }
+            else if (resources.Count == 2 && resources[0].ResourceName == "LqdMethane" && resources[1].ResourceName == "Oxidizer")
+            {
+                primaryColor = ResourceColors.LqdMethane;
+                secondaryColor = ResourceColors.Oxidizer;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "Oxidizer")
+            {
+                primaryColor = ResourceColors.Oxidizer;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "XenonGas")
+            {
+                primaryColor = ResourceColors.XenonGas;
+            }
+            else if (resources.Count == 1 && resources[0].ResourceName == "Ore")
+            {
+                primaryColor = ResourceColors.Ore;
+            }
         }
     }
 }

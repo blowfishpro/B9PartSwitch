@@ -19,6 +19,24 @@ namespace B9PartSwitch
         [NodeData]
         public string title;
 
+        [NodeData]
+        public string descriptionSummary;
+
+        [NodeData]
+        public string descriptionDetail;
+
+        [NodeData]
+        public Color? primaryColor;
+
+        [NodeData]
+        public Color? secondaryColor;
+
+        [NodeData]
+        public string upgradeRequired;
+
+        [NodeData]
+        public float defaultSubtypePriority = 0;
+
         [NodeData(name = "transform")]
         public List<string> transformNames = new List<string>();
 
@@ -33,6 +51,9 @@ namespace B9PartSwitch
 
         [NodeData(name = "TRANSFORM")]
         public List<TransformModifierInfo> transformModifierInfos = new List<TransformModifierInfo>();
+
+        [NodeData(name = "MODULE")]
+        public List<ModuleModifierInfo> moduleModifierInfos = new List<ModuleModifierInfo>();
 
         [NodeData]
         public float addedMass = 0f;
@@ -100,11 +121,10 @@ namespace B9PartSwitch
         #region Private Fields
 
         private ModuleB9PartSwitch parent;
-        private List<Transform> transforms = new List<Transform>();
-        private List<AttachNode> nodes = new List<AttachNode>();
-        private List<IPartModifier> partModifiers = new List<IPartModifier>();
-        private List<object> aspectLocks = new List<object>();
-        private IVolumeProvider volumeProvider = new ZeroVolumeProvider();
+        private readonly List<Transform> transforms = new List<Transform>();
+        private readonly List<AttachNode> nodes = new List<AttachNode>();
+        private readonly List<IPartModifier> partModifiers = new List<IPartModifier>();
+        private readonly List<object> aspectLocks = new List<object>();
 
         #endregion
 
@@ -114,19 +134,22 @@ namespace B9PartSwitch
 
         public bool HasTank => tankType != null && tankType.ResourcesCount > 0;
 
+        public bool HasUpgradeRequired => !upgradeRequired.IsNullOrEmpty();
+
         public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
         public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
         public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
 
-        public float TotalVolume => volumeProvider?.Volume ?? 0f;
-        public float TotalMass => TotalVolume * tankType.tankMass + addedMass * (parent?.VolumeScale ?? 1f);
-        public float TotalCost => TotalVolume * tankType.TotalUnitCost + addedCost * (parent?.VolumeScale ?? 1f);
-
+        public bool ChangesDryMass => addedMass != 0 || tankType.tankMass != 0;
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
+        public bool ChangesDryCost => addedCost != 0 || tankType.tankCost != 0;
         public bool ChangesCost => (addedCost != 0f) || tankType.ChangesCost;
 
         public IEnumerable<object> PartAspectLocks => aspectLocks.All();
+
+        public Color PrimaryColor => primaryColor ?? tankType.primaryColor ?? Color.white;
+        public Color SecondaryColor => secondaryColor ?? tankType.secondaryColor ?? primaryColor ?? tankType.primaryColor ?? Color.gray;
 
         #endregion
 
@@ -170,6 +193,13 @@ namespace B9PartSwitch
             {
                 SeriousWarningHandler.DisplaySeriousWarning($"Subtype has no name: {this}");
                 LogError("Subtype has no name");
+            }
+
+            if (HasUpgradeRequired && PartUpgradeManager.Handler.GetUpgrade(upgradeRequired).IsNull())
+            {
+                SeriousWarningHandler.DisplaySeriousWarning($"Upgrade does not exist: {upgradeRequired} on: {this}");
+                LogError("Upgrade does not exist: " + upgradeRequired);
+                upgradeRequired = null;
             }
 
             if (tankType == null)
@@ -225,10 +255,18 @@ namespace B9PartSwitch
 
             IEnumerable<object> aspectLocksOnOtherModules = parent.PartAspectLocksOnOtherModules;
 
+            string errorString = null;
+
             void OnInitializationError(string message)
             {
                 LogError(message);
-                if (displayWarnings) SeriousWarningHandler.DisplaySeriousWarning(message);
+
+                if (displayWarnings)
+                {
+                    if (errorString == null) errorString = $"Initialization errors on {parent} subtype '{Name}'";
+
+                    errorString += "\n  " + message;
+                }
             }
 
             void MaybeAddModifier(IPartModifier modifier)
@@ -256,7 +294,7 @@ namespace B9PartSwitch
 
             if (attachNode.IsNotNull())
             {
-                if (part.attachRules.allowSrfAttach)
+                if (part.attachRules.srfAttach)
                 {
                     if (part.srfAttachNode.IsNotNull())
                         MaybeAddModifier(new PartAttachNodeModifier(part.srfAttachNode, partPrefab.srfAttachNode, attachNode, parent));
@@ -329,12 +367,11 @@ namespace B9PartSwitch
 
             if (HasTank)
             {
-                volumeProvider = new SubtypeVolumeProvider(parent, volumeMultiplier, volumeAdded);
                 foreach (TankResource resource in tankType)
                 {
                     float filledProportion = (resource.percentFilled ?? percentFilled ?? tankType.percentFilled ?? 100f) * 0.01f;
                     bool? tweakable = resourcesTweakable ?? tankType.resourcesTweakable;
-                    ResourceModifier resourceModifier = new ResourceModifier(resource, volumeProvider, part, filledProportion, tweakable);
+                    ResourceModifier resourceModifier = new ResourceModifier(resource, () => parent.GetTotalVolume(this), part, filledProportion, tweakable);
                     MaybeAddModifier(resourceModifier);
                 }
             }
@@ -363,11 +400,34 @@ namespace B9PartSwitch
                 }
             }
 
+            // Icon setup doesn't set partInfo correctly, so it exists but as a copy without partConfig
+            if ((part.partInfo?.partConfig).IsNotNull())
+            {
+                foreach (ModuleModifierInfo moduleModifierInfo in moduleModifierInfos)
+                {
+                    try
+                    {
+                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent))
+                        {
+                            MaybeAddModifier(partModifier);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        OnInitializationError(ex.Message);
+                        Debug.LogException(ex);
+                    }
+                }
+            }
+
             if (!parent.subtypes.Any(subtype => subtype.Name == mirrorSymmetrySubtype))
             {
                 OnInitializationError($"Cannot find subtype '{mirrorSymmetrySubtype}' for mirror symmetry subtype");
                 mirrorSymmetrySubtype = Name;
             }
+
+            if (errorString.IsNotNull())
+                SeriousWarningHandler.DisplaySeriousWarning(errorString);
         }
 
         #endregion
@@ -390,9 +450,20 @@ namespace B9PartSwitch
                 partModifiers.ForEach(modifier => modifier.ActivateOnStartFlight());
         }
 
-        public void ActivateAfterStart()
+        public void ActivateOnStartFinished()
         {
-            partModifiers.ForEach(modifier => modifier.ActivateAfterStart());
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFinishedEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.ActivateOnStartFinishedFlight());
+        }
+
+        public void DeactivateOnStartFinished()
+        {
+            if (HighLogic.LoadedSceneIsEditor)
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFinishedEditor());
+            else
+                partModifiers.ForEach(modifier => modifier.DeactivateOnStartFinishedFlight());
         }
 
         public void DeactivateOnSwitch()
@@ -452,10 +523,29 @@ namespace B9PartSwitch
         public bool TransformIsManaged(Transform transform) => transforms.Contains(transform);
         public bool NodeManaged(AttachNode node) => nodes.Contains(node);
 
+        public bool ModuleShouldBeEnabled(PartModule module)
+        {
+            foreach (IPartModifier partModifier in partModifiers)
+            {
+                if (!(partModifier is ModuleDeactivator moduleDeactivator)) continue;
+                if (moduleDeactivator.module == module) return false;
+            }
+
+            return true;
+        }
+
         public void AssignStructuralTankType()
         {
             if (!tankType.IsStructuralTankType)
                 tankType = B9TankSettings.StructuralTankType;
+        }
+
+        public bool IsUnlocked()
+        {
+            if (!HasUpgradeRequired) return true;
+            if (HighLogic.CurrentGame.IsNull()) return true;
+            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX) return true;
+            return PartUpgradeManager.Handler.IsUnlocked(upgradeRequired);
         }
 
         public override string ToString()

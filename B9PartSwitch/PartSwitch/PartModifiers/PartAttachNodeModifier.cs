@@ -36,8 +36,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         private void Activate()
         {
-            partAttachNode.position = referenceAttachNode.position * linearScaleProvider.LinearScale;
-            partAttachNode.orientation = referenceAttachNode.orientation;
+            partAttachNode.position = newAttachNode.position * linearScaleProvider.LinearScale;
+            partAttachNode.orientation = newAttachNode.orientation;
         }
 
         private void Deactivate()

@@ -35,14 +35,33 @@ namespace B9PartSwitch.Fishbones.Parsers
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
 
-            return overrides.Any(parser => parser.ParseType == parseType) || innerParseMap.CanParse(parseType);
+            if (overrides.Any(parser => parser.ParseType == parseType)) return true;
+
+            if (parseType.IsNullableValueType())
+            {
+                Type valueType = parseType.GetGenericArguments()[0];
+                if (overrides.Any(parser => parser.ParseType == valueType)) return true;
+            }
+
+            return innerParseMap.CanParse(parseType);
         }
 
         public IValueParser GetParser(Type parseType)
         {
             parseType.ThrowIfNullArgument(nameof(parseType));
 
-            return overrides.FirstOrDefault(parser => parser.ParseType == parseType) ?? innerParseMap.GetParser(parseType);
+            if (overrides.FirstOrDefault(testParser => testParser.ParseType == parseType) is IValueParser parser) return parser;
+
+            if (parseType.IsNullableValueType())
+            {
+                Type valueType = parseType.GetGenericArguments()[0];
+                foreach (IValueParser testParser in overrides)
+                {
+                    if (testParser.ParseType == valueType) return testParser;
+                }
+            }
+
+            return overrides.FirstOrDefault(testParser => testParser.ParseType == parseType) ?? innerParseMap.GetParser(parseType);
         }
     }
 }

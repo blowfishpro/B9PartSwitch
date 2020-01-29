@@ -5,29 +5,29 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public class TextureReplacement : PartModifierBase
     {
-        public readonly Material material;
-        public readonly string shaderProperty;
-        public readonly Texture oldTexture;
-        public readonly Texture newTexture;
+        private readonly Renderer renderer;
+        private readonly string shaderProperty;
+        private readonly Texture oldTexture;
+        private readonly Texture newTexture;
 
-        public TextureReplacement(Material material, string shaderProperty, Texture newTexture)
+        public TextureReplacement(Renderer renderer, string shaderProperty, Texture newTexture)
         {
-            material.ThrowIfNullArgument(nameof(material));
+            renderer.ThrowIfNullArgument(nameof(renderer));
             shaderProperty.ThrowIfNullOrEmpty(nameof(shaderProperty));
             newTexture.ThrowIfNullArgument(nameof(newTexture));
 
-            this.material = material;
+            this.renderer = renderer;
             this.shaderProperty = shaderProperty;
             this.newTexture = newTexture;
 
-            oldTexture = material.GetTexture(shaderProperty);
+            oldTexture = renderer.sharedMaterial.GetTexture(shaderProperty);
 
             if (oldTexture == null)
-                throw new ArgumentException($"{material.name} has no texture on the property {shaderProperty}");
+                throw new ArgumentException($"{renderer.sharedMaterial.name} has no texture on the property {shaderProperty}");
         }
 
-        public override object PartAspectLock => material.GetInstanceID() + "---" + shaderProperty;
-        public override string Description => $"material {material.name} property {shaderProperty}";
+        public override object PartAspectLock => renderer.GetInstanceID() + "---" + shaderProperty;
+        public override string Description => $"object {renderer.name} shader property {shaderProperty}";
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();
@@ -37,10 +37,17 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void DeactivateOnSwitchFlight() => Deactivate();
         public override void OnIconCreateActiveSubtype() => Activate();
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
-        public override void OnWasCopiedActiveSubtype() => Activate();
+        public override void OnWasCopiedActiveSubtype()
+        {
+            // At this point, the copy hasn't been initialized yet, so it still shares a material with this
+            // So make a copy of the material and assign it to avoid affecting the copy too
+            renderer.material = new Material(renderer.material);
+            Activate();
+        }
+
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
-        private void Activate() => material.SetTexture(shaderProperty, newTexture);
-        private void Deactivate() => material.SetTexture(shaderProperty, oldTexture);
+        private void Activate() => renderer.material.SetTexture(shaderProperty, newTexture);
+        private void Deactivate() => renderer.material.SetTexture(shaderProperty, oldTexture);
     }
 }

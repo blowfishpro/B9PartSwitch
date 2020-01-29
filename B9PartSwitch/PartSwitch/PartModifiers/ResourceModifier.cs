@@ -2,49 +2,24 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public interface IVolumeProvider
-    {
-        float Volume { get; }
-    }
-
-    public class ZeroVolumeProvider : IVolumeProvider
-    {
-        public float Volume => 0f;
-    }
-
-    public class SubtypeVolumeProvider : IVolumeProvider
-    {
-        private readonly ModuleB9PartSwitch parent;
-        private readonly float volumeMultiplier;
-        public readonly float volumeAdded;
-
-        public SubtypeVolumeProvider(ModuleB9PartSwitch parent, float volumeMultiplier, float volumeAdded)
-        {
-            parent.ThrowIfNullArgument(nameof(parent));
-            this.parent = parent;
-            this.volumeMultiplier = volumeMultiplier;
-            this.volumeAdded = volumeAdded;
-        }
-
-        public float Volume => (parent.baseVolume * volumeMultiplier + volumeAdded + parent.VolumeFromChildren) * parent.VolumeScale;
-    }
+    public delegate float GetVolumeDelegate();
 
     public class ResourceModifier : PartModifierBase
     {
         private readonly TankResource tankResource;
-        private readonly IVolumeProvider volumeProvider;
+        private readonly GetVolumeDelegate getVolumeDelegate;
         private readonly Part part;
         private readonly float filledProportion;
         private readonly bool? tweakable;
 
-        public ResourceModifier(TankResource tankResource, IVolumeProvider volumeProvider, Part part, float filledProportion, bool? tweakable)
+        public ResourceModifier(TankResource tankResource, GetVolumeDelegate getVolumeDelegate, Part part, float filledProportion, bool? tweakable)
         {
             tankResource.ThrowIfNullArgument(nameof(tankResource));
-            volumeProvider.ThrowIfNullArgument(nameof(volumeProvider));
+            getVolumeDelegate.ThrowIfNullArgument(nameof(getVolumeDelegate));
             part.ThrowIfNullArgument(nameof(part));
 
             this.tankResource = tankResource;
-            this.volumeProvider = volumeProvider;
+            this.getVolumeDelegate = getVolumeDelegate;
             this.part = part;
             this.filledProportion = filledProportion;
             this.tweakable = tweakable;
@@ -64,7 +39,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         private void UpsertResource(bool fillTanks, bool zeroAmount)
         {
-            float maxAmount = volumeProvider.Volume * tankResource.unitsPerVolume;
+            float maxAmount = getVolumeDelegate() * tankResource.unitsPerVolume;
             float amount;
             if (zeroAmount && fillTanks)
                 amount = 0f;

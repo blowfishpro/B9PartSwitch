@@ -64,7 +64,7 @@ namespace B9PartSwitch
 
         // Can't use built-in symmetry because it doesn't know how to find the correct module on the other part
         [KSPField(guiActiveEditor = true, guiName = "Subtype")]
-        [UI_ChooseOption(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
+        [UI.UI_SubtypeSelector(affectSymCounterparts = UI_Scene.None, scene = UI_Scene.Editor, suppressEditorShipModified = true)]
         public int currentSubtypeIndex = -1;
 
         [KSPField]
@@ -82,11 +82,10 @@ namespace B9PartSwitch
         #region Private Fields
 
         // Tweakscale integration (set via reflection, readonly is ok)
-        [SuppressMessage("Style", "IDE0044:Add readonly modifier")]
+        [SuppressMessage("Style", "IDE0032", Justification = "Set by Tweakscale")]
         private readonly float scale = 1f;
 
-        private ModuleB9PartSwitch parent;
-        private List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+        private readonly List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
 
         #endregion
 
@@ -114,7 +113,13 @@ namespace B9PartSwitch
         public bool ManagesTransforms => ManagedTransforms.Any();
         public bool ManagesNodes => ManagedNodes.Any();
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
+
+        public bool ChangesDryMass => subtypes.Any(s => s.ChangesDryMass);
+        public bool ChangesResourceMass => subtypes.Any(s => s.tankType.ChangesResourceMass);
         public bool ChangesMass => subtypes.Any(s => s.ChangesMass);
+
+        public bool ChangesDryCost => subtypes.Any(s => s.ChangesDryCost);
+        public bool ChangesResourceCost => subtypes.Any(s => s.tankType.ChangesResourceCost);
         public bool ChangesCost => subtypes.Any(s => s.ChangesCost);
 
         public float Scale => scale;
@@ -123,6 +128,8 @@ namespace B9PartSwitch
 
         public IEnumerable<object> PartAspectLocks => subtypes.SelectMany(subtype => subtype.PartAspectLocks);
         public IEnumerable<object> PartAspectLocksOnOtherModules => part.Modules.OfType<ModuleB9PartSwitch>().Where(module => module != this).SelectMany(module => module.PartAspectLocks);
+
+        public ModuleB9PartSwitch Parent { get; private set; }
 
         #endregion
 
@@ -165,17 +172,11 @@ namespace B9PartSwitch
 
             InitializeSubtypes();
 
+            EnsureAtLeastOneUnrestrictedSubtype();
+
             FindBestSubtype();
 
             SetupGUI();
-
-            IEnumerator InvokeUpdateAfterStart()
-            {
-                yield return null;
-                UpdateAfterStart();
-            }
-
-            StartCoroutine(InvokeUpdateAfterStart());
         }
 
         // This runs after OnStart() so everything should be initalized
@@ -188,15 +189,22 @@ namespace B9PartSwitch
             UpdateOnStart();
         }
 
+        public override void OnStartFinished(StartState state)
+        {
+            base.OnStartFinished(state);
+
+            UpdateOnStartFinished();
+        }
+
         #endregion
 
         #region Interface Methods
 
-        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => CurrentSubtype.TotalMass;
+        public float GetModuleMass(float baseMass, ModifierStagingSituation situation) => GetDryMass(CurrentSubtype);
 
         public ModifierChangeWhen GetModuleMassChangeWhen() => ModifierChangeWhen.FIXED;
 
-        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) => CurrentSubtype.TotalCost;
+        public float GetModuleCost(float baseCost, ModifierStagingSituation situation) =>  GetWetCost(CurrentSubtype);
 
         public ModifierChangeWhen GetModuleCostChangeWhen() => ModifierChangeWhen.FIXED;
 
@@ -208,7 +216,7 @@ namespace B9PartSwitch
             {
                 outStr += $"\n<b>- {subtype.title}</b>";
                 foreach (var resource in subtype.tankType)
-                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * subtype.TotalVolume :F1}";
+                    outStr += $"\n  <color=#99ff00ff>- {resource.resourceDefinition.displayName}</color>: {resource.unitsPerVolume * GetTotalVolume(subtype) :0.#}";
             }
             return outStr;
         }
@@ -276,6 +284,11 @@ namespace B9PartSwitch
             return true;
         }
 
+        public bool ModuleShouldBeEnabled(PartModule module)
+        {
+            return CurrentSubtype.ModuleShouldBeEnabled(module);
+        }
+
         public void AddChild(ModuleB9PartSwitch child)
         {
             child.ThrowIfNullArgument(nameof(child));
@@ -324,6 +337,24 @@ namespace B9PartSwitch
 
         public bool HasPartAspectLock(object partAspectLock) => PartAspectLocks.Contains(partAspectLock);
 
+        public float GetTotalVolume(PartSubtype subtype) => (baseVolume * subtype.volumeMultiplier + subtype.volumeAdded + VolumeFromChildren) * VolumeScale;
+
+        public float GetDryMass(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.tankMass + subtype.addedMass * VolumeScale;
+
+        public float GetWetMass(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.TotalUnitMass + subtype.addedMass * VolumeScale;
+
+        public float GetDryCost(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.tankCost + subtype.addedCost * VolumeScale;
+
+        public float GetWetCost(PartSubtype subtype) => GetTotalVolume(subtype) * subtype.tankType.TotalUnitCost + subtype.addedCost * VolumeScale;
+
+        public float GetParentDryMass(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.tankMass * VolumeScale;
+
+        public float GetParentWetMass(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.TotalUnitMass * VolumeScale;
+
+        public float GetParentDryCost(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.tankCost * VolumeScale;
+
+        public float GetParentWetCost(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.TotalUnitCost * VolumeScale;
+
         #endregion
 
         #region Private Methods
@@ -332,18 +363,18 @@ namespace B9PartSwitch
 
         private void FindParent()
         {
-            parent = null;
+            Parent = null;
             if (parentID.IsNullOrEmpty()) return;
 
-            parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
+            Parent = part.Modules.OfType<ModuleB9PartSwitch>().FirstOrDefault(module => module.moduleID == parentID);
 
-            if (parent.IsNull())
+            if (Parent.IsNull())
             {
                 LogError($"Cannot find parent module with id '{parentID}'");
                 return;
             }
 
-            parent.AddChild(this);
+            Parent.AddChild(this);
         }
 
         private void InitializeSubtypes(bool displayWarnings = true)
@@ -363,75 +394,68 @@ namespace B9PartSwitch
             }
         }
 
+        private void EnsureAtLeastOneUnrestrictedSubtype()
+        {
+            if (subtypes.Any(subtype => !subtype.HasUpgradeRequired)) return;
+            SeriousWarningHandler.DisplaySeriousWarning($"{this}: must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
+            LogError("must have at least one subtype without tech restrictions, removing tech restriction on first subtype");
+            subtypes[0].upgradeRequired = null;
+        }
+
         private void SetupForIcon()
         {
             // This will deactivate objects on non-active subtypes before the part icon is created, avoiding a visual mess
-            foreach (PartSubtype subtype in subtypes)
+
+            PartSubtype defaultSubtype = subtypes.Where(s => !s.HasUpgradeRequired).MaxBy(s => s.defaultSubtypePriority);
+            currentSubtypeIndex = subtypes.IndexOf(defaultSubtype);
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
             {
-                if (subtype == CurrentSubtype) continue;
                 subtype.DeactivateForIcon();
             }
 
             CurrentSubtype.ActivateForIcon();
         }
 
-        private void FindBestSubtype(ConfigNode node = null)
+        private void FindBestSubtype()
         {
-            if (node?.GetValue("currentSubtypeName") is string name)
+            PartSubtype lockedSubtype = null;
+            if (subtypes.ValidIndex(currentSubtypeIndex))
             {
-                CurrentSubtypeName = name;
+                if (CurrentSubtype.IsUnlocked()) return;
+                else lockedSubtype = CurrentSubtype;
             }
 
-            if (subtypes.ValidIndex(currentSubtypeIndex)) return;
+            BestSubtypeDeterminator determinator = new BestSubtypeDeterminator();
+            IEnumerable<string> resourceNamesOnPart = part.Resources.Select(resource => resource.resourceName);
+            PartSubtype bestSubtype = determinator.FindBestSubtype(subtypes.Where(s => s.IsUnlocked()), resourceNamesOnPart);
 
-            if (ManagesResources)
-            {
-                // Now use resources
-                // This finds all the managed resources that currently exist on teh part
-                string[] resourcesOnPart = ManagedResourceNames.Intersect(part.Resources.Select(resource => resource.resourceName)).ToArray();
+            currentSubtypeIndex = subtypes.IndexOf(bestSubtype);
 
-#if DEBUG
-                LogInfo($"Managed resources found on part: [{string.Join(", ", resourcesOnPart)}]");
-#endif
-
-                // If any of the part's current resources are managed, look for a subtype which has all of the managed resources (and all of its resources exist)
-                // Otherwise, look for a structural subtype (no resources)
-                if (resourcesOnPart.Any())
-                {
-                    currentSubtypeIndex = subtypes.FindIndex(subtype => subtype.HasTank && subtype.ResourceNames.SameElementsAs(resourcesOnPart));
-                    LogInfo($"Inferred subtype based on part's resources: '{CurrentSubtype.Name}'");
-                }
-                else
-                {
-                    currentSubtypeIndex = subtypes.FindIndex(subtype => !subtype.HasTank);
-                }
-            }
-
-            // No useful way to determine correct subtype, just pick first
-            if (!subtypes.ValidIndex(currentSubtypeIndex))
-                currentSubtypeIndex = 0;
+            if (lockedSubtype.IsNotNull())
+                LockedSubtypeWarningHandler.WarnSubtypeLocked($"{this}: locked subtype '{lockedSubtype.title}' replaced with '{CurrentSubtype.title}'");
         }
 
         private void SetupGUI()
         {
+            int unlockedSubtypesCount = subtypes.Count(subtype => subtype.IsUnlocked());
+
             BaseField chooseField = Fields[nameof(currentSubtypeIndex)];
             chooseField.guiName = switcherDescription;
             chooseField.advancedTweakable = advancedTweakablesOnly;
-            chooseField.guiActiveEditor = subtypes.Count > 1;
+            chooseField.guiActiveEditor = unlockedSubtypesCount > 1;
 
-            UI_ChooseOption chooseOption = (UI_ChooseOption)chooseField.uiControlEditor;
-            chooseOption.options = subtypes.Select(s => s.title).ToArray();
-            chooseOption.onFieldChanged = OnSliderUpdate;
+            chooseField.uiControlEditor.onFieldChanged = OnSliderUpdate;
 
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiName = Localization.ModuleB9PartSwitch_SelectSubtype(switcherDescription); // Select <<1>>
             switchSubtypeEvent.advancedTweakable = advancedTweakablesOnly;
-            switchSubtypeEvent.guiActiveEditor = subtypes.Count > 1;
+            switchSubtypeEvent.guiActiveEditor = unlockedSubtypesCount > 1;
 
             BaseField subtypeTitleField = Fields[nameof(currentSubtypeTitle)];
             subtypeTitleField.guiName = switcherDescription;
             subtypeTitleField.advancedTweakable = advancedTweakablesOnly;
-            subtypeTitleField.guiActiveEditor = subtypes.Count == 1;
+            subtypeTitleField.guiActiveEditor = unlockedSubtypesCount == 1;
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
@@ -439,20 +463,12 @@ namespace B9PartSwitch
 
         private void UpdateSwitchEventFlightVisibility()
         {
-            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight);
+            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight && s.IsUnlocked());
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiActive = switchInFlight && switchInFlightEnabled;
 
             BaseField subtypeTitleField = Fields[nameof(currentSubtypeTitle)];
             subtypeTitleField.guiActive = switchInFlight && !switchInFlightEnabled;
-        }
-
-        private void UpdateOnLoad()
-        {
-            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
-            RemoveUnusedResources();
-            UpdateVolumeFromChildren();
-            CurrentSubtype.ActivateOnStart();
         }
 
         private void UpdateOnStart()
@@ -467,9 +483,14 @@ namespace B9PartSwitch
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
-        private void UpdateAfterStart()
+        private void UpdateOnStartFinished()
         {
-            CurrentSubtype.ActivateAfterStart();
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.DeactivateOnStartFinished();
+            }
+
+            CurrentSubtype.ActivateOnStartFinished();
         }
 
         private void RemoveUnusedResources()
@@ -546,7 +567,7 @@ namespace B9PartSwitch
         {
             CurrentSubtype.ActivateOnSwitch();
             UpdateGeometry(false);
-            parent?.UpdateVolume();
+            Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
@@ -599,9 +620,11 @@ namespace B9PartSwitch
 
         private void UpdatePartActionWindow()
         {
-            var window = FindObjectsOfType<UIPartActionWindow>().FirstOrDefault(w => w.part == part);
-            if (window.IsNotNull())
-                window.displayDirty = true;
+            UIPartActionWindow window = UIPartActionController.Instance?.GetItem(part, false);
+            if (window.IsNull()) return;
+
+            window.ClearList();
+            window.displayDirty = true;
         }
 
         private bool IsLastModuleAffectingDragCubes()

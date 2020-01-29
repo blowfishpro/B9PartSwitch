@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>B9PartSwitch</RootNamespace>
     <AssemblyName>B9PartSwitch</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -43,19 +43,28 @@
     <Reference Include="UnityEngine">
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomPartModule.cs" />
-    <Compile Include="Extensions\CFGUtilPartModuleExtensions.cs" />
+    <Compile Include="Extensions\AttachNodeExtensions.cs" />
+    <Compile Include="Extensions\CustomPartModuleExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\PartExtensions.cs" />
     <Compile Include="Extensions\PartModuleExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TransformExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="FatalErrorHandler.cs" />
+    <Compile Include="FARChecker.cs" />
     <Compile Include="Fishbones\Context\Operation.cs" />
     <Compile Include="Fishbones\Context\OperationContext.cs" />
     <Compile Include="Fishbones\FieldWrappers\FieldWrapper.cs" />
@@ -87,24 +96,33 @@
     <Compile Include="Fishbones\Parsers\NodeObjectWrapperIContextualNode.cs" />
     <Compile Include="Fishbones\Parsers\OverrideValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\PartResourceDefinitionValueParser.cs" />
+    <Compile Include="Fishbones\Parsers\ScaleParser.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMap.cs" />
     <Compile Include="Fishbones\Parsers\ValueParseMapWrapper.cs" />
     <Compile Include="Fishbones\Parsers\ValueParser.cs" />
     <Compile Include="Fishbones\NodeDataMappers\INodeDataMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataBuilder.cs" />
     <Compile Include="Fishbones\NodeDataField.cs" />
-    <Compile Include="Fishbones\OperationManager.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueListMapperBuilder.cs" />
     <Compile Include="Fishbones\NodeDataMappers\ValueScalarMapperBuilder.cs" />
+    <Compile Include="Fishbones\OperationManager.cs" />
     <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ModuleB9DisableTransform.cs" />
     <Compile Include="ModuleB9PropagateCopyEvents.cs" />
-    <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\AttachNodeModifierInfo.cs" />
+    <Compile Include="PartSwitch\BestSubtypeDeterminator.cs" />
+    <Compile Include="PartSwitch\LockedSubtypeWarningHandler.cs" />
     <Compile Include="PartSwitch\ModuleB9PartInfo.cs" />
+    <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
+    <Compile Include="PartSwitch\ModuleModifierInfo.cs" />
+    <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeToggler.cs" />
+    <Compile Include="PartSwitch\PartModifiers\EffectDeactivator.cs" />
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />
+    <Compile Include="PartSwitch\PartModifiers\ModuleDataHandlerBasic.cs" />
+    <Compile Include="PartSwitch\PartModifiers\ModuleDeactivator.cs" />
+    <Compile Include="PartSwitch\PartModifiers\ModuleOutputResourceResetter.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartAttachNodeModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfBuoyancyModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartCenterOfDisplacementModifier.cs" />
@@ -117,29 +135,30 @@
     <Compile Include="PartSwitch\PartModifiers\PartSkinMaxTempModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\PartStackSymmetryModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ResourceModifier.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformMover.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformRotator.cs" />
+    <Compile Include="PartSwitch\PartModifiers\TransformScaleModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\TransformToggler.cs" />
+    <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="PartSwitch\PartSwitchFlightDialog.cs" />
-    <Compile Include="PartSwitch\PartModifiers\TextureReplacement.cs" />
     <Compile Include="PartSwitch\TextureSwitchInfo.cs" />
     <Compile Include="PartSwitch\TransformModifierInfo.cs" />
     <Compile Include="Serialization\SerializedDataContainer.cs" />
-    <Compile Include="Extensions\AttachNodeExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Extensions\PartExtensions.cs" />
-    <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="FARChecker.cs" />
-    <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="SeriousWarningHandler.cs" />
-    <Compile Include="TankSettings\B9TankSettings.cs" />
-    <Compile Include="PartSwitch\ModuleB9PartSwitch.cs" />
-    <Compile Include="PartSwitch\PartSubtype.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TankSettings\B9TankSettings.cs" />
     <Compile Include="TankSettings\Tanks.cs" />
     <Compile Include="TankSettings\TankTypeValueParser.cs" />
-    <Compile Include="Test\ModuleB9PartSwitchTest.cs" />
-    <Compile Include="Test\PartModuleTest.cs" />
+    <Compile Include="UI\PrefabManager.cs" />
+    <Compile Include="UI\SwitcherSubtypeDescriptionGenerator.cs" />
+    <Compile Include="UI\TooltipHelper.cs" />
+    <Compile Include="UI\UIPartActionSubtypeButton.cs" />
+    <Compile Include="UI\UIPartActionSubtypeSelector.cs" />
+    <Compile Include="UI\UI_SubtypeSelector.cs" />
+    <Compile Include="Utils\ColorParser.cs" />
+    <Compile Include="Utils\GroupedStringBuilder.cs" />
+    <Compile Include="Utils\ResourceColors.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -159,7 +178,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

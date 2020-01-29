@@ -67,6 +67,8 @@ namespace B9PartSwitch
             return resource;
         }
 
+        public static float GetResourceMassMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.density);
+
         public static float GetResourceCostMax(this Part part) => part.Resources.Sum(resource => (float)resource.maxAmount * resource.info.unitCost);
         public static float GetResourceCostOffset(this Part part) => part.Resources.Sum(resource => (float)(resource.amount - resource.maxAmount) * resource.info.unitCost);
 
@@ -84,6 +86,15 @@ namespace B9PartSwitch
             }
 
             t.gameObject.SetActive(shouldBeEnabled);
+
+            if (part.partRendererBoundsIgnore.Contains(t.name))
+            {
+                if (shouldBeEnabled) part.partRendererBoundsIgnore.Remove(t.name);
+            }
+            else
+            {
+                if (!shouldBeEnabled) part.partRendererBoundsIgnore.Add(t.name);
+            }
         }
 
         public static void UpdateNodeEnabled(this Part part, AttachNode node)

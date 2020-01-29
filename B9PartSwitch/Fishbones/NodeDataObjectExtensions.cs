@@ -47,7 +47,25 @@ namespace B9PartSwitch.Fishbones
         {
             obj.ThrowIfNullArgument(nameof(obj));
 
-            return obj.SerializeToNode().ToString();
+            ConfigNode node = obj.SerializeToNode();
+
+            void EscapeValuesRecursive(ConfigNode theNode)
+            {
+                foreach (ConfigNode subNode in theNode.nodes)
+                {
+                    EscapeValuesRecursive(subNode);
+                }
+
+                foreach (ConfigNode.Value value in theNode.values)
+                {
+                    value.value = value.value.Replace("\n", "\\n");
+                    value.value = value.value.Replace("\t", "\\t");
+                }
+            }
+
+            EscapeValuesRecursive(node);
+
+            return node.ToString();
         }
 
         public static ConfigNode SerializeToNode(this object obj)
@@ -92,6 +110,22 @@ namespace B9PartSwitch.Fishbones
 
             ConfigNode dataNode = node.GetNode(SERIALIZED_NODE);
             if (dataNode.IsNull()) throw new FormatException("No serialized data node found");
+
+            void UnescapeValuesRecursive(ConfigNode theNode)
+            {
+                foreach (ConfigNode subNode in theNode.nodes)
+                {
+                    UnescapeValuesRecursive(subNode);
+                }
+
+                foreach (ConfigNode.Value value in theNode.values)
+                {
+                    value.value = value.value.Replace("\\n", "\n");
+                    value.value = value.value.Replace("\\t", "\t");
+                }
+            }
+
+            UnescapeValuesRecursive(dataNode);
 
             obj.DeserializeFromNode(dataNode);
         }
