@@ -4,7 +4,6 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public interface IPartModifier
     {
-        object PartAspectLock { get; }
         string Description { get; }
 
         void DeactivateOnStartEditor();

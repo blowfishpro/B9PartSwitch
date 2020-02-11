@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class TransformRotator : PartModifierBase
+    public class TransformRotator : PartModifierBase, IPartAspectLock
     {
         private readonly Transform transform;
         private readonly Quaternion rotationOffset;
@@ -18,7 +18,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public override string Description => $"transform '{transform.name}' rotation offset";
-        public override object PartAspectLock => transform.GetInstanceID() + "---rotation";
+        public object PartAspectLock => transform.GetInstanceID() + "---rotation";
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();

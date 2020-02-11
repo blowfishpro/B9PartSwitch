@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class TextureReplacement : PartModifierBase
+    public class TextureReplacement : PartModifierBase, IPartAspectLock
     {
         private readonly Renderer renderer;
         private readonly string shaderProperty;
@@ -26,7 +26,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
                 throw new ArgumentException($"{renderer.sharedMaterial.name} has no texture on the property {shaderProperty}");
         }
 
-        public override object PartAspectLock => renderer.GetInstanceID() + "---" + shaderProperty;
+        public object PartAspectLock => renderer.GetInstanceID() + "---" + shaderProperty;
         public override string Description => $"object {renderer.name} shader property {shaderProperty}";
 
         public override void ActivateOnStartEditor() => Activate();
