@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    class PartCoMOffsetModifier : PartModifierBase
+    class PartCoMOffsetModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "CoMOffset";
 
@@ -11,7 +11,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly Vector3 origCoMOffset;
         private readonly Vector3 newCoMOffset;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's CoMOffset";
 
         public PartCoMOffsetModifier(Part part, Vector3 origCoMOffset, Vector3 newCoMOffset)

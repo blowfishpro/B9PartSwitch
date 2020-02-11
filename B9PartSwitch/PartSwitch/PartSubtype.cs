@@ -272,15 +272,22 @@ namespace B9PartSwitch
             void MaybeAddModifier(IPartModifier modifier)
             {
                 if (modifier == null) return;
-                if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
+
+                if (modifier is IPartAspectLock partAspectLockHolder)
                 {
-                    OnInitializationError($"More than one module can't manage {modifier.Description}");
+                    object partAspectLock = partAspectLockHolder;
+                    if (aspectLocksOnOtherModules.Contains(partAspectLock))
+                    {
+                        OnInitializationError($"More than one module can't manage {modifier.Description}");
+                        return;
+                    }
+                    else
+                    {
+                        aspectLocks.Add(partAspectLock);
+                    }
                 }
-                else
-                {
-                    partModifiers.Add(modifier);
-                    aspectLocks.Add(modifier.PartAspectLock);
-                }
+
+                partModifiers.Add(modifier);
             }
 
             if (maxTemp > 0)

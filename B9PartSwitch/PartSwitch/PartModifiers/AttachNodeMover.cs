@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class AttachNodeMover : PartModifierBase
+    public class AttachNodeMover : PartModifierBase, IPartAspectLock
     {
         public readonly AttachNode attachNode;
         private readonly Vector3 position;
@@ -19,7 +19,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.linearScaleProvider = linearScaleProvider;
         }
 
-        public override object PartAspectLock => attachNode.id + "---position";
+        public object PartAspectLock => attachNode.id + "---position";
         public override string Description => $"attach node '{attachNode.id}'";
 
         public override void ActivateOnStartEditor() => SetAttachNodePosition();

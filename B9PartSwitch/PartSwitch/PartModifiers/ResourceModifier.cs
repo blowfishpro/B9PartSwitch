@@ -4,7 +4,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public delegate float GetVolumeDelegate();
 
-    public class ResourceModifier : PartModifierBase
+    public class ResourceModifier : PartModifierBase, IPartAspectLock
     {
         private readonly TankResource tankResource;
         private readonly GetVolumeDelegate getVolumeDelegate;
@@ -34,7 +34,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void UpdateVolumeEditor() => UpsertResource(true, false);
         public override void UpdateVolumeFlight() => UpsertResource(true, true);
 
-        public override object PartAspectLock => tankResource.ResourceName;
+        public object PartAspectLock => tankResource.ResourceName;
         public override string Description => $"resource '{tankResource.ResourceName}'";
 
         private void UpsertResource(bool fillTanks, bool zeroAmount)

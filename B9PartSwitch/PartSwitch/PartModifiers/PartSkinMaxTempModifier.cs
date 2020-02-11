@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartSkinMaxTempModifier : PartModifierBase
+    public class PartSkinMaxTempModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "skinMaxTemp";
 
@@ -10,7 +10,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly double origSkinMaxTemp;
         private readonly double newSkinMaxTemp;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's skinMaxTemp";
 
         public PartSkinMaxTempModifier(Part part, double origSkinMaxTemp, double newSkinMaxTemp)

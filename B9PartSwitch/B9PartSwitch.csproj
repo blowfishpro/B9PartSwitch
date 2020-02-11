@@ -119,6 +119,7 @@
     <Compile Include="PartSwitch\PartModifiers\AttachNodeMover.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeToggler.cs" />
     <Compile Include="PartSwitch\PartModifiers\EffectDeactivator.cs" />
+    <Compile Include="PartSwitch\PartModifiers\IPartAspectLock.cs" />
     <Compile Include="PartSwitch\PartModifiers\IPartModifier.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDataHandlerBasic.cs" />
     <Compile Include="PartSwitch\PartModifiers\ModuleDeactivator.cs" />

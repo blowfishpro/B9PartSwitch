@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartStackSymmetryModifier : PartModifierBase
+    public class PartStackSymmetryModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "stackSymmetry";
 
@@ -10,7 +10,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly int origStackSymmetry;
         private readonly int newStackSymmetry;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's stackSymmetry";
 
         public PartStackSymmetryModifier(Part part, int origStackSymmetry, int newStackSymmetry)
