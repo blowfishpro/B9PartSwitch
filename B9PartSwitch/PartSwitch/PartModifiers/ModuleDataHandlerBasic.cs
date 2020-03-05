@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
@@ -65,13 +64,18 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             bool setsType = sourceNode.TryGetValue("type", ref type);
 
             if (setsVolume) {
-                Type ModuleFuelTanks = module.GetType();
-                FieldInfo volumeField = ModuleFuelTanks.GetField("volume");
-                double curVolume = (double)volumeField.GetValue(module);
-                if (volume != curVolume) {
-                    MethodInfo changeVolume = ModuleFuelTanks.GetMethod("ChangeVolume");
-                    changeVolume.Invoke(module, new object[]{ volume });
-                }
+                // Update the tank volume by sending a volume-change event in the format that Procedural Parts uses.
+                // Procedural Parts reports the outside volume of the tank in cubic meters (or equivalently,
+                // kiloliters). ModuleFuelTanks scales the reported volume by the `tankVolumeConversion` and
+                // `utilization` fields to compute the available internal volume in liters.
+                // Since the `volume` configuration field is meant to set the available volume in liters directly,
+                // we need to read the scaling values and apply the inverse scaling to the value that we send.
+                float scaleFactor = module.Fields.GetValue<float>("tankVolumeConversion");
+                float utilization = module.Fields.GetValue<float>("utilization");
+                var evtDetails = new BaseEventDetails(BaseEventDetails.Sender.USER);
+                evtDetails.Set<string>("volName", "Tankage");
+                evtDetails.Set<double>("newTotalVolume", volume * 100 / utilization / scaleFactor);
+                module.part.SendEvent("OnPartVolumeChanged", evtDetails, 0);
             }
             if (setsType) {
                 module.Fields.SetValue("type", type);
