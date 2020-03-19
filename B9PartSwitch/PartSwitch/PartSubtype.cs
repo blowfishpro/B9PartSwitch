@@ -241,6 +241,22 @@ namespace B9PartSwitch
             }
         }
 
+        public void OnAfterReinitializeInactiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeInactiveSubtype();
+            }
+        }
+
+        public void OnAfterReinitializeActiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeActiveSubtype();
+            }
+        }
+
         public void Setup(ModuleB9PartSwitch parent, bool displayWarnings = true)
         {
             if (parent == null)

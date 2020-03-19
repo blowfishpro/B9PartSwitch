@@ -45,6 +45,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
+        public override void OnAfterReinitializeActiveSubtype() => Activate();
 
         private void Activate() => renderer.material.SetColor(shaderProperty, newColor);
         private void Deactivate() => renderer.material.SetColor(shaderProperty, originalColor);
