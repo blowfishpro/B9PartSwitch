@@ -30,7 +30,16 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
 
-        private void Activate() => module.Load(dataNode);
-        private void Deactivate() => module.Load(originalNode);
+        private void Activate()
+        {
+            module.Load(dataNode);
+            module.Events.Send("ModuleDataChanged");
+        }
+
+        private void Deactivate()
+        {
+            module.Load(originalNode);
+            module.Events.Send("ModuleDataChanged");
+        }
     }
 }
