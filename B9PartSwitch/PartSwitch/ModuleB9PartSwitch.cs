@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -77,6 +78,9 @@ namespace B9PartSwitch
         [KSPEvent(guiActiveEditor = true)]
         public void ShowSubtypesWindow() => PartSwitchFlightDialog.Spawn(this);
 
+        [KSPEvent]
+        public void OnPartModelChanged() => reinitialzeModelTransactionManager.RequestChange();
+
         #endregion
 
         #region Private Fields
@@ -86,6 +90,8 @@ namespace B9PartSwitch
         private readonly float scale = 1f;
 
         private readonly List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+
+        private ChangeTransactionManager reinitialzeModelTransactionManager;
 
         #endregion
 
@@ -134,6 +140,13 @@ namespace B9PartSwitch
         #endregion
 
         #region Setup
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+
+            reinitialzeModelTransactionManager = new ChangeTransactionManager(ReinitializeModel);
+        }
 
         protected override void OnLoadPrefab(ConfigNode node)
         {
@@ -241,7 +254,11 @@ namespace B9PartSwitch
         {
             int oldIndex = (int)oldFieldValueObj;
 
-            subtypes[oldIndex].DeactivateOnSwitch();
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                subtypes[oldIndex].DeactivateOnSwitch();
+                UpdateSubtype();
+            });
 
             UpdateOnSwitch();
         }
@@ -252,8 +269,12 @@ namespace B9PartSwitch
 
         public void SwitchSubtype(string name)
         {
-            CurrentSubtype.DeactivateOnSwitch();
-            CurrentSubtypeName = name;
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                CurrentSubtype.DeactivateOnSwitch();
+                CurrentSubtypeName = name;
+                UpdateSubtype();
+            });
 
             UpdateOnSwitch();
         }
@@ -392,6 +413,8 @@ namespace B9PartSwitch
             {
                 subtype.Setup(this, displayWarnings: displayWarnings);
             }
+
+            reinitialzeModelTransactionManager.Initialize();
         }
 
         private void EnsureAtLeastOneUnrestrictedSubtype()
@@ -473,10 +496,17 @@ namespace B9PartSwitch
 
         private void UpdateOnStart()
         {
-            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
-            RemoveUnusedResources();
-            UpdateVolumeFromChildren();
-            CurrentSubtype.ActivateOnStart();
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                foreach (PartSubtype subtype in InactiveSubtypes)
+                {
+                    subtype.DeactivateOnStart();
+                }
+                RemoveUnusedResources();
+                UpdateVolumeFromChildren();
+                CurrentSubtype.ActivateOnStart();
+            });
+
             UpdateGeometry(true);
             currentSubtypeTitle = CurrentSubtype.title;
 
@@ -527,8 +557,6 @@ namespace B9PartSwitch
 
         private void UpdateOnSwitch()
         {
-            UpdateSubtype();
-
             if (HighLogic.LoadedSceneIsEditor)
             {
                 string symmetrySubtypeName;
@@ -556,11 +584,35 @@ namespace B9PartSwitch
 
         private void UpdateFromSymmetry(string newSubtypeName)
         {
-            CurrentSubtype.DeactivateOnSwitch();
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                CurrentSubtype.DeactivateOnSwitch();
+                CurrentSubtypeName = newSubtypeName;
+                UpdateSubtype();
+            });
+        }
 
-            CurrentSubtypeName = newSubtypeName;
+        private void ReinitializeModel()
+        {
+            if (subtypes.Count == 0) return;
 
-            UpdateSubtype();
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnBeforeReinitializeInactiveSubtype();
+            }
+
+            CurrentSubtype.OnBeforeReinitializeActiveSubtype();
+
+            foreach (PartSubtype subtype in subtypes)
+            {
+                subtype.Setup(this);
+            }
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnAfterReinitializeInactiveSubtype();
+            }
+            CurrentSubtype.OnAfterReinitializeActiveSubtype();
         }
 
         private void UpdateSubtype()
