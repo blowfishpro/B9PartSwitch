@@ -139,9 +139,7 @@ namespace B9PartSwitch
 
         public bool HasUpgradeRequired => !upgradeRequired.IsNullOrEmpty();
 
-        public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
-        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
         public bool ChangesGeometry => partModifiers.Any(modifier => modifier.ChangesGeometry);
 
         public bool ChangesDryMass => addedMass != 0 || tankType.tankMass != 0;

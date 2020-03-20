@@ -110,13 +110,9 @@ namespace B9PartSwitch
         public float VolumeFromChildren { get; private set; } = 0f;
         public float VolumeAddedToParent => CurrentSubtype.volumeAddedToParent;
 
-        public PartSubtype this[int index] => subtypes[index];
-
-        public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
 
         public bool ChangesGeometry => subtypes.Any(subtype => subtype.ChangesGeometry);
-        public bool ManagesNodes => ManagedNodes.Any();
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
 
         public bool ChangesDryMass => subtypes.Any(s => s.ChangesDryMass);
