@@ -4,7 +4,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 {
     public abstract class PartModifierBase : IPartModifier
     {
-        public virtual string Description { get; }
+        public abstract string Description { get; }
         public virtual bool ChangesGeometry => false;
 
         public virtual void DeactivateOnStartEditor() { }

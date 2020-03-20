@@ -17,6 +17,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.part = part;
         }
 
+        public override string Description => $"Transform {transform.name} enabled state";
         public override bool ChangesGeometry => true;
 
         public override void DeactivateOnStartEditor() => Deactivate();
