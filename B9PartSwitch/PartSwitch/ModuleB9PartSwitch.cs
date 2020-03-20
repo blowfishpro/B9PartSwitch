@@ -112,11 +112,10 @@ namespace B9PartSwitch
 
         public PartSubtype this[int index] => subtypes[index];
 
-        public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
         public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
 
-        public bool ManagesTransforms => ManagedTransforms.Any();
+        public bool ChangesGeometry => subtypes.Any(subtype => subtype.ChangesGeometry);
         public bool ManagesNodes => ManagedNodes.Any();
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
 
@@ -652,7 +651,7 @@ namespace B9PartSwitch
 
         private void UpdateGeometry(bool start)
         {
-            if (!ManagesTransforms) return;
+            if (!ChangesGeometry) return;
 
             if (FARWrapper.FARLoaded && affectFARVoxels)
             {
@@ -681,7 +680,7 @@ namespace B9PartSwitch
 
         private bool IsLastModuleAffectingDragCubes()
         {
-            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ManagesTransforms && m.affectDragCubes).LastOrDefault();
+            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ChangesGeometry && m.affectDragCubes).LastOrDefault();
             return ReferenceEquals(this, lastModule);
         }
 

@@ -17,6 +17,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.part = part;
         }
 
+        public override bool ChangesGeometry => true;
+
         public override void DeactivateOnStartEditor() => Deactivate();
         public override void DeactivateOnStartFlight() => Deactivate();
         public override void ActivateOnStartEditor() => Activate();

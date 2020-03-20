@@ -18,6 +18,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public override string Description => $"transform '{transform.name}' position offset";
+        public override bool ChangesGeometry => true;
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();

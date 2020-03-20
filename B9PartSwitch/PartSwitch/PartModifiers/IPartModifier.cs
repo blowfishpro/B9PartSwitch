@@ -5,6 +5,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
     public interface IPartModifier
     {
         string Description { get; }
+        bool ChangesGeometry { get; }
 
         void DeactivateOnStartEditor();
         void DeactivateOnStartFlight();
