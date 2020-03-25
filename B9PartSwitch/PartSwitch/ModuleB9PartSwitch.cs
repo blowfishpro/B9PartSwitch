@@ -690,12 +690,6 @@ namespace B9PartSwitch
             window.displayDirty = true;
         }
 
-        private bool IsLastModuleAffectingDragCubes()
-        {
-            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ChangesGeometry && m.affectDragCubes).LastOrDefault();
-            return ReferenceEquals(this, lastModule);
-        }
-
         private IEnumerator RenderProceduralDragCubes()
         {
             part.DragCubes.ClearCubes();
