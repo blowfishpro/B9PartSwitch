@@ -439,7 +439,7 @@ namespace B9PartSwitch
                 {
                     try
                     {
-                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent))
+                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent, parent.CreateModuleDataChangedEventDetails()))
                         {
                             MaybeAddModifier(partModifier);
                         }
