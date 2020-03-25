@@ -647,18 +647,6 @@ namespace B9PartSwitch
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
         }
 
-        private void UpdateDragCubesOnAttach()
-        {
-            IEnumerator UpdateDragCubesOnAttachCoroutine()
-            {
-                yield return null;
-                yield return RenderProceduralDragCubes();
-            }
-
-            part.OnEditorAttach -= UpdateDragCubesOnAttach;
-            StartCoroutine(UpdateDragCubesOnAttachCoroutine());
-        }
-
         private void NotifyFARToRevoxelize()
         {
             if (!FARWrapper.FARLoaded) return;
@@ -670,6 +658,27 @@ namespace B9PartSwitch
 
         private void RecalculateDragCubes()
         {
+            IEnumerator RenderProceduralDragCubes()
+            {
+                part.DragCubes.ClearCubes();
+                yield return DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null);
+                part.DragCubes.ForceUpdate(weights: true, occlusion: true);
+                part.DragCubes.SetDragWeights();
+                part.DragCubes.SetPartOcclusion();
+            }
+
+            void UpdateDragCubesOnAttach()
+            {
+                IEnumerator UpdateDragCubesOnAttachCoroutine()
+                {
+                    yield return null;
+                    yield return RenderProceduralDragCubes();
+                }
+
+                part.OnEditorAttach -= UpdateDragCubesOnAttach;
+                StartCoroutine(UpdateDragCubesOnAttachCoroutine());
+            }
+
             if (!needsRecalculateDragCubes) return;
 
             if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
@@ -688,15 +697,6 @@ namespace B9PartSwitch
 
             window.ClearList();
             window.displayDirty = true;
-        }
-
-        private IEnumerator RenderProceduralDragCubes()
-        {
-            part.DragCubes.ClearCubes();
-            yield return DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null);
-            part.DragCubes.ForceUpdate(weights: true, occlusion: true);
-            part.DragCubes.SetDragWeights();
-            part.DragCubes.SetPartOcclusion();
         }
 
         private void UpdateVolumeFromChildren()
