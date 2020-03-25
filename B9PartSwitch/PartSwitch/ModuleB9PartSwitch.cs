@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -77,6 +78,15 @@ namespace B9PartSwitch
         [KSPEvent(guiActiveEditor = true)]
         public void ShowSubtypesWindow() => PartSwitchFlightDialog.Spawn(this);
 
+        [KSPEvent]
+        public void OnPartModelChanged() => reinitialzeModelTransactionManager.RequestChange();
+
+        [KSPEvent]
+        public void DragCubesWereRecalculated() => needsRecalculateDragCubes = false;
+
+        [KSPEvent]
+        public void FarWasNotifiedToRevoxelize() => needsNotifyFARToRevoxelize = false;
+
         #endregion
 
         #region Private Fields
@@ -86,6 +96,11 @@ namespace B9PartSwitch
         private readonly float scale = 1f;
 
         private readonly List<ModuleB9PartSwitch> children = new List<ModuleB9PartSwitch>(0);
+
+        private ChangeTransactionManager reinitialzeModelTransactionManager;
+
+        private bool needsRecalculateDragCubes;
+        private bool needsNotifyFARToRevoxelize;
 
         #endregion
 
@@ -104,14 +119,9 @@ namespace B9PartSwitch
         public float VolumeFromChildren { get; private set; } = 0f;
         public float VolumeAddedToParent => CurrentSubtype.volumeAddedToParent;
 
-        public PartSubtype this[int index] => subtypes[index];
-
-        public IEnumerable<Transform> ManagedTransforms => subtypes.SelectMany(subtype => subtype.Transforms);
-        public IEnumerable<AttachNode> ManagedNodes => subtypes.SelectMany(subtype => subtype.Nodes);
         public IEnumerable<string> ManagedResourceNames => subtypes.SelectMany(subtype => subtype.ResourceNames);
 
-        public bool ManagesTransforms => ManagedTransforms.Any();
-        public bool ManagesNodes => ManagedNodes.Any();
+        public bool ChangesGeometry => subtypes.Any(subtype => subtype.ChangesGeometry);
         public bool ManagesResources => subtypes.Any(s => !s.tankType.IsStructuralTankType);
 
         public bool ChangesDryMass => subtypes.Any(s => s.ChangesDryMass);
@@ -134,6 +144,13 @@ namespace B9PartSwitch
         #endregion
 
         #region Setup
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+
+            reinitialzeModelTransactionManager = new ChangeTransactionManager(ReinitializeModel);
+        }
 
         protected override void OnLoadPrefab(ConfigNode node)
         {
@@ -241,7 +258,11 @@ namespace B9PartSwitch
         {
             int oldIndex = (int)oldFieldValueObj;
 
-            subtypes[oldIndex].DeactivateOnSwitch();
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                subtypes[oldIndex].DeactivateOnSwitch();
+                UpdateSubtype();
+            });
 
             UpdateOnSwitch();
         }
@@ -252,8 +273,12 @@ namespace B9PartSwitch
 
         public void SwitchSubtype(string name)
         {
-            CurrentSubtype.DeactivateOnSwitch();
-            CurrentSubtypeName = name;
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                CurrentSubtype.DeactivateOnSwitch();
+                CurrentSubtypeName = name;
+                UpdateSubtype();
+            });
 
             UpdateOnSwitch();
         }
@@ -355,6 +380,14 @@ namespace B9PartSwitch
 
         public float GetParentWetCost(PartSubtype subtype) => Parent.IsNull() ? 0 : subtype.volumeAddedToParent * Parent.CurrentSubtype.tankType.TotalUnitCost * VolumeScale;
 
+        public BaseEventDetails CreateModuleDataChangedEventDetails()
+        {
+            BaseEventDetails details = new BaseEventDetails(BaseEventDetails.Sender.USER);
+            details.Set("requestNotifyFARToRevoxelize", (Action)(() => needsNotifyFARToRevoxelize = true ));
+            details.Set("requestRecalculateDragCubes", (Action)(() => needsRecalculateDragCubes = true ));
+            return details;
+        }
+
         #endregion
 
         #region Private Methods
@@ -392,6 +425,8 @@ namespace B9PartSwitch
             {
                 subtype.Setup(this, displayWarnings: displayWarnings);
             }
+
+            reinitialzeModelTransactionManager.Initialize();
         }
 
         private void EnsureAtLeastOneUnrestrictedSubtype()
@@ -473,11 +508,20 @@ namespace B9PartSwitch
 
         private void UpdateOnStart()
         {
-            subtypes.ForEach(subtype => subtype.DeactivateOnStart());
-            RemoveUnusedResources();
-            UpdateVolumeFromChildren();
-            CurrentSubtype.ActivateOnStart();
-            UpdateGeometry(true);
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                foreach (PartSubtype subtype in InactiveSubtypes)
+                {
+                    subtype.DeactivateOnStart();
+                }
+                RemoveUnusedResources();
+                UpdateVolumeFromChildren();
+                CurrentSubtype.ActivateOnStart();
+            });
+
+            needsNotifyFARToRevoxelize |= ChangesGeometry && affectFARVoxels;
+            needsRecalculateDragCubes |= ChangesGeometry && affectDragCubes;
+
             currentSubtypeTitle = CurrentSubtype.title;
 
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
@@ -485,6 +529,9 @@ namespace B9PartSwitch
 
         private void UpdateOnStartFinished()
         {
+            NotifyFARToRevoxelize();
+            RecalculateDragCubes();
+
             foreach (PartSubtype subtype in InactiveSubtypes)
             {
                 subtype.DeactivateOnStartFinished();
@@ -527,8 +574,6 @@ namespace B9PartSwitch
 
         private void UpdateOnSwitch()
         {
-            UpdateSubtype();
-
             if (HighLogic.LoadedSceneIsEditor)
             {
                 string symmetrySubtypeName;
@@ -556,17 +601,47 @@ namespace B9PartSwitch
 
         private void UpdateFromSymmetry(string newSubtypeName)
         {
-            CurrentSubtype.DeactivateOnSwitch();
+            reinitialzeModelTransactionManager.WithTransaction(delegate
+            {
+                CurrentSubtype.DeactivateOnSwitch();
+                CurrentSubtypeName = newSubtypeName;
+                UpdateSubtype();
+            });
+        }
 
-            CurrentSubtypeName = newSubtypeName;
+        private void ReinitializeModel()
+        {
+            if (subtypes.Count == 0) return;
 
-            UpdateSubtype();
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnBeforeReinitializeInactiveSubtype();
+            }
+
+            CurrentSubtype.OnBeforeReinitializeActiveSubtype();
+
+            foreach (PartSubtype subtype in subtypes)
+            {
+                subtype.Setup(this);
+            }
+
+            foreach (PartSubtype subtype in InactiveSubtypes)
+            {
+                subtype.OnAfterReinitializeInactiveSubtype();
+            }
+            CurrentSubtype.OnAfterReinitializeActiveSubtype();
         }
 
         private void UpdateSubtype()
         {
             CurrentSubtype.ActivateOnSwitch();
-            UpdateGeometry(false);
+
+            needsNotifyFARToRevoxelize |= ChangesGeometry && affectFARVoxels;
+            needsRecalculateDragCubes |= ChangesGeometry && affectDragCubes;
+
+            NotifyFARToRevoxelize();
+            RecalculateDragCubes();
+
             Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
             LogInfo($"Switched subtype to {CurrentSubtype.Name}");
@@ -577,45 +652,33 @@ namespace B9PartSwitch
             IEnumerator UpdateDragCubesOnAttachCoroutine()
             {
                 yield return null;
-                RenderProceduralDragCubes();
+                yield return RenderProceduralDragCubes();
             }
 
             part.OnEditorAttach -= UpdateDragCubesOnAttach;
             StartCoroutine(UpdateDragCubesOnAttachCoroutine());
         }
 
-        private void UpdateDragCubesForRootPartInFlight()
+        private void NotifyFARToRevoxelize()
         {
-            IEnumerator UpdateDragCubesForRootPartInFlightCoroutine()
-            {
-                yield return null;
-                yield return null;
-                yield return null;
-
-                RenderProceduralDragCubes();
-            }
-
-            StartCoroutine(UpdateDragCubesForRootPartInFlightCoroutine());
+            if (!FARWrapper.FARLoaded) return;
+            if (!needsNotifyFARToRevoxelize) return;
+            part.SendMessage("GeometryPartModuleRebuildMeshData");
+            part.SendMessage(nameof(FarWasNotifiedToRevoxelize));
+            needsNotifyFARToRevoxelize = false;
         }
 
-        private void UpdateGeometry(bool start)
+        private void RecalculateDragCubes()
         {
-            if (!ManagesTransforms) return;
+            if (!needsRecalculateDragCubes) return;
 
-            if (FARWrapper.FARLoaded && affectFARVoxels)
-            {
-                part.SendMessage("GeometryPartModuleRebuildMeshData");
-            }
+            if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
+                part.OnEditorAttach += UpdateDragCubesOnAttach;
+            else
+                StartCoroutine(RenderProceduralDragCubes());
 
-            if (affectDragCubes && (!start || IsLastModuleAffectingDragCubes()))
-            {
-                if (HighLogic.LoadedSceneIsEditor && part.parent == null && EditorLogic.RootPart != part)
-                    part.OnEditorAttach += UpdateDragCubesOnAttach;
-                else if (HighLogic.LoadedSceneIsFlight && part.parent == null)
-                    UpdateDragCubesForRootPartInFlight();
-                else
-                    RenderProceduralDragCubes();
-            }
+            part.SendMessage(nameof(DragCubesWereRecalculated));
+            needsRecalculateDragCubes = false;
         }
 
         private void UpdatePartActionWindow()
@@ -629,14 +692,17 @@ namespace B9PartSwitch
 
         private bool IsLastModuleAffectingDragCubes()
         {
-            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ManagesTransforms && m.affectDragCubes).LastOrDefault();
+            ModuleB9PartSwitch lastModule = part.Modules.OfType<ModuleB9PartSwitch>().Where(m => m.ChangesGeometry && m.affectDragCubes).LastOrDefault();
             return ReferenceEquals(this, lastModule);
         }
 
-        private void RenderProceduralDragCubes()
+        private IEnumerator RenderProceduralDragCubes()
         {
             part.DragCubes.ClearCubes();
-            StartCoroutine(DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null));
+            yield return DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null);
+            part.DragCubes.ForceUpdate(weights: true, occlusion: true);
+            part.DragCubes.SetDragWeights();
+            part.DragCubes.SetPartOcclusion();
         }
 
         private void UpdateVolumeFromChildren()

@@ -82,10 +82,11 @@ namespace B9PartSwitch
         public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
-        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, PartModule parentModule)
+        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, PartModule parentModule, BaseEventDetails moduleDataChangedEventDetails)
         {
             part.ThrowIfNullArgument(nameof(part));
             parentModule.ThrowIfNullArgument(nameof(parentModule));
+            moduleDataChangedEventDetails.ThrowIfNullArgument(nameof(moduleDataChangedEventDetails));
 
             if (identifierNode.IsNull()) throw new Exception("module modifier must have an IDENTIFIER node");
 
@@ -111,7 +112,7 @@ namespace B9PartSwitch
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
                 else if (module is ModuleEnginesFX moduleEnginesFX)
                 {
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
                     if (dataNode.GetValue("flameoutEffectName") is string flameoutEffectName)
                         yield return new EffectDeactivator(part, moduleEnginesFX.flameoutEffectName, flameoutEffectName);
                     if (dataNode.GetValue("runningEffectName") is string runningEffectName)
@@ -133,10 +134,10 @@ namespace B9PartSwitch
                     // therefore, wipe all output resources before loading new data
                     // order matters here since the output resources must be empty when new data is loaded
                     yield return new ModuleOutputResourceResetter(module);
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
                 }
                 else
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
             }
 
             if (!moduleActive)

@@ -127,6 +127,7 @@
     <Compile Include="TestUtils\DummyTypes\DummyIContextualNodeTest.cs" />
     <Compile Include="TestUtils\TestConfigNode.cs" />
     <Compile Include="TestUtils\TestConfigNodeTest.cs" />
+    <Compile Include="Utils\ChangeTransactionManagerTest.cs" />
     <Compile Include="Utils\ColorParserTest.cs" />
     <Compile Include="Utils\GroupedStringBuilderTest.cs" />
   </ItemGroup>

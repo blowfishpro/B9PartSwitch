@@ -19,6 +19,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         public override string Description => $"transform '{transform.name}' rotation offset";
         public object PartAspectLock => transform.GetInstanceID() + "---rotation";
+        public override bool ChangesGeometry => true;
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();
@@ -30,6 +31,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
+        public override void OnAfterReinitializeActiveSubtype() => Activate();
 
         private void Activate()
         {

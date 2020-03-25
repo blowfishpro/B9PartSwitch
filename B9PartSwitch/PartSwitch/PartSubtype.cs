@@ -139,10 +139,8 @@ namespace B9PartSwitch
 
         public bool HasUpgradeRequired => !upgradeRequired.IsNullOrEmpty();
 
-        public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
-        public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
-        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
+        public bool ChangesGeometry => partModifiers.Any(modifier => modifier.ChangesGeometry);
 
         public bool ChangesDryMass => addedMass != 0 || tankType.tankMass != 0;
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
@@ -238,6 +236,22 @@ namespace B9PartSwitch
             foreach (IPartModifier modifier in partModifiers)
             {
                 modifier.OnBeforeReinitializeActiveSubtype();
+            }
+        }
+
+        public void OnAfterReinitializeInactiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeInactiveSubtype();
+            }
+        }
+
+        public void OnAfterReinitializeActiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeActiveSubtype();
             }
         }
 
@@ -425,7 +439,7 @@ namespace B9PartSwitch
                 {
                     try
                     {
-                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent))
+                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent, parent.CreateModuleDataChangedEventDetails()))
                         {
                             MaybeAddModifier(partModifier);
                         }

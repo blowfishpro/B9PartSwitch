@@ -45,6 +45,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
+        public override void OnAfterReinitializeActiveSubtype() => Activate();
 
         private void Activate() => renderer.material.SetFloat(shaderProperty, newValue);
         private void Deactivate() => renderer.material.SetFloat(shaderProperty, originalValue);

@@ -8,15 +8,19 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         protected readonly ConfigNode originalNode;
         protected readonly ConfigNode dataNode;
 
-        public ModuleDataHandlerBasic(PartModule module, ConfigNode originalNode, ConfigNode dataNode)
+        private readonly BaseEventDetails moduleDataChangedEventDetails;
+
+        public ModuleDataHandlerBasic(PartModule module, ConfigNode originalNode, ConfigNode dataNode, BaseEventDetails moduleDataChangedEventDetails)
         {
             module.ThrowIfNullArgument(nameof(module));
             originalNode.ThrowIfNullArgument(nameof(originalNode));
             dataNode.ThrowIfNullArgument(nameof(dataNode));
+            moduleDataChangedEventDetails.ThrowIfNullArgument(nameof(moduleDataChangedEventDetails));
 
             this.module = module;
             this.originalNode = originalNode;
             this.dataNode = dataNode;
+            this.moduleDataChangedEventDetails = moduleDataChangedEventDetails;
         }
 
         public override string Description => $"data on module {module}";
@@ -29,9 +33,17 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnSwitchFlight() => Activate();
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
-        public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
-        private void Activate() => module.Load(dataNode);
-        private void Deactivate() => module.Load(originalNode);
+        private void Activate()
+        {
+            module.Load(dataNode);
+            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
+        }
+
+        private void Deactivate()
+        {
+            module.Load(originalNode);
+            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
+        }
     }
 }
