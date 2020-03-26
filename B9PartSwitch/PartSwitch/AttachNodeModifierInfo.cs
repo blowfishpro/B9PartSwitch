@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
@@ -25,15 +26,14 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public AttachNodeMover CreateAttachNodeModifier(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
+        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
         {
-            if (position == null) return null;
             AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && n.id == nodeID);
 
             if (node == null)
             {
                 onError($"Attach node with id '{nodeID}' not found for attach node modifier");
-                return null;
+                yield break;
             }
 
             // Explanation
@@ -44,7 +44,7 @@ namespace B9PartSwitch
             Part maybePrefab = part.partInfo?.partPrefab ?? part;
             float fixedScale = maybePrefab.scaleFactor * maybePrefab.rescaleFactor * maybePrefab.rescaleFactor;
 
-            return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
+            if (position != null) yield return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
         }
     }
 }

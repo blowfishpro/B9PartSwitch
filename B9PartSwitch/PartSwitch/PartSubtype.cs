@@ -351,7 +351,10 @@ namespace B9PartSwitch
 
             foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
             {
-                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent, OnInitializationError));
+                foreach(IPartModifier partModifier in info.CreatePartModifiers(part, parent, OnInitializationError))
+                {
+                    MaybeAddModifier(partModifier);
+                }
             }
 
             foreach (TextureSwitchInfo info in textureSwitches)
