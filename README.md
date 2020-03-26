@@ -33,7 +33,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 * Recompile against KSP 1.9.1
 
-# v2.14.0
+### v2.14.0
 
 * Fix non-unique aspects complaining when present on more than one module
 * Generic material modifiers
@@ -60,18 +60,18 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 * Send/listen for `DragCubesWereRecalculated` and `FarWasNotifiedToRevoxelize` to make sure actions are only done once per cycle
 * Fix drag cube updates possibly not actually being used
 
-# v2.13.0
+### v2.13.0
 
 * Support changing `ModuleDeployableSolarPanel` `chargeRate`
 * Get rid of some useless debug messages related to UI prefabs
 * Fix UI breaking on switchers with tech restrictions if subtypes are unlocked out of order
 * Fix texture switches breaking on inactive subtypes when a part is duplicated
 
-# v2.12.1
+### v2.12.1
 
 * Recompile against KSP 1.8.1
 
-# v2.12.0
+### v2.12.0
 
 * Recompile against KSP 1.8.0
 * Stop moving the switcher to the end of the part action window
@@ -139,7 +139,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
     * `IntersteallarMeshSwitch`
     * `InterstellarTextureSwitch`
 
-# v2.9.0
+### v2.9.0
 
 * Implement new switching UI based on the stock variant switcher
 * Have subtype switching buttons show some info about the subtype being switched to in a tooltip
@@ -182,11 +182,11 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
   * Ore
   * ElectricCharge
 
-# v2.8.1
+### v2.8.1
 
 * Recompile against KSP 1.7.3
 
-# v2.8.0
+### v2.8.0
 
 * Recompile against KSP 1.7.1
 * Fix part action window showing removed resources in KSP 1.7.1
