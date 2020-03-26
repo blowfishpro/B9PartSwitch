@@ -43,12 +43,18 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
       * `shaderProperty` - name of the shader property to modify (default `_Color`)
       * `color` - color to set the property to, can be specified in any of the regular formats (name, hex, RGB(A) list)
     * `TEXTURE` modifies a texture property (same functionality as `TEXTURE` nodes directly on the subtype)
-      * `currentTexture` - name of current texture to match when building (not full path)
+      * `currentTexture` - name of current texture to match when building (not full path) (optional)
       * `texture` - path to new texture to switch to
-      * `isNormalMap` - whether to access the texture as a normal map or not
+      * `isNormalMap` - whether to access the texture as a normal map or not (default false)
       * `shaderProperty` - shader property to modify the color on
         * Default `_MainTex` if `isNormalMap = false`
         * Default `_BumpMap` is `isNormalMap = true`
+* Listen for `OnPartModelChanged` event to reinitialize model
+* Send `ModuleDataChanged` to modules that have had their data changed
+  * Include two attributes in the event details, `requestNotifyFARToRevoxelize` and `requestRecalculateDragCubes`, which can be used to request FAR/drag cubes updates at the end of the cycle
+* Transform move/rotation/scale now affect drag cubes/FAR
+* Send/listen for `DragCubesWereRecalculated` and `FarWasNotifiedToRevoxelize` to make sure actions are only done once per cycle
+* Fix drag cube updates possibly not actually being used
 
 # v2.13.0
 
