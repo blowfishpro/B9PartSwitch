@@ -16,6 +16,9 @@ namespace B9PartSwitch
         [NodeData]
         public Vector3? position;
 
+        [NodeData]
+        public int? size;
+
         public void Load(ConfigNode node, OperationContext context)
         {
             this.LoadFields(node, context);
@@ -45,6 +48,7 @@ namespace B9PartSwitch
             float fixedScale = maybePrefab.scaleFactor * maybePrefab.rescaleFactor * maybePrefab.rescaleFactor;
 
             if (position != null) yield return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
+            if (size != null) yield return new AttachNodeSizeModifier(node, size.Value, linearScaleProvider);
         }
     }
 }
