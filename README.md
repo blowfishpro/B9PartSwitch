@@ -29,7 +29,7 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
-# vNEXT
+# v2.15.0
 
 * Recompile against KSP 1.9.1
 
