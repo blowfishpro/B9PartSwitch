@@ -640,7 +640,7 @@ namespace B9PartSwitch
             needsRecalculateDragCubes |= ChangesGeometry && affectDragCubes;
 
             NotifyFARToRevoxelize();
-            RecalculateDragCubes();
+            if (!HighLogic.LoadedSceneIsFlight) RecalculateDragCubes();
 
             Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
