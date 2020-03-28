@@ -201,8 +201,6 @@ namespace B9PartSwitch
         {
             CheckOtherModules();
 
-            if (affectDragCubes) part.FixModuleJettison();
-
             UpdateOnStart();
         }
 
@@ -529,6 +527,8 @@ namespace B9PartSwitch
 
         private void UpdateOnStartFinished()
         {
+            if (needsRecalculateDragCubes) part.FixModuleJettison();
+
             NotifyFARToRevoxelize();
             RecalculateDragCubes();
 
