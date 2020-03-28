@@ -180,6 +180,8 @@ namespace B9PartSwitch
 
             foreach (ConfigNode subNode in partConfig.nodes)
             {
+                if (subNode.name != "MODULE") continue;
+
                 if (!NodeMatchesModule(module, moduleName, subNode)) continue;
 
                 if (matchedNode.IsNotNull()) throw new Exception("Found more than one matching module node");
