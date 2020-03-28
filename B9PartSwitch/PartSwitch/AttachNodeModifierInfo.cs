@@ -5,13 +5,14 @@ using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
     public class AttachNodeModifierInfo : IContextualNode
     {
         [NodeData(name = "name")]
-        public string nodeID;
+        public IStringMatcher nodeID;
 
         [NodeData]
         public Vector3? position;
@@ -31,11 +32,11 @@ namespace B9PartSwitch
 
         public IEnumerable<IPartModifier> CreatePartModifiers(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
         {
-            AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && n.id == nodeID);
+            AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && nodeID.Match(n.id));
 
             if (node == null)
             {
-                onError($"Attach node with id '{nodeID}' not found for attach node modifier");
+                onError($"Attach node with id matching '{nodeID}' not found for attach node modifier");
                 yield break;
             }
 

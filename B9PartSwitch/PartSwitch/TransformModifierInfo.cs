@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
     public class TransformModifierInfo : IContextualNode
     {
         [NodeData(name = "name")]
-        public string transformName;
+        public IStringMatcher transformName;
 
         [NodeData]
         public Vector3? positionOffset;
@@ -30,15 +32,15 @@ namespace B9PartSwitch
             part.ThrowIfNullArgument(nameof(part));
             onError.ThrowIfNullArgument(nameof(onError));
 
-            if (string.IsNullOrEmpty(transformName))
+            if (transformName == null)
             {
-                onError("transform name is empty");
+                onError("transform name is null");
                 yield break;
             }
 
             bool foundTransform = false;
 
-            foreach (Transform transform in part.GetModelTransforms(transformName))
+            foreach (Transform transform in part.GetModelRoot().TraverseHierarchy().Where(t => transformName.Match(t.name)))
             {
                 foundTransform = true;
 

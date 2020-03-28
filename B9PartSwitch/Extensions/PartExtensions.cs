@@ -123,14 +123,6 @@ namespace B9PartSwitch
             return part.partTransform.Find("model");
         }
 
-        public static IEnumerable<Transform> GetModelTransforms(this Part part, string name)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-            name.ThrowIfNullOrEmpty(nameof(name));
-
-            return part.GetModelRoot().GetChildrenNamedRecursive(name);
-        }
-
         public static void FixModuleJettison(this Part part)
         {
             if (!HighLogic.LoadedSceneIsFlight) return;

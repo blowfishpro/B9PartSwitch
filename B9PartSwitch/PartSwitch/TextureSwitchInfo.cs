@@ -5,6 +5,7 @@ using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -14,10 +15,10 @@ namespace B9PartSwitch
         public string currentTextureName;
 
         [NodeData(name = "baseTransform")]
-        public List<string> baseTransformNames;
+        public List<IStringMatcher> baseTransformNames;
 
         [NodeData(name = "transform")]
-        public List<string> transformNames;
+        public List<IStringMatcher> transformNames;
 
         [NodeData(name = "texture")]
         public string newTexturePath;
@@ -97,11 +98,11 @@ namespace B9PartSwitch
             IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
             if (baseTransformNames == null) return result;
 
-            foreach (string baseTransformName in baseTransformNames)
+            foreach (IStringMatcher baseTransformName in baseTransformNames)
             {
                 bool foundTransform = false;
 
-                foreach (Transform transform in part.GetModelTransforms(baseTransformName))
+                foreach (Transform transform in part.GetModelRoot().TraverseHierarchy().Where(t => baseTransformName.Match(t.name)))
                 {
                     foundTransform = true;
 
@@ -116,7 +117,7 @@ namespace B9PartSwitch
                     result = result.Concat(transformRenderers);
                 }
 
-                if (!foundTransform) onError($"No transforms named '{baseTransformName}' found");
+                if (!foundTransform) onError($"No transforms matching '{baseTransformName}' found");
             }
 
             return result;
@@ -127,11 +128,11 @@ namespace B9PartSwitch
             IEnumerable<Renderer> result = Enumerable.Empty<Renderer>();
             if (transformNames == null) return result;
 
-            foreach (string transformName in transformNames)
+            foreach (IStringMatcher transformName in transformNames)
             {
                 bool foundTransform = false;
 
-                foreach (Transform transform in part.GetModelTransforms(transformName))
+                foreach (Transform transform in part.GetModelRoot().TraverseHierarchy().Where(t => transformName.Match(t.name)))
                 {
                     foundTransform = true;
                     Renderer[] transformRenderers = transform.GetComponents<Renderer>();
@@ -145,7 +146,7 @@ namespace B9PartSwitch
                     result = result.Concat(transformRenderers);
                 }
 
-                if (!foundTransform) onError($"No transforms named '{transformName}' found");
+                if (!foundTransform) onError($"No transforms matching '{transformName}' found");
             }
 
             return result;

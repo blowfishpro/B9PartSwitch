@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -38,10 +38,10 @@ namespace B9PartSwitch
         public float defaultSubtypePriority = 0;
 
         [NodeData(name = "transform")]
-        public List<string> transformNames = new List<string>();
+        public List<IStringMatcher> transformNames = new List<IStringMatcher>();
 
         [NodeData(name = "node")]
-        public List<string> nodeNames = new List<string>();
+        public List<IStringMatcher> nodeNames = new List<IStringMatcher>();
 
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
@@ -374,16 +374,14 @@ namespace B9PartSwitch
             }
 
             nodes.Clear();
-            foreach (string nodeName in nodeNames)
+            foreach (IStringMatcher nodeName in nodeNames)
             {
-                string pattern = '^' + Regex.Escape(nodeName).Replace(@"\*", ".*").Replace(@"\?", ".") + '$';
-                Regex nodeIdRegex = new Regex(pattern);
-
                 bool foundNode = false;
 
                 foreach (AttachNode node in part.attachNodes)
                 {
-                    if (!nodeIdRegex.IsMatch(node.id)) continue;
+
+                    if (!nodeName.Match(node.id)) continue;
 
                     foundNode = true;
 
@@ -416,7 +414,7 @@ namespace B9PartSwitch
             {
                 bool foundTransform = false;
 
-                foreach (Transform transform in part.GetModelTransforms(transformName))
+                foreach (Transform transform in part.GetModelRoot().TraverseHierarchy().Where(t => transformName.Match(t.name)))
                 {
                     foundTransform = true;
                     partModifiers.Add(new TransformToggler(transform, part));
@@ -424,7 +422,7 @@ namespace B9PartSwitch
                 }
 
                 if (!foundTransform)
-                    OnInitializationError($"No transforms named '{transformName}' found");
+                    OnInitializationError($"No transforms matching '{transformName}' found");
             }
 
             foreach (TransformModifierInfo transformModifierInfo in transformModifierInfos)
