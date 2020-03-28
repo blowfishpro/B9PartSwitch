@@ -640,7 +640,7 @@ namespace B9PartSwitch
             needsRecalculateDragCubes |= ChangesGeometry && affectDragCubes;
 
             NotifyFARToRevoxelize();
-            RecalculateDragCubes();
+            if (!HighLogic.LoadedSceneIsFlight) RecalculateDragCubes();
 
             Parent?.UpdateVolume();
             currentSubtypeTitle = CurrentSubtype.title;
@@ -660,11 +660,23 @@ namespace B9PartSwitch
         {
             IEnumerator RenderProceduralDragCubes()
             {
+                float[] dragCubeWeights = part.DragCubes.Cubes.Select(cube => cube.Weight).ToArray();
                 part.DragCubes.ClearCubes();
                 yield return DragCubeSystem.Instance.SetupDragCubeCoroutine(part, null);
+
+                if (dragCubeWeights.Length == part.DragCubes.Cubes.Count)
+                {
+                    for (int i = 0; i < dragCubeWeights.Length; i++)
+                    {
+                        part.DragCubes.Cubes[i].Weight = dragCubeWeights[i];
+                    }
+                }
+                else
+                {
+                    LogError($"Cannot reassign cube weights: had {dragCubeWeights.Length} cubes before but now have {part.DragCubes.Cubes.Count}");
+                }
+
                 part.DragCubes.ForceUpdate(weights: true, occlusion: true);
-                part.DragCubes.SetDragWeights();
-                part.DragCubes.SetPartOcclusion();
             }
 
             void UpdateDragCubesOnAttach()
