@@ -245,7 +245,10 @@ namespace B9PartSwitch
 
         private bool NodeMatchesModule(PartModule module, IStringMatcher moduleName, ConfigNode node)
         {
-            if (!moduleName.Match(node.GetValue("name"))) return false;
+            string nameValue = node.GetValue("name");
+            if (nameValue.IsNullOrEmpty()) throw new ArgumentException("Cannot match a module node without a name!");
+
+            if (!moduleName.Match(nameValue)) return false;
 
             foreach (ConfigNode.Value value in identifierNode.values)
             {
