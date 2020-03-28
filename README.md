@@ -29,6 +29,10 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.15.2
+
+* Fix `ModuleJettison` shrouds disappearing in flight (again)
+
 # v2.15.1
 
 * Preserve drag cube weights when recalculating drag cubes
