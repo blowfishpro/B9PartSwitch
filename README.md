@@ -29,6 +29,12 @@ This plugin is distributed under [LGPL v3.0](http://www.gnu.org/licenses/lgpl-3.
 
 ## Changelog
 
+# v2.15.1
+
+* Preserve drag cube weights when recalculating drag cubes
+* Don't call drag cube update methods that will be called by the flight integrator anyway
+* Ensure drag cubes aren't recalculated in flight regardless of configuration (it breaks things)
+
 # v2.15.0
 
 * Recompile against KSP 1.9.1
