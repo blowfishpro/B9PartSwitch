@@ -6,6 +6,7 @@ using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -97,14 +98,16 @@ namespace B9PartSwitch
 
             if (moduleName == string.Empty) throw new Exception ("IDENTIFIER node has a blank name");
 
-            PartModule module = FindModule(part, parentModule, moduleName);
+            IStringMatcher moduleNameMatcher = StringMatcher.Parse(moduleName);
+
+            PartModule module = FindModule(part, parentModule, moduleNameMatcher);
 
             if (dataNode.IsNotNull())
             {
                 if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {part.name}");
                 if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
 
-                ConfigNode originalNode = FindPrefabNode(module, moduleName);
+                ConfigNode originalNode = FindPrefabNode(module, moduleNameMatcher);
 
                 if (INVALID_MODULES_FOR_DATA_LOADING.Any(type => module.GetType().Implements(type)))
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
@@ -151,7 +154,7 @@ namespace B9PartSwitch
             }
         }
 
-        private PartModule FindModule(Part part, PartModule parentModule, string moduleName)
+        private PartModule FindModule(Part part, PartModule parentModule, IStringMatcher moduleName)
         {
             PartModule matchedModule = null;
 
@@ -171,7 +174,7 @@ namespace B9PartSwitch
             return matchedModule;
         }
 
-        private ConfigNode FindPrefabNode(PartModule module, string moduleName)
+        private ConfigNode FindPrefabNode(PartModule module, IStringMatcher moduleName)
         {
             if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {module.part.name}");
             if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
@@ -180,6 +183,8 @@ namespace B9PartSwitch
 
             foreach (ConfigNode subNode in partConfig.nodes)
             {
+                if (subNode.name != "MODULE") continue;
+
                 if (!NodeMatchesModule(module, moduleName, subNode)) continue;
 
                 if (matchedNode.IsNotNull()) throw new Exception("Found more than one matching module node");
@@ -192,9 +197,9 @@ namespace B9PartSwitch
             return matchedNode;
         }
 
-        private bool IsMatch(PartModule module, string moduleName)
+        private bool IsMatch(PartModule module, IStringMatcher moduleName)
         {
-            if (module.GetType().Name != moduleName) return false;
+            if (!moduleName.Match(module.GetType().Name)) return false;
 
             foreach (ConfigNode.Value value in identifierNode.values)
             {
@@ -238,9 +243,12 @@ namespace B9PartSwitch
             return true;
         }
 
-        private bool NodeMatchesModule(PartModule module, string moduleName, ConfigNode node)
+        private bool NodeMatchesModule(PartModule module, IStringMatcher moduleName, ConfigNode node)
         {
-            if (node.GetValue("name") != moduleName) return false;
+            string nameValue = node.GetValue("name");
+            if (nameValue.IsNullOrEmpty()) throw new ArgumentException("Cannot match a module node without a name!");
+
+            if (!moduleName.Match(nameValue)) return false;
 
             foreach (ConfigNode.Value value in identifierNode.values)
             {

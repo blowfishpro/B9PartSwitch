@@ -2,6 +2,7 @@
 using Xunit;
 using UnityEngine;
 using B9PartSwitch.Fishbones.Parsers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitchTests.Fishbones.Parsers
 {
@@ -46,6 +47,7 @@ namespace B9PartSwitchTests.Fishbones.Parsers
                 typeof(Matrix4x4),
                 typeof(Color),
                 typeof(Color32),
+                typeof(IStringMatcher),
                 typeof(AttachNode),
                 typeof(PartResourceDefinition),
             };

@@ -1,19 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
     public class AttachNodeModifierInfo : IContextualNode
     {
         [NodeData(name = "name")]
-        public string nodeID;
+        public IStringMatcher nodeID;
 
         [NodeData]
         public Vector3? position;
+
+        [NodeData]
+        public int? size;
 
         public void Load(ConfigNode node, OperationContext context)
         {
@@ -25,15 +30,14 @@ namespace B9PartSwitch
             this.SaveFields(node, context);
         }
 
-        public AttachNodeMover CreateAttachNodeModifier(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
+        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, ILinearScaleProvider linearScaleProvider, Action<string> onError)
         {
-            if (position == null) return null;
-            AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && n.id == nodeID);
+            AttachNode node = part.attachNodes.FirstOrDefault(n => (n.nodeType == AttachNode.NodeType.Stack || n.nodeType == AttachNode.NodeType.Dock) && nodeID.Match(n.id));
 
             if (node == null)
             {
-                onError($"Attach node with id '{nodeID}' not found for attach node modifier");
-                return null;
+                onError($"Attach node with id matching '{nodeID}' not found for attach node modifier");
+                yield break;
             }
 
             // Explanation
@@ -44,7 +48,8 @@ namespace B9PartSwitch
             Part maybePrefab = part.partInfo?.partPrefab ?? part;
             float fixedScale = maybePrefab.scaleFactor * maybePrefab.rescaleFactor * maybePrefab.rescaleFactor;
 
-            return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
+            if (position != null) yield return new AttachNodeMover(node, position.Value * fixedScale, linearScaleProvider);
+            if (size != null) yield return new AttachNodeSizeModifier(node, size.Value, linearScaleProvider);
         }
     }
 }

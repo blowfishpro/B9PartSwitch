@@ -20,7 +20,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public object PartAspectLock => attachNode.id + "---position";
-        public override string Description => $"attach node '{attachNode.id}'";
+        public override string Description => $"attach node '{attachNode.id}' position";
 
         public override void ActivateOnStartEditor() => SetAttachNodePosition();
         public override void ActivateOnStartFlight() => SetAttachNodePosition();
