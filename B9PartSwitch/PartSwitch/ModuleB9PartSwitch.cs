@@ -51,6 +51,12 @@ namespace B9PartSwitch
         [NodeData]
         public bool advancedTweakablesOnly = false;
 
+        [NodeData]
+        public string uiGroupName;
+
+        [NodeData]
+        public string uiGroupDisplayName;
+
         [NodeData(name = "currentSubtype", persistent = true)]
         public string CurrentSubtypeName
         {
@@ -492,6 +498,8 @@ namespace B9PartSwitch
 
             if (HighLogic.LoadedSceneIsFlight)
                 UpdateSwitchEventFlightVisibility();
+
+            this.SetUiGroups(uiGroupName, uiGroupDisplayName);
         }
 
         private void UpdateSwitchEventFlightVisibility()

@@ -108,6 +108,8 @@
     <Compile Include="Fishbones\OperationManager.cs" />
     <Compile Include="Fishbones\UseParser.cs" />
     <Compile Include="Localization.cs" />
+    <Compile Include="ModuleB9AssignUiGroups.cs" />
+    <Compile Include="ModuleMatcher.cs" />
     <Compile Include="PartSwitch\PartModifiers\AttachNodeSizeModifier.cs" />
     <Compile Include="Utils\ChangeTransactionManager.cs" />
     <Compile Include="ModuleB9DisableTransform.cs" />

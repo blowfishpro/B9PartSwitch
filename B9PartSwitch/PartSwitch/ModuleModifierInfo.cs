@@ -91,23 +91,17 @@ namespace B9PartSwitch
 
             if (identifierNode.IsNull()) throw new Exception("module modifier must have an IDENTIFIER node");
 
-            if (!(identifierNode.GetValue("name") is string moduleName))
-                throw new Exception("IDENTIFIER node does not have a name value");
+            ModuleMatcher moduleMatcher = new ModuleMatcher(identifierNode);
 
-            moduleName = moduleName.Trim();
-
-            if (moduleName == string.Empty) throw new Exception ("IDENTIFIER node has a blank name");
-
-            IStringMatcher moduleNameMatcher = StringMatcher.Parse(moduleName);
-
-            PartModule module = FindModule(part, parentModule, moduleNameMatcher);
+            PartModule module = moduleMatcher.FindModule(part);
+            if (module == parentModule) throw new Exception("Cannot use parent module!");
 
             if (dataNode.IsNotNull())
             {
                 if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {part.name}");
                 if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
 
-                ConfigNode originalNode = FindPrefabNode(module, moduleNameMatcher);
+                ConfigNode originalNode = moduleMatcher.FindPrefabNode(module);
 
                 if (INVALID_MODULES_FOR_DATA_LOADING.Any(type => module.GetType().Implements(type)))
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
@@ -158,142 +152,6 @@ namespace B9PartSwitch
 
                 yield return new ModuleDeactivator(module, parentModule);
             }
-        }
-
-        private PartModule FindModule(Part part, PartModule parentModule, IStringMatcher moduleName)
-        {
-            PartModule matchedModule = null;
-
-            foreach (PartModule module in part.Modules)
-            {
-                if (module == parentModule) continue;
-
-                if (!IsMatch(module, moduleName)) continue;
-
-                if (matchedModule.IsNotNull()) throw new Exception("Found more than one matching module");
-
-                matchedModule = module;
-            }
-
-            if (matchedModule.IsNull()) throw new Exception("Could not find matching module");
-
-            return matchedModule;
-        }
-
-        private ConfigNode FindPrefabNode(PartModule module, IStringMatcher moduleName)
-        {
-            if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {module.part.name}");
-            if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
-
-            ConfigNode matchedNode = null;
-
-            foreach (ConfigNode subNode in partConfig.nodes)
-            {
-                if (subNode.name != "MODULE") continue;
-
-                if (!NodeMatchesModule(module, moduleName, subNode)) continue;
-
-                if (matchedNode.IsNotNull()) throw new Exception("Found more than one matching module node");
-
-                matchedNode = subNode;
-            }
-
-            if (matchedNode.IsNull()) throw new Exception("Could not find matching module node");
-
-            return matchedNode;
-        }
-
-        private bool IsMatch(PartModule module, IStringMatcher moduleName)
-        {
-            if (!moduleName.Match(module.GetType().Name)) return false;
-
-            foreach (ConfigNode.Value value in identifierNode.values)
-            {
-                if (value.name == "name") continue;
-
-                if (module.Fields[value.name] is BaseField baseField)
-                {
-                    IValueParser parser;
-                    object parsedValue;
-
-                    try
-                    {
-                        parser = DefaultValueParseMap.Instance.GetParser(baseField.FieldInfo.FieldType);
-                    }
-                    catch (ParseTypeNotRegisteredException)
-                    {
-                        throw CannotParseFieldException.CannotFindParser(baseField.name, baseField.FieldInfo.FieldType);
-                    }
-
-                    try
-                    {
-                        parsedValue = parser.Parse(value.value);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw CannotParseFieldException.ExceptionWhileParsing(baseField.name, baseField.FieldInfo.FieldType, ex);
-                    }
-
-                    if (!object.Equals(parsedValue, baseField.GetValue(module))) return false;
-                }
-                else if (module is CustomPartModule cpm && value.name == "moduleID")
-                {
-                    if (cpm.moduleID != value.value) return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool NodeMatchesModule(PartModule module, IStringMatcher moduleName, ConfigNode node)
-        {
-            string nameValue = node.GetValue("name");
-            if (nameValue.IsNullOrEmpty()) throw new ArgumentException("Cannot match a module node without a name!");
-
-            if (!moduleName.Match(nameValue)) return false;
-
-            foreach (ConfigNode.Value value in identifierNode.values)
-            {
-                if (value.name == "name") continue;
-
-                if (!(node.GetValue(value.name) is string testValue)) return false;
-
-                if (module.Fields[value.name] is BaseField baseField)
-                {
-                    object parsedValue, nodeValue;
-
-                    try
-                    {
-                        IValueParser parser = DefaultValueParseMap.Instance.GetParser(baseField.FieldInfo.FieldType);
-                        parsedValue = parser.Parse(value.value);
-                        nodeValue = parser.Parse(testValue);
-                    }
-                    catch (ParseTypeNotRegisteredException)
-                    {
-                        throw CannotParseFieldException.CannotFindParser(baseField.name, baseField.FieldInfo.FieldType);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw CannotParseFieldException.ExceptionWhileParsing(baseField.name, baseField.FieldInfo.FieldType, ex);
-                    }
-
-                    if (!object.Equals(parsedValue, nodeValue)) return false;
-                }
-                else if (module is CustomPartModule && value.name == "moduleID")
-                {
-                    if (node.GetValue("moduleID") != value.value) return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }
