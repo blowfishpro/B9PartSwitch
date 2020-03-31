@@ -30,6 +30,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnSwitchFlight() => Activate();
         public override void OnIconCreateInactiveSubtype() => Deactivate();
         public override void OnIconCreateActiveSubtype() => Activate();
+        public override void OnAfterReinitializeActiveSubtype() => Activate();
+        public override void OnAfterReinitializeInactiveSubtype() => Deactivate();
 
         private void Activate()
         {
