@@ -139,8 +139,8 @@ namespace B9PartSwitch
                     yield return new ModuleOutputResourceResetter(module);
                     yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
                 }
-                else if (moduleName == "ModuleFuelTanks") {
-                    yield return new ModuleFuelTanksHandler(module, originalNode, dataNode);
+                else if (module.moduleName == "ModuleFuelTanks") {
+                    yield return new ModuleFuelTanksHandler(module, originalNode, dataNode, moduleDataChangedEventDetails);
                 }
                 else
                     yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);

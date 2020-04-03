@@ -8,7 +8,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         protected readonly ConfigNode originalNode;
         protected readonly ConfigNode dataNode;
 
-        private readonly BaseEventDetails moduleDataChangedEventDetails;
+        protected readonly BaseEventDetails moduleDataChangedEventDetails;
 
         public ModuleDataHandlerBasic(PartModule module, ConfigNode originalNode, ConfigNode dataNode, BaseEventDetails moduleDataChangedEventDetails)
         {
@@ -50,8 +50,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
     public class ModuleFuelTanksHandler : ModuleDataHandlerBasic
     {
         public ModuleFuelTanksHandler(
-            PartModule module, ConfigNode originalNode, ConfigNode dataNode
-        ) : base(module, originalNode, dataNode)
+            PartModule module, ConfigNode originalNode, ConfigNode dataNode, BaseEventDetails moduleDataChangedEventDetails
+        ) : base(module, originalNode, dataNode, moduleDataChangedEventDetails)
         { }
 
         protected override void Activate() => applyNode(dataNode);
