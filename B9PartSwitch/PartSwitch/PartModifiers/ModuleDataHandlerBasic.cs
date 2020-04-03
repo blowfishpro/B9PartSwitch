@@ -80,6 +80,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             if (setsType) {
                 module.Fields.SetValue("type", type);
             }
+            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
     }
 }
