@@ -15,7 +15,7 @@ script:
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
   - build_script/script/make_release.sh
-  - fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
+  - bundle exec fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
   - bundle exec rake spec
   - build_script/script/make_zip.sh
 after_success:
