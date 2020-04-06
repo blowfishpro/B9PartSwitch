@@ -14,10 +14,17 @@ script:
   - bundle exec rubocop
   - msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" ${TRAVIS_SOLUTION}
   - bin/test
-  - build_script/script/make_release.sh
+  - mkdir -v release
+  - mkdir -v zip_release
+  - cp -v -R GameData release
+  - mkdir -p "release/GameData/${PROJECT_NAME}/Plugins"
+  - cp -v README.md release
+  - cp -v LICENSE release
+  - cp -v README.md "release/GameData/${PROJECT_NAME}"
+  - cp -v LICENSE "release/GameData/${PROJECT_NAME}"
   - bundle exec fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
   - bundle exec rake spec
-  - build_script/script/make_zip.sh
+  - (cd release && zip -v -r ../zip_release/release.zip *)
 after_success:
   - mkdir deploy
   - build_script/before_deploy/copy_release.sh
