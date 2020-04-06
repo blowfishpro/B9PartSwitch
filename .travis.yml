@@ -24,6 +24,7 @@ script:
   - cp -v LICENSE "release/GameData/${PROJECT_NAME}"
   - curl 'https://raw.githubusercontent.com/wiki/blowfishpro/B9PartSwitch/Changelog.md' -o '/tmp/B9PartSwitch-Changelog.md'
   - bundle exec extract-changelog -u "$(git describe --tags)" -i '/tmp/B9PartSwitch-Changelog.md' -o "release/GameData/${PROJECT_NAME}/CHANGELOG.md"
+  - if [ ${TRAVIS_TAG} ]; then bundle exec extract-changelog -s "${TRAVIS_TAG}" -i '/tmp/B9PartSwitch-Changelog.md' -o '/tmp/B9PartSwitch-Changelog-Single.md'; fi # not used, just to verify that changelog contains tag when releasing
   - bundle exec fill-version 'templates/B9PartSwitch.version.erb' 'release/GameData/B9PartSwitch/B9PartSwitch.version'
   - bundle exec rake spec
   - (cd release && zip -v -r ../zip_release/release.zip *)
