@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-ruby@v1
       - run: echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
       - run: echo "${KSP_VERSION}"
-      - run: sudo apt-get install nuget
+      - uses: nuget/setup-nuget@v1
       - name: Download KSP DLLs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DLL_S3_ACCESS_KEY_ID }}
