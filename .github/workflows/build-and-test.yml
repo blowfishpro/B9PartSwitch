@@ -8,6 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - run: git describe --tags --dirty
       - uses: actions/setup-ruby@v1
       - run: echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
       - run: echo "${KSP_VERSION}"
@@ -17,12 +22,19 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.DLL_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DLL_S3_SECRET_ACCESS_KEY }}
         run: aws s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
+      - name: Set KSP DLL path
+        run: echo "::set-env name=KSP_DLL_PATH::/opt/ksp/assembly/${KSP_VERSION}"
       - name: Extract KSP DLLs
         run: |
-          mkdir -p "/opt/ksp/assembly/${KSP_VERSION}"
-          unzip '/tmp/KSP_DLLs.zip' -d "/opt/ksp/assembly/${KSP_VERSION}"
+          mkdir -p "${KSP_DLL_PATH}"
+          unzip '/tmp/KSP_DLLs.zip' -d "${KSP_DLL_PATH}"
           rm '/tmp/KSP_DLLs.zip'
       - name: Install Gems
         run: bundle install
       - name: Run Rubocop
         run: bundle exec rubocop
+      - run: nuget restore
+      - name: Compile Project
+        run: msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" B9PartSwitch.sln
+      - name: Run Unit Tests
+        run: mono packages/xunit.runner.console.*/tools/net471/xunit.console.exe B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
