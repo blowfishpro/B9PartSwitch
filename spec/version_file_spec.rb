@@ -3,10 +3,13 @@ require 'json'
 require 'rest-client'
 
 RSpec.describe 'B9PartSwitch.version' do
-  it 'exists, is valid json, and is formatted correctly' do
-    expect(File.file?('release/GameData/B9PartSwitch/B9PartSwitch.version')).to be(true)
+  base_dir = ENV['RUNNER_TEMP'] || Dir.pwd
+  version_file = File.join(base_dir, 'release', 'GameData', 'B9PartSwitch', 'B9PartSwitch.version')
 
-    raw_contents = File.read('release/GameData/B9PartSwitch/B9PartSwitch.version')
+  it 'exists, is valid json, and is formatted correctly' do
+    expect(File.file?(version_file)).to be(true)
+
+    raw_contents = File.read(version_file)
 
     parsed_json = JSON.parse(raw_contents)
 
