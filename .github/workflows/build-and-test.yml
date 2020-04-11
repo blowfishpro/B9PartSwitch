@@ -45,17 +45,24 @@ jobs:
         run: msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" B9PartSwitch.sln
       - name: Run Unit Tests
         run: mono packages/xunit.runner.console.*/tools/net471/xunit.console.exe B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
-      - name: Assemble Release
+      - name: Set release directory
         run: |
-          export RELEASE_DIR="${RUNNER_TEMP}/release"
+          RELEASE_DIR="${RUNNER_TEMP}/release"
           echo "Release dir: ${RELEASE_DIR}"
           mkdir -v "${RELEASE_DIR}"
+          echo "::set-env name=RELEASE_DIR::${RELEASE_DIR}"
+      - name: Assemble Release
+        run: |
           cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
-          mkdir -p "#{RELEASE_DIR}/GameData/B9PartSwitch/Plugins"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/"
           "${GITHUB_WORKSPACE}/bin/fill-version" "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
+      - name: Upload Release
+        uses: actions/upload-artifact@v1
+        with:
+          name: B9PartSwitch.zip
+          path: ${{ env.RELEASE_DIR }}
       - name: Verify Release
         run: bundle exec rake spec
