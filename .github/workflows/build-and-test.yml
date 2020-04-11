@@ -56,6 +56,12 @@ jobs:
           bundle exec extract-changelog -s "$(git describe --tags)" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md" -o "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
           cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
           echo "::set-output name=changelog-single::$(cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md")"
+      - name: Create version file
+        id: create-version-file
+        run: |
+          export VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
+          bundle exec fill-version "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${VERSION_FILE}"
+          echo "::set-output name=version-file::${VERSION_FILE}"
       - name: Set release directory
         run: |
           RELEASE_DIR="${RUNNER_TEMP}/release"
@@ -71,7 +77,7 @@ jobs:
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/GameData/B9PartSwitch/CHANGELOG.md"
-          bundle exec fill-version "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
+          cp -v "${{ steps.create-version-file.outputs.version-file }}" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
       - name: Upload result
         uses: actions/upload-artifact@v1
         with:
