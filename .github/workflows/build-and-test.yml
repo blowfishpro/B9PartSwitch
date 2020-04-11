@@ -78,10 +78,10 @@ jobs:
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/GameData/B9PartSwitch/CHANGELOG.md"
           cp -v "${{ steps.create-version-file.outputs.version-file }}" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
-      - name: Upload result
+      - name: Upload result as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: B9PartSwitch.zip
+          name: B9PartSwitch
           path: ${{ env.RELEASE_DIR }}
       - name: Verify result
         run: bundle exec rake spec
