@@ -45,6 +45,10 @@ jobs:
         run: msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" B9PartSwitch.sln
       - name: Run Unit Tests
         run: mono packages/xunit.runner.console.*/tools/net471/xunit.console.exe B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
+      - name: Extract Changelog
+        run: |
+          curl 'https://raw.githubusercontent.com/wiki/blowfishpro/B9PartSwitch/Changelog.md' -o "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md"
+          bundle exec extract-changelog -u "$(git describe --tags)" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md" -o "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md"
       - name: Set release directory
         run: |
           RELEASE_DIR="${RUNNER_TEMP}/release"
@@ -56,8 +60,10 @@ jobs:
           cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}"
+          cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/CHANGELOG.md"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/"
+          cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/GameData/B9PartSwitch/CHANGELOG.md"
           "${GITHUB_WORKSPACE}/bin/fill-version" "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
       - name: Upload Release
         uses: actions/upload-artifact@v1
