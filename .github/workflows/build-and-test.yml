@@ -62,7 +62,7 @@ jobs:
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}"
           cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/CHANGELOG.md"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}/GameData/B9PartSwitch"
-          cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/"
+          cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/GameData/B9PartSwitch/CHANGELOG.md"
           "${GITHUB_WORKSPACE}/bin/fill-version" "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
       - name: Upload Release
