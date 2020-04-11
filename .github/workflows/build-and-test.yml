@@ -7,16 +7,26 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
           fetch-depth: 100
       - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - run: git describe --tags --dirty
-      - uses: actions/setup-ruby@v1
-      - run: echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
-      - run: echo "${KSP_VERSION}"
-      - uses: nuget/setup-nuget@v1
+      - name: Describe current revision with tags
+        run: git describe --tags --dirty
+      - name: Install Ruby
+        uses: actions/setup-ruby@v1
+      - name: Install NuGet
+        uses: nuget/setup-nuget@v1
+      - name: Install Gems
+        run: bundle install
+      - name: Install NuGet packages
+        run: nuget restore
+      - name: Set KSP Version
+        run: |
+          echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
+          echo "${KSP_VERSION}"
       - name: Download KSP DLLs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DLL_S3_ACCESS_KEY_ID }}
@@ -29,11 +39,8 @@ jobs:
           mkdir -p "${KSP_DLL_PATH}"
           unzip '/tmp/KSP_DLLs.zip' -d "${KSP_DLL_PATH}"
           rm '/tmp/KSP_DLLs.zip'
-      - name: Install Gems
-        run: bundle install
       - name: Run Rubocop
         run: bundle exec rubocop
-      - run: nuget restore
       - name: Compile Project
         run: msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" B9PartSwitch.sln
       - name: Run Unit Tests
