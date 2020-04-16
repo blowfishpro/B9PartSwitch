@@ -6,6 +6,10 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
+    outputs:
+      ksp-version: ${{ env.KSP_VERSION }}
+      release-package-name: ${{ steps.set-release-package-name.outputs.release-package-name }}
+      release-changelog: ${{ steps.extract-single-changelog.outputs.changelog-single }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -82,41 +86,51 @@ jobs:
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/GameData/B9PartSwitch"
           cp -v "${RUNNER_TEMP}/B9PartSwitch-Changelog-current.md" "${RELEASE_DIR}/GameData/B9PartSwitch/CHANGELOG.md"
           cp -v "${{ steps.create-version-file.outputs.version-file }}" "${RELEASE_DIR}/GameData/B9PartSwitch/B9PartSwitch.version"
+      - name: Set release package name
+        id: set-release-package-name
+        run: echo "::set-output name=release-package-name::B9PartSwitch_${{ steps.describe-tags.outputs.git-tagish }}"
       - name: Upload result as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: B9PartSwitch
+          name: ${{ steps.set-release-package-name.outputs.release-package-name }}
           path: ${{ env.RELEASE_DIR }}
       - name: Verify result
         run: bundle exec rake spec
+  release:
+    name: Release
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release package artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: ${{ needs.build-and-test.outputs.release-package-name }}
       - name: Package release
         id: package-release
-        working-directory: ${{ env.RELEASE_DIR }}
+        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
         run: |
-          export RELEASE_PATH="${RUNNER_TEMP}/B9PartSwitch.zip"
-          echo "Release path: ${RELEASE_PATH}"
-          zip -v -r "${RELEASE_PATH}" *
-          echo "::set-output name=release-package-path::$(cat "${RELEASE_PATH}")"
+          export RELEASE_FILENAME="${{ needs.build-and-test.outputs.release-package-name }}".zip
+          echo "Release filename: ${RELEASE_FILENAME}"
+          zip -v -r "${RELEASE_FILENAME}" *
+          echo "::set-output name=release-package-filename::${RELEASE_FILENAME}"
       - name: Create release
         id: create-release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: B9PartSwitch ${{ github.ref }} for KSP ${{ env.KSP_VERSION }}
-          body: ${{ steps.extract-single-changelog.outputs.changelog-single }}
+          release_name: B9PartSwitch ${{ github.ref }} for KSP ${{ needs.build-and-test.outputs.ksp-version }}
+          body: ${{ needs.build-and-test.outputs.release-changelog }}
       - name: Upload package to release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.package-release.outputs.release-package-path }}
-          asset_name: B9PartSwitch_${{ steps.describe-tags.outputs.git-tagish }}.zip
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.package-release.outputs.release-package-filename }}
+          asset_name: ${{ steps.package-release.outputs.release-package-filename }}
           asset_content_type: application/zip
       - name: Print release url
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: echo "Release successful!  You can view it at ${{ steps.create_release.outputs.html_url }}"
+        run: echo "Release successful!  You can view it at ${{ steps.create-release.outputs.html_url }}"
