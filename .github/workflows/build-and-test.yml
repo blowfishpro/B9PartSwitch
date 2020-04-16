@@ -36,10 +36,7 @@ jobs:
           echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
           echo "${KSP_VERSION}"
       - name: Download KSP DLLs
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DLL_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DLL_S3_SECRET_ACCESS_KEY }}
-        run: aws s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
+        run: aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
       - name: Set KSP DLL path
         run: echo "::set-env name=KSP_DLL_PATH::/opt/ksp/assembly/${KSP_VERSION}"
       - name: Extract KSP DLLs
