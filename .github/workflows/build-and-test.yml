@@ -103,6 +103,13 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ needs.build-and-test.outputs.release-package-name }}
+      - name: Upload .version file to S3
+        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run:
+          aws s3 cp 'GameData/B9PartSwitch/B9PartSwitch.version' "s3://blowfish-ksp-b9partswitch-avc/versions/$(git describe --tags)/B9PartSwitch.version"
       - name: Package release
         id: package-release
         working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
