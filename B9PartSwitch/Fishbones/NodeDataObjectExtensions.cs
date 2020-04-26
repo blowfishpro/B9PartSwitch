@@ -39,33 +39,8 @@ namespace B9PartSwitch.Fishbones
             obj.ThrowIfNullArgument(nameof(obj));
 
             SerializedDataContainer container = ScriptableObject.CreateInstance<SerializedDataContainer>();
-            container.data = obj.SerializeToString();
+            container.data = obj.SerializeToNode();
             return container;
-        }
-
-        public static string SerializeToString(this object obj)
-        {
-            obj.ThrowIfNullArgument(nameof(obj));
-
-            ConfigNode node = obj.SerializeToNode();
-
-            void EscapeValuesRecursive(ConfigNode theNode)
-            {
-                foreach (ConfigNode subNode in theNode.nodes)
-                {
-                    EscapeValuesRecursive(subNode);
-                }
-
-                foreach (ConfigNode.Value value in theNode.values)
-                {
-                    value.value = value.value.Replace("\n", "\\n");
-                    value.value = value.value.Replace("\t", "\\t");
-                }
-            }
-
-            EscapeValuesRecursive(node);
-
-            return node.ToString();
         }
 
         public static ConfigNode SerializeToNode(this object obj)
@@ -86,48 +61,10 @@ namespace B9PartSwitch.Fishbones
             obj.ThrowIfNullArgument(nameof(obj));
             container.ThrowIfNullArgument(nameof(container));
 
-            if (container.data.IsNullOrEmpty())
+            if (container.data == null)
                 throw new ArgumentException("Container must have data", nameof(container));
 
-            obj.DeserializeFromString(container.data);
-        }
-
-        public static void DeserializeFromString(this object obj, string serializedData)
-        {
-            obj.ThrowIfNullArgument(nameof(obj));
-            serializedData.ThrowIfNullArgument(nameof(serializedData));
-
-            ConfigNode node;
-
-            try
-            {
-                node = ConfigNode.Parse(serializedData);
-            }
-            catch (Exception ex)
-            {
-                throw new FormatException("Failed to parse a ConfigNode from serialized data", ex);
-            }
-
-            ConfigNode dataNode = node.GetNode(SERIALIZED_NODE);
-            if (dataNode.IsNull()) throw new FormatException("No serialized data node found");
-
-            void UnescapeValuesRecursive(ConfigNode theNode)
-            {
-                foreach (ConfigNode subNode in theNode.nodes)
-                {
-                    UnescapeValuesRecursive(subNode);
-                }
-
-                foreach (ConfigNode.Value value in theNode.values)
-                {
-                    value.value = value.value.Replace("\\n", "\n");
-                    value.value = value.value.Replace("\\t", "\t");
-                }
-            }
-
-            UnescapeValuesRecursive(dataNode);
-
-            obj.DeserializeFromNode(dataNode);
+            obj.DeserializeFromNode(container.data);
         }
 
         public static void DeserializeFromNode(this object obj, ConfigNode node)
