@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 100
       - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+        run: git fetch --depth=1 --tags origin
       - name: Describe current revision with tags
         id: describe-tags
         run: |
