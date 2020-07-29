@@ -74,14 +74,13 @@ jobs:
           export VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
           bundle exec fill-version "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${VERSION_FILE}"
           echo "::set-output name=version-file::${VERSION_FILE}"
-      - name: Set release directory
+      - name: Assemble Release
+        id: assemble-release
         run: |
           RELEASE_DIR="${RUNNER_TEMP}/release"
           echo "Release dir: ${RELEASE_DIR}"
           mkdir -v "${RELEASE_DIR}"
-          echo "::set-env name=RELEASE_DIR::${RELEASE_DIR}"
-      - name: Assemble Release
-        run: |
+          echo "::set-output name=release-dir::${RELEASE_DIR}"
           cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}"
@@ -97,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ${{ steps.set-release-package-name.outputs.release-package-name }}
-          path: ${{ env.RELEASE_DIR }}
+          path: ${{ steps.assemble-release.outputs.release-dir }}
       - name: Verify result
         run: bundle exec rake spec
   release:
