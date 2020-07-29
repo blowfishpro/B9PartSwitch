@@ -114,7 +114,7 @@ jobs:
         id: package-release
         working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
         run: |
-          export RELEASE_FILENAME="${{ needs.build-and-test.outputs.release-package-name }}.zip"
+          export RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
           echo "Release filename: ${RELEASE_FILENAME}"
           zip -v -r "${RELEASE_FILENAME}" *
           echo "::set-output name=release-package-filename::${RELEASE_FILENAME}"
