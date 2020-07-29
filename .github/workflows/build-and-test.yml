@@ -16,15 +16,15 @@ jobs:
         with:
           fetch-depth: 100
       - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+        run: git fetch --depth=1 --tags origin
       - name: Describe current revision with tags
         id: describe-tags
         run: |
-          export GIT_TAGISH="$(git describe --tags)"
+          GIT_TAGISH="$(git describe --tags)"
           echo "${GIT_TAGISH}"
           echo "::set-output name=git-tagish::${GIT_TAGISH}"
       - name: Install Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
       - name: Install NuGet
         uses: nuget/setup-nuget@v1
       - name: Install Gems
@@ -33,21 +33,22 @@ jobs:
         run: nuget restore
       - name: Set KSP Version
         run: |
-          echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
-          echo "${KSP_VERSION}"
+          KSP_VERSION="$(cat ./KSP_VERSION)"
+          echo "KSP Version: ${KSP_VERSION}"
+          echo "::set-env name=KSP_VERSION::${KSP_VERSION}"
       - name: Download KSP DLLs
-        run: aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
-      - name: Set KSP DLL path
-        run: echo "::set-env name=KSP_DLL_PATH::/opt/ksp/assembly/${KSP_VERSION}"
-      - name: Extract KSP DLLs
+        id: download-ksp-dlls
         run: |
+          aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
+          KSP_DLL_PATH="/opt/ksp/assembly/${KSP_VERSION}"
+          echo "::set-output name=ksp-dll-path::${KSP_DLL_PATH}"
           mkdir -p "${KSP_DLL_PATH}"
           unzip '/tmp/KSP_DLLs.zip' -d "${KSP_DLL_PATH}"
           rm '/tmp/KSP_DLLs.zip'
       - name: Run Rubocop
         run: bundle exec rubocop
       - name: Compile Project
-        run: msbuild /p:Configuration=Release /p:ReferencePath="${KSP_DLL_PATH}" B9PartSwitch.sln
+        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-ksp-dlls.outputs.ksp-dll-path }}"
       - name: Run Unit Tests
         run: mono packages/xunit.runner.console.*/tools/net471/xunit.console.exe B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
       - name: Extract Changelog
@@ -57,24 +58,29 @@ jobs:
       - name: Extract changelog for current release
         id: extract-single-changelog
         if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
         run: |
-          bundle exec extract-changelog -s "$(git describe --tags)" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md" -o "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
-          cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
-          echo "::set-output name=changelog-single::$(cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md")"
+          CHANGELOG_SINGLE_CONTENT="$(bundle exec extract-changelog -s "${GIT_TAGISH}" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md")"
+          echo '--- Changelog for this version: ---'
+          echo "${CHANGELOG_SINGLE_CONTENT}"
+          echo '--- End changelog ---'
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//'%'/'%25'}"
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//$'\n'/'%0A'}"
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//$'\r'/'%0D'}"
+          echo "::set-output name=changelog-single::${CHANGELOG_SINGLE_CONTENT}"
       - name: Create version file
         id: create-version-file
         run: |
-          export VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
+          VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
           bundle exec fill-version "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${VERSION_FILE}"
           echo "::set-output name=version-file::${VERSION_FILE}"
-      - name: Set release directory
+      - name: Assemble Release
+        id: assemble-release
         run: |
           RELEASE_DIR="${RUNNER_TEMP}/release"
           echo "Release dir: ${RELEASE_DIR}"
           mkdir -v "${RELEASE_DIR}"
-          echo "::set-env name=RELEASE_DIR::${RELEASE_DIR}"
-      - name: Assemble Release
-        run: |
+          echo "::set-output name=release-dir::${RELEASE_DIR}"
           cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/README.md" "${RELEASE_DIR}"
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}"
@@ -90,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ${{ steps.set-release-package-name.outputs.release-package-name }}
-          path: ${{ env.RELEASE_DIR }}
+          path: ${{ steps.assemble-release.outputs.release-dir }}
       - name: Verify result
         run: bundle exec rake spec
   release:
@@ -100,21 +106,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release package artifact
-        uses: actions/download-artifact@v1
+        id: download-release
+        uses: actions/download-artifact@v2
         with:
           name: ${{ needs.build-and-test.outputs.release-package-name }}
+          path: release/${{ needs.build-and-test.outputs.release-package-name }}
       - name: Upload .version file to S3
-        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run:
-          aws s3 cp 'GameData/B9PartSwitch/B9PartSwitch.version' "s3://blowfish-ksp-b9partswitch-avc/versions/$(git describe --tags)/B9PartSwitch.version"
+          aws s3 cp "${{ steps.download-release.outputs.download-path }}/GameData/B9PartSwitch/B9PartSwitch.version" "s3://blowfish-ksp-b9partswitch-avc/versions/$(git describe --tags)/B9PartSwitch.version"
       - name: Package release
         id: package-release
-        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
+        working-directory: ${{ steps.download-release.outputs.download-path }}
         run: |
-          export RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
+          RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
           echo "Release filename: ${RELEASE_FILENAME}"
           zip -v -r "${RELEASE_FILENAME}" *
           echo "::set-output name=release-package-filename::${RELEASE_FILENAME}"
@@ -124,6 +131,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          prerelease: true
           tag_name: ${{ github.ref }}
           release_name: B9PartSwitch ${{ github.ref }} for KSP ${{ needs.build-and-test.outputs.ksp-version }}
           body: ${{ needs.build-and-test.outputs.release-changelog }}
@@ -134,7 +142,7 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package-release.outputs.release-package-filename }}
-          asset_name: ${{ steps.package-release.outputs.release-package-filename }}
+          asset_name: ${{ needs.build-and-test.outputs.release-package-name }}
           asset_content_type: application/zip
       - name: Print release url
         run: echo "Release successful!  You can view it at ${{ steps.create-release.outputs.html_url }}"
