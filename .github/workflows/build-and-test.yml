@@ -20,7 +20,7 @@ jobs:
       - name: Describe current revision with tags
         id: describe-tags
         run: |
-          export GIT_TAGISH="$(git describe --tags)"
+          GIT_TAGISH="$(git describe --tags)"
           echo "${GIT_TAGISH}"
           echo "::set-output name=git-tagish::${GIT_TAGISH}"
       - name: Install Ruby
@@ -33,14 +33,14 @@ jobs:
         run: nuget restore
       - name: Set KSP Version
         run: |
-          export KSP_VERSION="$(cat ./KSP_VERSION)"
+          KSP_VERSION="$(cat ./KSP_VERSION)"
           echo "KSP Version: ${KSP_VERSION}"
           echo "::set-env name=KSP_VERSION::${KSP_VERSION}"
       - name: Download KSP DLLs
         id: download-ksp-dlls
         run: |
           aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
-          export KSP_DLL_PATH="/opt/ksp/assembly/${KSP_VERSION}"
+          KSP_DLL_PATH="/opt/ksp/assembly/${KSP_VERSION}"
           echo "::set-output name=ksp-dll-path::${KSP_DLL_PATH}"
           mkdir -p "${KSP_DLL_PATH}"
           unzip '/tmp/KSP_DLLs.zip' -d "${KSP_DLL_PATH}"
@@ -71,7 +71,7 @@ jobs:
       - name: Create version file
         id: create-version-file
         run: |
-          export VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
+          VERSION_FILE="${RUNNER_TEMP}/B9PartSwitch.version"
           bundle exec fill-version "${GITHUB_WORKSPACE}/templates/B9PartSwitch.version.erb" "${VERSION_FILE}"
           echo "::set-output name=version-file::${VERSION_FILE}"
       - name: Assemble Release
@@ -121,7 +121,7 @@ jobs:
         id: package-release
         working-directory: ${{ steps.download-release.outputs.download-path }}
         run: |
-          export RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
+          RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
           echo "Release filename: ${RELEASE_FILENAME}"
           zip -v -r "${RELEASE_FILENAME}" *
           echo "::set-output name=release-package-filename::${RELEASE_FILENAME}"
