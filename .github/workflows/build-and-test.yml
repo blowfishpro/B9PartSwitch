@@ -33,8 +33,9 @@ jobs:
         run: nuget restore
       - name: Set KSP Version
         run: |
-          echo "::set-env name=KSP_VERSION::$(cat KSP_VERSION)"
-          echo "${KSP_VERSION}"
+          export KSP_VERSION="$(cat ./KSP_VERSION)"
+          echo "KSP Version: ${KSP_VERSION}"
+          echo "::set-env name=KSP_VERSION::${KSP_VERSION}"
       - name: Download KSP DLLs
         run: aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
       - name: Set KSP DLL path
