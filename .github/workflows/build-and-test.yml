@@ -131,6 +131,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          prerelease: true
           tag_name: ${{ github.ref }}
           release_name: B9PartSwitch ${{ github.ref }} for KSP ${{ needs.build-and-test.outputs.ksp-version }}
           body: ${{ needs.build-and-test.outputs.release-changelog }}
