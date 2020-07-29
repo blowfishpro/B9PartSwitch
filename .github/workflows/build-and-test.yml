@@ -48,7 +48,7 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop
       - name: Compile Project
-        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-ksp-dlls.outputs.ksp-dll-path }}" B9PartSwitch.sln
+        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-ksp-dlls.outputs.ksp-dll-path }}"
       - name: Run Unit Tests
         run: mono packages/xunit.runner.console.*/tools/net471/xunit.console.exe B9PartSwitchTests/bin/Release/B9PartSwitchTests.dll
       - name: Extract Changelog
