@@ -58,10 +58,16 @@ jobs:
       - name: Extract changelog for current release
         id: extract-single-changelog
         if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
         run: |
-          bundle exec extract-changelog -s "$(git describe --tags)" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md" -o "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
-          cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md"
-          echo "::set-output name=changelog-single::$(cat "${RUNNER_TEMP}/B9PartSwitch-Changelog-Single.md")"
+          CHANGELOG_SINGLE_CONTENT="$(bundle exec extract-changelog -s "${GIT_TAGISH}" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md")"
+          echo '--- Changelog for this version: ---'
+          echo "${CHANGELOG_SINGLE_CONTENT}"
+          echo '--- End changelog ---'
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//'%'/'%25'}"
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//$'\n'/'%0A'}"
+          CHANGELOG_SINGLE_CONTENT="${CHANGELOG_SINGLE_CONTENT//$'\r'/'%0D'}"
+          echo "::set-output name=changelog-single::${CHANGELOG_SINGLE_CONTENT}"
       - name: Create version file
         id: create-version-file
         run: |
