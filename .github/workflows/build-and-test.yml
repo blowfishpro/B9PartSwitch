@@ -24,7 +24,7 @@ jobs:
           echo "${GIT_TAGISH}"
           echo "::set-output name=git-tagish::${GIT_TAGISH}"
       - name: Install Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
       - name: Install NuGet
         uses: nuget/setup-nuget@v1
       - name: Install Gems
