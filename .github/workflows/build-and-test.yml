@@ -106,19 +106,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release package artifact
-        uses: actions/download-artifact@v1
+        id: download-release
+        uses: actions/download-artifact@v2
         with:
           name: ${{ needs.build-and-test.outputs.release-package-name }}
+          path: release/${{ needs.build-and-test.outputs.release-package-name }}
       - name: Upload .version file to S3
-        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run:
-          aws s3 cp 'GameData/B9PartSwitch/B9PartSwitch.version' "s3://blowfish-ksp-b9partswitch-avc/versions/$(git describe --tags)/B9PartSwitch.version"
+          aws s3 cp "${{ steps.download-release.outputs.download-path }}/GameData/B9PartSwitch/B9PartSwitch.version" "s3://blowfish-ksp-b9partswitch-avc/versions/$(git describe --tags)/B9PartSwitch.version"
       - name: Package release
         id: package-release
-        working-directory: ${{ needs.build-and-test.outputs.release-package-name }}
+        working-directory: ${{ steps.download-release.outputs.download-path }}
         run: |
           export RELEASE_FILENAME="${RUNNER_TEMP}/${{ needs.build-and-test.outputs.release-package-name }}.zip"
           echo "Release filename: ${RELEASE_FILENAME}"
