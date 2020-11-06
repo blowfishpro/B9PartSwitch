@@ -36,13 +36,17 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
 
         private void Activate()
         {
+            bool isEnabled = module.isEnabled;
             module.Load(dataNode);
+            module.isEnabled = isEnabled;
             module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
 
         private void Deactivate()
         {
+            bool isEnabled = module.isEnabled;
             module.Load(originalNode);
+            module.isEnabled = isEnabled;
             module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
     }
