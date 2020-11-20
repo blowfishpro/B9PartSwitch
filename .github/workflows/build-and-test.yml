@@ -7,7 +7,7 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     outputs:
-      ksp-version: ${{ env.KSP_VERSION }}
+      ksp-version: ${{ steps.set-ksp-version.outputs.ksp-version }}
       release-package-name: ${{ steps.set-release-package-name.outputs.release-package-name }}
       release-changelog: ${{ steps.extract-single-changelog.outputs.changelog-single }}
     steps:
@@ -32,15 +32,16 @@ jobs:
       - name: Install NuGet packages
         run: nuget restore
       - name: Set KSP Version
+        id: set-ksp-version
         run: |
           KSP_VERSION="$(cat ./KSP_VERSION)"
           echo "KSP Version: ${KSP_VERSION}"
-          echo "::set-env name=KSP_VERSION::${KSP_VERSION}"
+          echo "::set-output name=ksp-version::${KSP_VERSION}"
       - name: Download KSP DLLs
         id: download-ksp-dlls
         run: |
-          aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ env.KSP_VERSION }}.zip '/tmp/KSP_DLLs.zip'
-          KSP_DLL_PATH="/opt/ksp/assembly/${KSP_VERSION}"
+          aws --no-sign-request s3 cp s3://blowfish-ksp-dlls/ksp-${{ steps.set-ksp-version.outputs.ksp-version }}.zip '/tmp/KSP_DLLs.zip'
+          KSP_DLL_PATH="/opt/ksp/assembly/${{ steps.set-ksp-version.outputs.ksp-version }}"
           echo "::set-output name=ksp-dll-path::${KSP_DLL_PATH}"
           mkdir -p "${KSP_DLL_PATH}"
           unzip '/tmp/KSP_DLLs.zip' -d "${KSP_DLL_PATH}"
