@@ -49,12 +49,12 @@ namespace B9PartSwitch
             SetupGUI();
             UpdateFields();
 
-            GameEvents.onEditorShipModified.Add(this.EditorShipModified);
+            GameEvents.onEditorShipModified.Add(EditorShipModified);
         }
 
         private void OnDestroy()
         {
-            GameEvents.onEditorShipModified.Remove(this.EditorShipModified);
+            GameEvents.onEditorShipModified.Remove(EditorShipModified);
         }
 
         private void EditorShipModified(ShipConstruct construct)
