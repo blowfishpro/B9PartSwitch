@@ -145,7 +145,7 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ${{ steps.package-release.outputs.release-package-filename }}
-          asset_name: ${{ needs.build-and-test.outputs.release-package-name }}
+          asset_name: ${{ needs.build-and-test.outputs.release-package-name }}.zip
           asset_content_type: application/zip
       - name: Print release url
         run: echo "Release successful!  You can view it at ${{ steps.create-release.outputs.html_url }}"
