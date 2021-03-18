@@ -126,49 +126,26 @@ namespace B9PartSwitch.Utils
 
         private static byte ParseHex(char value)
         {
-            switch (value)
+            return value switch
             {
-                case '0':
-                    return 0;
-                case '1':
-                    return 1;
-                case '2':
-                    return 2;
-                case '3':
-                    return 3;
-                case '4':
-                    return 4;
-                case '5':
-                    return 5;
-                case '6':
-                    return 6;
-                case '7':
-                    return 7;
-                case '8':
-                    return 8;
-                case '9':
-                    return 9;
-                case 'A':
-                case 'a':
-                    return 10;
-                case 'B':
-                case 'b':
-                    return 11;
-                case 'C':
-                case 'c':
-                    return 12;
-                case 'D':
-                case 'd':
-                    return 13;
-                case 'E':
-                case 'e':
-                    return 14;
-                case 'F':
-                case 'f':
-                    return 15;
-                default:
-                    throw new FormatException("Invalid hexadecimal character: " + value);
-            }
+                '0' => 0,
+                '1' => 1,
+                '2' => 2,
+                '3' => 3,
+                '4' => 4,
+                '5' => 5,
+                '6' => 6,
+                '7' => 7,
+                '8' => 8,
+                '9' => 9,
+                'A' or 'a' => 10,
+                'B' or 'b' => 11,
+                'C' or 'c' => 12,
+                'D' or 'd' => 13,
+                'E' or 'e' => 14,
+                'F' or 'f' => 15,
+                _ => throw new FormatException("Invalid hexadecimal character: " + value),
+            };
         }
 
         private static float ParseFloatValue(string valueStr)

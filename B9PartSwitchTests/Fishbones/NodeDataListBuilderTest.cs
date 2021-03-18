@@ -26,12 +26,12 @@ namespace B9PartSwitchTests.Fishbones
 #pragma warning restore CS0649
 
             [NodeData]
-            public DummyClass x { get; protected set; }
+            public DummyClass X { get; protected set; }
 
             [NodeData]
-            public DummyClass y { get { throw new NotImplementedException(); } set { } }
+            public DummyClass Y { get { throw new NotImplementedException(); } set { } }
 
-            public DummyClass z { get; set; }
+            public DummyClass Z { get; set; }
         }
 
         #region Constructor
@@ -56,9 +56,9 @@ namespace B9PartSwitchTests.Fishbones
             FieldInfo iField = typeof(NodeDataClass).GetField("i", flags);
             FieldInfo jField = typeof(NodeDataClass).GetField("j", flags);
             FieldInfo kField = typeof(NodeDataClass).GetField("k", flags);
-            PropertyInfo xProperty = typeof(NodeDataClass).GetProperty("x", flags);
-            PropertyInfo yProperty = typeof(NodeDataClass).GetProperty("y", flags);
-            PropertyInfo zProperty = typeof(NodeDataClass).GetProperty("z", flags);
+            PropertyInfo xProperty = typeof(NodeDataClass).GetProperty("X", flags);
+            PropertyInfo yProperty = typeof(NodeDataClass).GetProperty("Y", flags);
+            PropertyInfo zProperty = typeof(NodeDataClass).GetProperty("Z", flags);
 
             Assert.NotNull(iField);
             Assert.NotNull(jField);

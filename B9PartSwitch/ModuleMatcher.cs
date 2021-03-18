@@ -64,8 +64,8 @@ namespace B9PartSwitch
 
         public ConfigNode FindPrefabNode(PartModule module)
         {
-            if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {module.part.name}");
-            if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
+            if (module.part.partInfo is not AvailablePart partInfo) throw new InvalidOperationException($"partInfo is null on part {module.part.name}");
+            if (partInfo.partConfig is not ConfigNode partConfig) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
 
             ConfigNode matchedNode = null;
 
@@ -142,7 +142,7 @@ namespace B9PartSwitch
             {
                 if (value.name == "name") continue;
 
-                if (!(node.GetValue(value.name) is string testValue)) return false;
+                if (node.GetValue(value.name) is not string testValue) return false;
 
                 if (module.Fields[value.name] is BaseField baseField)
                 {
