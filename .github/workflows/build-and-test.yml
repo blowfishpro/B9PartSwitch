@@ -63,7 +63,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
-          CHANGELOG_SINGLE_CONTENT="$(bundle exec extract-changelog -s "${GIT_TAGISH}" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md")"
+          CHANGELOG_SINGLE_CONTENT="$(bundle exec extract-changelog -s "$(git describe --tags)" -i "${RUNNER_TEMP}/B9PartSwitch-Changelog-all.md")"
           echo '--- Changelog for this version: ---'
           echo "${CHANGELOG_SINGLE_CONTENT}"
           echo '--- End changelog ---'
