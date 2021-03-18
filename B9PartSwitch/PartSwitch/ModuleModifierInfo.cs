@@ -98,8 +98,8 @@ namespace B9PartSwitch
 
             if (dataNode.IsNotNull())
             {
-                if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {part.name}");
-                if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
+                if (module.part.partInfo is not AvailablePart partInfo) throw new InvalidOperationException($"partInfo is null on part {part.name}");
+                if (partInfo.partConfig is not ConfigNode partConfig) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
 
                 ConfigNode originalNode = moduleMatcher.FindPrefabNode(module);
 

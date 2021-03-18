@@ -560,7 +560,7 @@ namespace B9PartSwitch
         {
             foreach (IPartModifier partModifier in partModifiers)
             {
-                if (!(partModifier is ModuleDeactivator moduleDeactivator)) continue;
+                if (partModifier is not ModuleDeactivator moduleDeactivator) continue;
                 if (moduleDeactivator.module == module) return false;
             }
 

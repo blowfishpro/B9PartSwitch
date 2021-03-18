@@ -117,6 +117,8 @@ namespace B9PartSwitchTests.Fishbones.Parsers
             };
 
             ConfigNode node = wrapper.Save(obj, Exemplars.SaveContext);
+
+            Assert.Equal("stuff", node.GetValue("value"));
         }
 
         [Fact]
