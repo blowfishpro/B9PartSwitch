@@ -16,7 +16,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.parent = parent;
         }
 
-        public override string Description => $"module {module.ToString()} activated status";
+        public override string Description => $"module {module} activated status";
 
         public override void ActivateOnStartEditor() => Activate();
         public override void ActivateOnStartFlight() => Activate();
@@ -26,7 +26,6 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnSwitchFlight() => Activate();
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
-        public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
 
         protected virtual void Activate()
         {
@@ -39,7 +38,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             foreach (PartModule otherModule in module.part.Modules)
             {
                 if (otherModule == parent) continue;
-                if (!(otherModule is ModuleB9PartSwitch switchModule)) continue;
+                if (otherModule is not ModuleB9PartSwitch switchModule) continue;
                 if (switchModule.ModuleShouldBeEnabled(module)) return;
             }
 

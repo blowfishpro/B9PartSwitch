@@ -17,6 +17,9 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             this.part = part;
         }
 
+        public override string Description => $"Transform {transform.name} enabled state";
+        public override bool ChangesGeometry => true;
+
         public override void DeactivateOnStartEditor() => Deactivate();
         public override void DeactivateOnStartFlight() => Deactivate();
         public override void ActivateOnStartEditor() => Activate();
@@ -27,6 +30,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnSwitchFlight() => Activate();
         public override void OnIconCreateInactiveSubtype() => Deactivate();
         public override void OnIconCreateActiveSubtype() => Activate();
+        public override void OnAfterReinitializeActiveSubtype() => Activate();
+        public override void OnAfterReinitializeInactiveSubtype() => Deactivate();
 
         private void Activate()
         {

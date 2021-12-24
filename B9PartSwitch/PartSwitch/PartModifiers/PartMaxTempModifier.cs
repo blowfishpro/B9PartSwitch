@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartMaxTempModifier : PartModifierBase
+    public class PartMaxTempModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "maxTemp";
 
@@ -10,7 +10,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly double origMaxTemp;
         private readonly double newMaxTemp;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's maxTemp";
 
         public PartMaxTempModifier(Part part, double origMaxTemp, double newMaxTemp)

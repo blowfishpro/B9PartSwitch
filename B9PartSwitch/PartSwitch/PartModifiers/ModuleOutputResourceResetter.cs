@@ -23,7 +23,6 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnSwitchFlight() => Fire();
         public override void OnWillBeCopiedActiveSubtype() => Fire();
         public override void OnWasCopiedActiveSubtype() => Fire();
-        public override void OnBeforeReinitializeActiveSubtype() => Fire();
 
         private void Fire() => module.resHandler.outputResources.Clear();
     }

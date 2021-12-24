@@ -3,27 +3,26 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class TextureReplacement : PartModifierBase, IPartAspectLock
+    public class FloatPropertyModifier : PartModifierBase, IPartAspectLock
     {
         private readonly Renderer renderer;
         private readonly string shaderProperty;
-        private readonly Texture oldTexture;
-        private readonly Texture newTexture;
+        private readonly float originalValue;
+        private readonly float newValue;
 
-        public TextureReplacement(Renderer renderer, string shaderProperty, Texture newTexture)
+        public FloatPropertyModifier(Renderer renderer, string shaderProperty, float newValue)
         {
             renderer.ThrowIfNullArgument(nameof(renderer));
             shaderProperty.ThrowIfNullOrEmpty(nameof(shaderProperty));
-            newTexture.ThrowIfNullArgument(nameof(newTexture));
+            newValue.ThrowIfNullArgument(nameof(newValue));
 
             this.renderer = renderer;
             this.shaderProperty = shaderProperty;
-            this.newTexture = newTexture;
+            this.newValue = newValue;
 
-            oldTexture = renderer.sharedMaterial.GetTexture(shaderProperty);
+            if (!renderer.sharedMaterial.HasProperty(shaderProperty)) throw new ArgumentException($"{renderer.sharedMaterial.name} has no property {shaderProperty}");
 
-            if (oldTexture == null)
-                throw new ArgumentException($"{renderer.sharedMaterial.name} has no texture on the property {shaderProperty}");
+            originalValue = renderer.sharedMaterial.GetFloat(shaderProperty);
         }
 
         public object PartAspectLock => renderer.GetInstanceID() + "---" + shaderProperty;
@@ -48,7 +47,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnBeforeReinitializeActiveSubtype() => Deactivate();
         public override void OnAfterReinitializeActiveSubtype() => Activate();
 
-        private void Activate() => renderer.material.SetTexture(shaderProperty, newTexture);
-        private void Deactivate() => renderer.material.SetTexture(shaderProperty, oldTexture);
+        private void Activate() => renderer.material.SetFloat(shaderProperty, newValue);
+        private void Deactivate() => renderer.material.SetFloat(shaderProperty, originalValue);
     }
 }

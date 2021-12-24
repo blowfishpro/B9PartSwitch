@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartCrashToleranceModifier : PartModifierBase
+    public class PartCrashToleranceModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "crashTolerance";
 
@@ -10,7 +10,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly float origCrashTolerance;
         private readonly float newCrashTolerance;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's crashTolerance";
 
         public PartCrashToleranceModifier(Part part, float origCrashTolerance, float newCrashTolerance)

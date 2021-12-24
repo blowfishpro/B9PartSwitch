@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartCenterOfDisplacementModifier : PartModifierBase
+    public class PartCenterOfDisplacementModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "CenterOfDisplacement";
 
@@ -11,7 +11,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly Vector3 origCenterOfDisplacement;
         private readonly Vector3 newCenterOfDisplacement;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's CenterOfDisplacement";
 
         public PartCenterOfDisplacementModifier(Part part, Vector3 origCenterOfDisplacement, Vector3 newCenterOfDisplacement)

@@ -24,8 +24,10 @@ namespace B9PartSwitch
             resource.flowMode = PartResource.FlowMode.Both;
             part.Resources.dict.Add(info.name.GetHashCode(), resource);
 
-            PartResource simulationResource = new PartResource(resource);
-            simulationResource.simulationResource = true;
+            PartResource simulationResource = new PartResource(resource)
+            {
+                simulationResource = true
+            };
             part.SimulationResources.dict.Add(info.name.GetHashCode(), simulationResource);
 
             GameEvents.onPartResourceListChange.Fire(part);
@@ -121,14 +123,6 @@ namespace B9PartSwitch
             part.ThrowIfNullArgument(nameof(part));
 
             return part.partTransform.Find("model");
-        }
-
-        public static IEnumerable<Transform> GetModelTransforms(this Part part, string name)
-        {
-            part.ThrowIfNullArgument(nameof(part));
-            name.ThrowIfNullOrEmpty(nameof(name));
-
-            return part.GetModelRoot().GetChildrenNamedRecursive(name);
         }
 
         public static void FixModuleJettison(this Part part)

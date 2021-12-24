@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartCenterOfBuoyancyModifier : PartModifierBase
+    public class PartCenterOfBuoyancyModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "CenterOfBuoyancy";
 
@@ -11,7 +11,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly Vector3 origCenterOfBuoyancy;
         private readonly Vector3 newCenterOfBuoyancy;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's CenterOfBuoyancy";
 
         public PartCenterOfBuoyancyModifier(Part part, Vector3 origCenterOfBuoyancy, Vector3 newCenterOfBuoyancy)

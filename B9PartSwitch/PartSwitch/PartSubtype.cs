@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UniLinq;
 using UnityEngine;
 using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -38,13 +38,16 @@ namespace B9PartSwitch
         public float defaultSubtypePriority = 0;
 
         [NodeData(name = "transform")]
-        public List<string> transformNames = new List<string>();
+        public List<IStringMatcher> transformNames = new List<IStringMatcher>();
 
         [NodeData(name = "node")]
-        public List<string> nodeNames = new List<string>();
+        public List<IStringMatcher> nodeNames = new List<IStringMatcher>();
 
         [NodeData(name = "TEXTURE")]
         public List<TextureSwitchInfo> textureSwitches = new List<TextureSwitchInfo>();
+
+        [NodeData(name = "MATERIAL")]
+        public List<MaterialModifierInfo> materialModifierInfos = new List<MaterialModifierInfo>();
 
         [NodeData(name = "NODE")]
         public List<AttachNodeModifierInfo> attachNodeModifierInfos = new List<AttachNodeModifierInfo>();
@@ -136,10 +139,8 @@ namespace B9PartSwitch
 
         public bool HasUpgradeRequired => !upgradeRequired.IsNullOrEmpty();
 
-        public IEnumerable<Transform> Transforms => transforms.Select(transform => transform.transform);
-        public IEnumerable<AttachNode> Nodes => nodes.All();
         public IEnumerable<string> ResourceNames => tankType.ResourceNames;
-        public IEnumerable<string> NodeIDs => nodes.Select(n => n.id);
+        public bool ChangesGeometry => partModifiers.Any(modifier => modifier.ChangesGeometry);
 
         public bool ChangesDryMass => addedMass != 0 || tankType.tankMass != 0;
         public bool ChangesMass => (addedMass != 0f) || tankType.ChangesMass;
@@ -238,6 +239,22 @@ namespace B9PartSwitch
             }
         }
 
+        public void OnAfterReinitializeInactiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeInactiveSubtype();
+            }
+        }
+
+        public void OnAfterReinitializeActiveSubtype()
+        {
+            foreach (IPartModifier modifier in partModifiers)
+            {
+                modifier.OnAfterReinitializeActiveSubtype();
+            }
+        }
+
         public void Setup(ModuleB9PartSwitch parent, bool displayWarnings = true)
         {
             if (parent == null)
@@ -272,15 +289,22 @@ namespace B9PartSwitch
             void MaybeAddModifier(IPartModifier modifier)
             {
                 if (modifier == null) return;
-                if (aspectLocksOnOtherModules.Contains(modifier.PartAspectLock))
+
+                if (modifier is IPartAspectLock partAspectLockHolder)
                 {
-                    OnInitializationError($"More than one module can't manage {modifier.Description}");
+                    object partAspectLock = partAspectLockHolder;
+                    if (aspectLocksOnOtherModules.Contains(partAspectLock))
+                    {
+                        OnInitializationError($"More than one module can't manage {modifier.Description}");
+                        return;
+                    }
+                    else
+                    {
+                        aspectLocks.Add(partAspectLock);
+                    }
                 }
-                else
-                {
-                    partModifiers.Add(modifier);
-                    aspectLocks.Add(modifier.PartAspectLock);
-                }
+
+                partModifiers.Add(modifier);
             }
 
             if (maxTemp > 0)
@@ -327,7 +351,10 @@ namespace B9PartSwitch
 
             foreach (AttachNodeModifierInfo info in attachNodeModifierInfos)
             {
-                MaybeAddModifier(info.CreateAttachNodeModifier(part, parent, OnInitializationError));
+                foreach(IPartModifier partModifier in info.CreatePartModifiers(part, parent, OnInitializationError))
+                {
+                    MaybeAddModifier(partModifier);
+                }
             }
 
             foreach (TextureSwitchInfo info in textureSwitches)
@@ -338,17 +365,23 @@ namespace B9PartSwitch
                 }
             }
 
-            nodes.Clear();
-            foreach (string nodeName in nodeNames)
+            foreach (MaterialModifierInfo materialModifierInfo in materialModifierInfos)
             {
-                string pattern = '^' + Regex.Escape(nodeName).Replace(@"\*", ".*").Replace(@"\?", ".") + '$';
-                Regex nodeIdRegex = new Regex(pattern);
+                foreach (IPartModifier partModifier in materialModifierInfo.CreateModifiers(part.GetModelRoot(), OnInitializationError))
+                {
+                    MaybeAddModifier(partModifier);
+                }
+            }
 
+            nodes.Clear();
+            foreach (IStringMatcher nodeName in nodeNames)
+            {
                 bool foundNode = false;
 
                 foreach (AttachNode node in part.attachNodes)
                 {
-                    if (!nodeIdRegex.IsMatch(node.id)) continue;
+
+                    if (!nodeName.Match(node.id)) continue;
 
                     foundNode = true;
 
@@ -381,7 +414,7 @@ namespace B9PartSwitch
             {
                 bool foundTransform = false;
 
-                foreach (Transform transform in part.GetModelTransforms(transformName))
+                foreach (Transform transform in part.GetModelRoot().TraverseHierarchy().Where(t => transformName.Match(t.name)))
                 {
                     foundTransform = true;
                     partModifiers.Add(new TransformToggler(transform, part));
@@ -389,7 +422,7 @@ namespace B9PartSwitch
                 }
 
                 if (!foundTransform)
-                    OnInitializationError($"No transforms named '{transformName}' found");
+                    OnInitializationError($"No transforms matching '{transformName}' found");
             }
 
             foreach (TransformModifierInfo transformModifierInfo in transformModifierInfos)
@@ -407,7 +440,7 @@ namespace B9PartSwitch
                 {
                     try
                     {
-                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent))
+                        foreach (IPartModifier partModifier in moduleModifierInfo.CreatePartModifiers(part, parent, parent.CreateModuleDataChangedEventDetails()))
                         {
                             MaybeAddModifier(partModifier);
                         }
@@ -527,7 +560,7 @@ namespace B9PartSwitch
         {
             foreach (IPartModifier partModifier in partModifiers)
             {
-                if (!(partModifier is ModuleDeactivator moduleDeactivator)) continue;
+                if (partModifier is not ModuleDeactivator moduleDeactivator) continue;
                 if (moduleDeactivator.module == module) return false;
             }
 

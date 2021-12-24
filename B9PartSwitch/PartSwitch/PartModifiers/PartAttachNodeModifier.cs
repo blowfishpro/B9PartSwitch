@@ -2,7 +2,7 @@
 
 namespace B9PartSwitch.PartSwitch.PartModifiers
 {
-    public class PartAttachNodeModifier : PartModifierBase
+    public class PartAttachNodeModifier : PartModifierBase, IPartAspectLock
     {
         public const string PART_ASPECT_LOCK = "attachNode";
 
@@ -11,7 +11,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         private readonly AttachNode newAttachNode;
         private readonly ILinearScaleProvider linearScaleProvider;
 
-        public override object PartAspectLock => PART_ASPECT_LOCK;
+        public object PartAspectLock => PART_ASPECT_LOCK;
         public override string Description => "a part's surface attach node";
 
         public PartAttachNodeModifier(AttachNode partAttachNode, AttachNode referenceAttachNode, AttachNode newAttachNode, ILinearScaleProvider linearScaleProvider)

@@ -6,6 +6,7 @@ using B9PartSwitch.Fishbones;
 using B9PartSwitch.Fishbones.Context;
 using B9PartSwitch.Fishbones.Parsers;
 using B9PartSwitch.PartSwitch.PartModifiers;
+using B9PartSwitch.Utils;
 
 namespace B9PartSwitch
 {
@@ -82,28 +83,25 @@ namespace B9PartSwitch
         public void Load(ConfigNode node, OperationContext context) => this.LoadFields(node, context);
         public void Save(ConfigNode node, OperationContext context) => this.SaveFields(node, context);
 
-        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, PartModule parentModule)
+        public IEnumerable<IPartModifier> CreatePartModifiers(Part part, PartModule parentModule, BaseEventDetails moduleDataChangedEventDetails)
         {
             part.ThrowIfNullArgument(nameof(part));
             parentModule.ThrowIfNullArgument(nameof(parentModule));
+            moduleDataChangedEventDetails.ThrowIfNullArgument(nameof(moduleDataChangedEventDetails));
 
             if (identifierNode.IsNull()) throw new Exception("module modifier must have an IDENTIFIER node");
 
-            if (!(identifierNode.GetValue("name") is string moduleName))
-                throw new Exception("IDENTIFIER node does not have a name value");
+            ModuleMatcher moduleMatcher = new ModuleMatcher(identifierNode);
 
-            moduleName = moduleName.Trim();
-
-            if (moduleName == string.Empty) throw new Exception ("IDENTIFIER node has a blank name");
-
-            PartModule module = FindModule(part, parentModule, moduleName);
+            PartModule module = moduleMatcher.FindModule(part);
+            if (module == parentModule) throw new Exception("Cannot use parent module!");
 
             if (dataNode.IsNotNull())
             {
-                if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {part.name}");
-                if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
+                if (module.part.partInfo is not AvailablePart partInfo) throw new InvalidOperationException($"partInfo is null on part {part.name}");
+                if (partInfo.partConfig is not ConfigNode partConfig) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
 
-                ConfigNode originalNode = FindPrefabNode(module, moduleName);
+                ConfigNode originalNode = moduleMatcher.FindPrefabNode(module);
 
                 if (INVALID_MODULES_FOR_DATA_LOADING.Any(type => module.GetType().Implements(type)))
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
@@ -111,7 +109,7 @@ namespace B9PartSwitch
                     throw new InvalidOperationException($"Cannot modify data on {module.GetType()}");
                 else if (module is ModuleEnginesFX moduleEnginesFX)
                 {
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
                     if (dataNode.GetValue("flameoutEffectName") is string flameoutEffectName)
                         yield return new EffectDeactivator(part, moduleEnginesFX.flameoutEffectName, flameoutEffectName);
                     if (dataNode.GetValue("runningEffectName") is string runningEffectName)
@@ -127,16 +125,22 @@ namespace B9PartSwitch
                     if (dataNode.GetValue("spoolEffectName") is string spoolEffectName)
                         yield return new EffectDeactivator(part, moduleEnginesFX.spoolEffectName, spoolEffectName);
                 }
+                else if (module is ModuleRCSFX moduleRCSFX)
+                {
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
+                    if (dataNode.GetValue("runningEffectName") is string runningEffectName)
+                        yield return new EffectDeactivator(part, moduleRCSFX.runningEffectName, runningEffectName);
+                }
                 else if (module is ModuleDeployableSolarPanel && dataNode.HasValue("chargeRate"))
                 {
                     // if output resources are already initialized ModuleDeployableSolarPanel won't do it again
                     // therefore, wipe all output resources before loading new data
                     // order matters here since the output resources must be empty when new data is loaded
                     yield return new ModuleOutputResourceResetter(module);
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
                 }
                 else
-                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode);
+                    yield return new ModuleDataHandlerBasic(module, originalNode, dataNode, moduleDataChangedEventDetails);
             }
 
             if (!moduleActive)
@@ -148,137 +152,6 @@ namespace B9PartSwitch
 
                 yield return new ModuleDeactivator(module, parentModule);
             }
-        }
-
-        private PartModule FindModule(Part part, PartModule parentModule, string moduleName)
-        {
-            PartModule matchedModule = null;
-
-            foreach (PartModule module in part.Modules)
-            {
-                if (module == parentModule) continue;
-
-                if (!IsMatch(module, moduleName)) continue;
-
-                if (matchedModule.IsNotNull()) throw new Exception("Found more than one matching module");
-
-                matchedModule = module;
-            }
-
-            if (matchedModule.IsNull()) throw new Exception("Could not find matching module");
-
-            return matchedModule;
-        }
-
-        private ConfigNode FindPrefabNode(PartModule module, string moduleName)
-        {
-            if (!(module.part.partInfo is AvailablePart partInfo)) throw new InvalidOperationException($"partInfo is null on part {module.part.name}");
-            if (!(partInfo.partConfig is ConfigNode partConfig)) throw new InvalidOperationException($"partInfo.partConfig is null on part {partInfo.name}");
-
-            ConfigNode matchedNode = null;
-
-            foreach (ConfigNode subNode in partConfig.nodes)
-            {
-                if (!NodeMatchesModule(module, moduleName, subNode)) continue;
-
-                if (matchedNode.IsNotNull()) throw new Exception("Found more than one matching module node");
-
-                matchedNode = subNode;
-            }
-
-            if (matchedNode.IsNull()) throw new Exception("Could not find matching module node");
-
-            return matchedNode;
-        }
-
-        private bool IsMatch(PartModule module, string moduleName)
-        {
-            if (module.GetType().Name != moduleName) return false;
-
-            foreach (ConfigNode.Value value in identifierNode.values)
-            {
-                if (value.name == "name") continue;
-
-                if (module.Fields[value.name] is BaseField baseField)
-                {
-                    IValueParser parser;
-                    object parsedValue;
-
-                    try
-                    {
-                        parser = DefaultValueParseMap.Instance.GetParser(baseField.FieldInfo.FieldType);
-                    }
-                    catch (ParseTypeNotRegisteredException)
-                    {
-                        throw CannotParseFieldException.CannotFindParser(baseField.name, baseField.FieldInfo.FieldType);
-                    }
-
-                    try
-                    {
-                        parsedValue = parser.Parse(value.value);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw CannotParseFieldException.ExceptionWhileParsing(baseField.name, baseField.FieldInfo.FieldType, ex);
-                    }
-
-                    if (!object.Equals(parsedValue, baseField.GetValue(module))) return false;
-                }
-                else if (module is CustomPartModule cpm && value.name == "moduleID")
-                {
-                    if (cpm.moduleID != value.value) return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool NodeMatchesModule(PartModule module, string moduleName, ConfigNode node)
-        {
-            if (node.GetValue("name") != moduleName) return false;
-
-            foreach (ConfigNode.Value value in identifierNode.values)
-            {
-                if (value.name == "name") continue;
-
-                if (!(node.GetValue(value.name) is string testValue)) return false;
-
-                if (module.Fields[value.name] is BaseField baseField)
-                {
-                    object parsedValue, nodeValue;
-
-                    try
-                    {
-                        IValueParser parser = DefaultValueParseMap.Instance.GetParser(baseField.FieldInfo.FieldType);
-                        parsedValue = parser.Parse(value.value);
-                        nodeValue = parser.Parse(testValue);
-                    }
-                    catch (ParseTypeNotRegisteredException)
-                    {
-                        throw CannotParseFieldException.CannotFindParser(baseField.name, baseField.FieldInfo.FieldType);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw CannotParseFieldException.ExceptionWhileParsing(baseField.name, baseField.FieldInfo.FieldType, ex);
-                    }
-
-                    if (!object.Equals(parsedValue, nodeValue)) return false;
-                }
-                else if (module is CustomPartModule && value.name == "moduleID")
-                {
-                    if (node.GetValue("moduleID") != value.value) return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }
