@@ -117,6 +117,9 @@ namespace B9PartSwitch
         public bool allowSwitchInFlight = true;
 
         [NodeData]
+        public bool allowSwitchFromInFlight = true;
+
+        [NodeData]
         public string mirrorSymmetrySubtype;
 
         #endregion
