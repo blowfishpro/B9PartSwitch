@@ -46,6 +46,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <Private>False</Private>
     </Reference>
