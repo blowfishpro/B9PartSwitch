@@ -111,6 +111,21 @@ namespace B9PartSwitch.UI
             subtypeTitleText.text = switcherModule.CurrentSubtype.title;
 
             subtypeButtons[currentButtonIndex].Activate();
+
+            // up to 7 subtypeButtons fit in the PAW without scrolling
+            if (subtypeButtons.Count > 7)
+            {
+                scrollMain.scrollSensitivity = subtypeButtons.Count;
+                // scrollMain.horizontalNormalizedPosition is the left edge of the viewport relative to the content.
+                // scrollMain.viewport.rect.width will be 200+(2/3) units after layout stuff is finished.  Sadly, it is 0 when this code runs so we can't make use of it here.
+                // Each button is effectively 28 units wide, meaning the viewport is 7+(1/6) buttons wide.
+                // If we scroll past the last button, the buttons will bounce back so that the last button is touching the viewport's right edge.
+                // That bounce could make a player lose their place in the button list (plus it just looks bad).  Therefore, we don't use 1.0 to set the viewport full right.
+                const float viewportWidthInButtons = 7+1/6f;
+                if (currentButtonIndex < 4) scrollMain.horizontalNormalizedPosition = 0f;
+                else if (subtypeButtons.Count - currentButtonIndex < 5) scrollMain.horizontalNormalizedPosition = (subtypeButtons.Count - viewportWidthInButtons) / subtypeButtons.Count;
+                else scrollMain.horizontalNormalizedPosition = (currentButtonIndex + 4 - viewportWidthInButtons) / subtypeButtons.Count;
+            }
         }
 
         private void PreviousSubtype()
