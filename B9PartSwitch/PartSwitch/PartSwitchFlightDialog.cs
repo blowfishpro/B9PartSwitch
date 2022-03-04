@@ -109,7 +109,6 @@ namespace B9PartSwitch
             const float buttonHeight = 35;
             if (buttonHeight * options.Count < 0.75f * Screen.height) return options.ToArray();
 
-            // UnityEngine.TextRenderingModule must be added to project References
             options.Insert(0, new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize));
             DialogGUIBase[] scrollList = {
                 new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize),
