@@ -502,7 +502,8 @@ namespace B9PartSwitch
 
         private void UpdateSwitchEventFlightVisibility()
         {
-            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight && s.IsUnlocked());
+            bool switchInFlightEnabled = subtypes.Any(s => s != CurrentSubtype && s.allowSwitchInFlight && s.IsUnlocked()) && subtypes[SubtypeIndex].allowSwitchFromInFlight;
+
             BaseEvent switchSubtypeEvent = Events[nameof(ShowSubtypesWindow)];
             switchSubtypeEvent.guiActive = switchInFlight && switchInFlightEnabled;
 
