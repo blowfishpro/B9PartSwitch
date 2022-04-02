@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UniLinq;
 using UnityEngine;
@@ -295,7 +295,7 @@ namespace B9PartSwitch
 
                 if (modifier is IPartAspectLock partAspectLockHolder)
                 {
-                    object partAspectLock = partAspectLockHolder;
+                    object partAspectLock = partAspectLockHolder.PartAspectLock;
                     if (aspectLocksOnOtherModules.Contains(partAspectLock))
                     {
                         OnInitializationError($"More than one module can't manage {modifier.Description}");
