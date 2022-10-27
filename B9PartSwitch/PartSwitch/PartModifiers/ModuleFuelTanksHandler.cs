@@ -40,8 +40,8 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
                 evtDetails.Set<string>("volName", "Tankage");
                 evtDetails.Set<double>("newTotalVolume", volume);
                 module.part.SendEvent("OnPartVolumeChanged", evtDetails, 0);
+                module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
             }
-            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
     }
 }
