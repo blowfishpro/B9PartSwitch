@@ -18,7 +18,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         }
 
         public object PartAspectLock => PART_ASPECT_LOCK;
-        public override string Description => "blah, FIXME";
+        public override string Description => "a part's ModuleFuelTanks";
         public override void DeactivateOnStartEditor() => Deactivate();
         public override void ActivateOnStartEditor() => Activate();
         public override void DeactivateOnSwitchEditor() => Deactivate();
