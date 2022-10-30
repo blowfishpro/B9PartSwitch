@@ -78,6 +78,8 @@ namespace B9PartSwitch
 
             SwitcherSubtypeDescriptionGenerator subtypeDescriptionGenerator = new SwitcherSubtypeDescriptionGenerator(module);
 
+            options.Add(new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize));
+
             foreach (PartSubtype subtype in module.subtypes)
             {
                 if (!subtype.IsUnlocked()) continue;
@@ -109,7 +111,6 @@ namespace B9PartSwitch
             const float buttonHeight = 35;
             if (buttonHeight * options.Count < 0.75f * Screen.height) return options.ToArray();
 
-            options.Insert(0, new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize));
             DialogGUIBase[] scrollList = {
                 new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize),
                 new DialogGUIScrollList(
