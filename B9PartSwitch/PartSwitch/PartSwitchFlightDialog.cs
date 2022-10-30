@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using B9PartSwitch.UI;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace B9PartSwitch
 {
@@ -76,6 +78,8 @@ namespace B9PartSwitch
 
             SwitcherSubtypeDescriptionGenerator subtypeDescriptionGenerator = new SwitcherSubtypeDescriptionGenerator(module);
 
+            options.Add(new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize));
+
             foreach (PartSubtype subtype in module.subtypes)
             {
                 if (!subtype.IsUnlocked()) continue;
@@ -104,7 +108,26 @@ namespace B9PartSwitch
 
             options.Add(new DialogGUIButton(Localization.PartSwitchFlightDialog_CancelString, delegate { } ));
 
-            return options.ToArray();
+            const float buttonHeight = 35;
+            if (buttonHeight * options.Count < 0.75f * Screen.height) return options.ToArray();
+
+            DialogGUIBase[] scrollList = {
+                new DialogGUIContentSizer(ContentSizeFitter.FitMode.Unconstrained, ContentSizeFitter.FitMode.PreferredSize),
+                new DialogGUIScrollList(
+                    new Vector2(1, 0.75f * Screen.height),
+                    false,
+                    true,
+                    new DialogGUIVerticalLayout(
+                        true,
+                        true,
+                        4,
+                        new RectOffset(6, 24, 10, 10),
+                        TextAnchor.MiddleCenter,
+                        options.ToArray()
+                    )
+                )
+            };
+            return scrollList;
         }
     }
 }
