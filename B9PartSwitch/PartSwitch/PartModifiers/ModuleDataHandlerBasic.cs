@@ -8,7 +8,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         protected readonly ConfigNode originalNode;
         protected readonly ConfigNode dataNode;
 
-        private readonly BaseEventDetails moduleDataChangedEventDetails;
+        protected readonly BaseEventDetails moduleDataChangedEventDetails;
 
         public ModuleDataHandlerBasic(PartModule module, ConfigNode originalNode, ConfigNode dataNode, BaseEventDetails moduleDataChangedEventDetails)
         {
@@ -34,7 +34,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void OnWillBeCopiedActiveSubtype() => Deactivate();
         public override void OnWasCopiedActiveSubtype() => Activate();
 
-        private void Activate()
+        protected virtual void Activate()
         {
             bool isEnabled = module.isEnabled;
             module.Load(dataNode);
@@ -42,7 +42,7 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
 
-        private void Deactivate()
+        protected virtual void Deactivate()
         {
             bool isEnabled = module.isEnabled;
             module.Load(originalNode);
@@ -50,4 +50,42 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
             module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
     }
+
+    public class ModuleFuelTanksHandler : ModuleDataHandlerBasic
+    {
+        public ModuleFuelTanksHandler(
+            PartModule module, ConfigNode originalNode, ConfigNode dataNode, BaseEventDetails moduleDataChangedEventDetails
+        ) : base(module, originalNode, dataNode, moduleDataChangedEventDetails)
+        { }
+
+        protected override void Activate() => applyNode(dataNode);
+        protected override void Deactivate() => applyNode(originalNode);
+
+        private void applyNode(ConfigNode sourceNode) {
+            double volume = 0;
+            bool setsVolume = sourceNode.TryGetValue("volume", ref volume);
+            string type = null;
+            bool setsType = sourceNode.TryGetValue("type", ref type);
+
+            if (setsVolume) {
+                // Update the tank volume by sending a volume-change event in the format that Procedural Parts uses.
+                // Procedural Parts reports the outside volume of the tank in cubic meters (or equivalently,
+                // kiloliters). ModuleFuelTanks scales the reported volume by the `tankVolumeConversion` and
+                // `utilization` fields to compute the available internal volume in liters.
+                // Since the `volume` configuration field is meant to set the available volume in liters directly,
+                // we need to read the scaling values and apply the inverse scaling to the value that we send.
+                float scaleFactor = module.Fields.GetValue<float>("tankVolumeConversion");
+                float utilization = module.Fields.GetValue<float>("utilization");
+                var evtDetails = new BaseEventDetails(BaseEventDetails.Sender.USER);
+                evtDetails.Set<string>("volName", "Tankage");
+                evtDetails.Set<double>("newTotalVolume", volume * 100 / utilization / scaleFactor);
+                module.part.SendEvent("OnPartVolumeChanged", evtDetails, 0);
+            }
+            if (setsType) {
+                module.Fields.SetValue("type", type);
+            }
+            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
+        }
+    }
 }
+
