@@ -23,25 +23,16 @@ namespace B9PartSwitch.PartSwitch.PartModifiers
         public override void ActivateOnStartEditor() => Activate();
         public override void DeactivateOnSwitchEditor() => Deactivate();
         public override void ActivateOnSwitchEditor() => Activate();
-        public override void OnWillBeCopiedInactiveSubtype() => Activate();
-        public override void OnWasCopiedInactiveSubtype() => Deactivate();
-        public override void OnWasCopiedActiveSubtype() => Activate();
-        public override void OnBeforeReinitializeInactiveSubtype() => Activate();
 
         private void Activate() => ApplyNode(dataNode);
         private void Deactivate() => ApplyNode(originalNode);
 
-        private void ApplyNode(ConfigNode sourceNode) {
-            double volume = 0;
-            bool setsVolume = sourceNode.TryGetValue("volume", ref volume);
-
-            if (setsVolume) {
-                var evtDetails = new BaseEventDetails(BaseEventDetails.Sender.USER);
-                evtDetails.Set<string>("volName", "Tankage");
-                evtDetails.Set<double>("newTotalVolume", volume);
-                module.part.SendEvent("OnPartVolumeChanged", evtDetails, 0);
-                module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
-            }
+        private void ApplyNode(ConfigNode sourceNode)
+        {
+            var evtDetails = new BaseEventDetails(BaseEventDetails.Sender.USER);
+            evtDetails.Set<ConfigNode>("MFTNode", sourceNode);
+            module.Events.Send("LoadMFTModuleFromConfigNode", evtDetails);
+            module.Events.Send("ModuleDataChanged", moduleDataChangedEventDetails);
         }
     }
 }
